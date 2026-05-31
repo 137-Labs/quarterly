@@ -165,7 +165,7 @@ if(D.appVersion !== APP_VERSION){
 // Ensure any budget entries exist for all categories
 (function(){var cats=D.categories||defCats();cats.forEach(function(c){if(D.budgets[c.id]===undefined)D.budgets[c.id]=0;(c.subs||[]).forEach(function(s){if(D.budgets[s.id]===undefined)D.budgets[s.id]=0;});});})();
 
-var S={tab:"budget",emojiPicker:null,editingId:null,collapsed:{},showTx:false,showGoal:false,showDebt:false,showRec:false,editTx:null,editStreamId:null,editRecId:null,editDebtId:null,editGoalId:null,newTx:{name:"",amount:"",category:"",date:tod(),makeRec:false,recFreq:"monthly",recDay:"1",moveTo:""},newGoal:{name:"",target:"",saved:"",icon:"\uD83C\uDFAF"},newDebt:{name:"",total:"",paid:"",rate:"",monthly:""},newRec:{name:"",amount:"",category:"",freq:"monthly",day:"1",isTransfer:false,transferTo:""},showForecastDebt:false,showForecastSavings:false,makeRecTxId:null,showAdvisor:false,advisorLoading:false,advisorText:""};
+var S={tab:"budget",emojiPicker:null,editingId:null,collapsed:{},showTx:false,showGoal:false,showDebt:false,showRec:false,editTx:null,editStreamId:null,editRecId:null,editDebtId:null,editGoalId:null,newTx:{name:"",amount:"",category:"",date:tod(),makeRec:false,recFreq:"monthly",recDay:"1",moveTo:""},newGoal:{name:"",target:"",saved:"",icon:"\uD83C\uDFAF"},newDebt:{name:"",total:"",paid:"",rate:"",monthly:""},newRec:{name:"",amount:"",category:"",freq:"monthly",day:"1",isTransfer:false,transferTo:"",endDate:""},showForecastDebt:false,showForecastSavings:false,makeRecTxId:null,showAdvisor:false,advisorLoading:false,advisorText:""};
 
 function patch(o){Object.assign(S,o);render();}
 function sbcFn(mo){var a={};var m=mo||D.month;D.transactions.forEach(function(t){if(t.month===m)a[t.category]=(a[t.category]||0)+Number(t.amount);});return a;}
@@ -251,7 +251,7 @@ function buildApp(){
   h+=sbox2("Budget Left",fmt(budgetLeft),budgetLeft<0?"#f87171":"#a78bfa");
   h+=sbox2("Free Money",fmt(unalloc),unalloc<0?"#f87171":"#4ade80");
   h+='</div></div>';
-  var tabs=[["budget","Budget"],["transactions","Transactions"],["income","Income"],["recurring","Recurring"],["forecast","Forecast"],["goals","Goals"],["debt","Debt"]];
+  var tabs=[["budget","Budget"],["transactions","Payments"],["income","Income"],["recurring","Recurring"],["forecast","Forecast"],["goals","Goals"],["debt","Debt"]];
   h+='<div class="tbar" style="border-bottom:1px solid #1e1e2e;background:#0d0d16;padding:0 4px">';
   tabs.forEach(function(t){var a=S.tab===t[0];h+='<button onclick="patch({tab:\''+t[0]+'\'})" style="background:none;border:none;border-bottom:'+(a?"2px solid #4ade80":"2px solid transparent")+';color:'+(a?"#4ade80":"#64748b")+';padding:12px 12px;cursor:pointer;font-family:monospace;font-size:12px;white-space:nowrap">'+t[1]+'</button>';});
   h+='</div>';
@@ -456,7 +456,7 @@ function tabRecurring(opts){
         h+='<div class="txr" style="background:#0a080f;border-color:#a78bfa33">';
         h+='<div style="width:34px;height:34px;border-radius:8px;background:'+opt.color+'22;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0">'+opt.icon+'</div>';
         h+='<div style="flex:1;min-width:0"><div style="display:flex;align-items:center;gap:5px;flex-wrap:wrap"><span style="font-size:14px;color:#e2e8f0;font-weight:bold">'+esc(r.name)+'</span><span class="bdg" style="background:#a78bfa22;color:#a78bfa;border-color:#a78bfa44">'+(fl[r.freq]||r.freq).toUpperCase()+'</span></div>';
-        h+='<div style="font-size:11px;color:#475569;font-family:monospace;margin-top:2px">'+esc(opt.name)+' - Day '+r.day+'</div></div>';
+        h+='<div style="font-size:11px;color:#475569;font-family:monospace;margin-top:2px">'+esc(opt.name)+' - Day '+r.day+(r.endDate?' - ends '+r.endDate:'')+'</div></div>';
         h+='<div style="font-size:14px;font-weight:bold;color:#a78bfa;font-family:monospace;flex-shrink:0">-'+fmt(r.amount)+'</div>';
         h+='<button onclick="patch({editRecId:\''+r.id+'\'})" style="background:none;border:1px solid #2d2d3e;border-radius:6px;color:#64748b;cursor:pointer;font-size:12px;padding:4px 7px;font-family:monospace;flex-shrink:0">Edit</button>';
         h+='</div>';
@@ -689,7 +689,7 @@ function modalTx(cats){
   var makeRec=S.newTx.makeRec||false;
   var recFreq=S.newTx.recFreq||"monthly";
   var recDay=S.newTx.recDay||"1";
-  var h='<div class="mbg" onclick="if(event.target===this)patch({showTx:false})"><div class="modal">'+mHead("New Transaction","patch({showTx:false})");
+  var h='<div class="mbg" onclick="if(event.target===this)patch({showTx:false})"><div class="modal">'+mHead("New Payment","patch({showTx:false})");
   h+='<div style="display:flex;flex-direction:column;gap:12px">';
   h+='<div class="fld"><div class="lbl">DESCRIPTION</div><input id="tx-n" class="inp" placeholder="e.g. Grocery run" value="'+esc(S.newTx.name)+'"/></div>';
   h+='<div class="fld"><div class="lbl">AMOUNT ($)</div><input id="tx-a" type="number" class="inp" placeholder="0.00" value="'+S.newTx.amount+'"/></div>';
@@ -727,20 +727,20 @@ function modalTx(cats){
     h+='</div>';
   }
   h+='</div>';
-  h+='<button class="btn" style="background:linear-gradient(135deg,#a78bfa,#7c6dfa);color:#fff;margin-top:4px;box-shadow:0 4px 20px #7c6dfa25" onclick="submitTx()">Add Transaction</button>';
+  h+='<button class="btn" style="background:linear-gradient(135deg,#a78bfa,#7c6dfa);color:#fff;margin-top:4px;box-shadow:0 4px 20px #7c6dfa25" onclick="submitTx()">Record Payment</button>';
   h+='</div></div></div>';
   return h;
 }
 
 function modalEditTx(cats){
   var tx=S.editTx;
-  var h='<div class="mbg" onclick="if(event.target===this)patch({editTx:null})"><div class="modal">'+mHead("Edit Transaction","patch({editTx:null})");
+  var h='<div class="mbg" onclick="if(event.target===this)patch({editTx:null})"><div class="modal">'+mHead("Edit Payment","patch({editTx:null})");
   h+='<div style="display:flex;flex-direction:column;gap:11px">';
   h+='<div class="fld"><div class="lbl">DESCRIPTION</div><input id="etx-n" class="inp" value="'+esc(tx.name)+'"/></div>';
   h+='<div class="fld"><div class="lbl">AMOUNT ($)</div><input id="etx-a" type="number" class="inp" value="'+tx.amount+'"/></div>';
   h+='<div class="fld"><div class="lbl">WHERE IS THIS GOING?</div><select id="etx-c" class="inp">'+catOptsHTML(cats,tx.category)+'</select></div>';
   h+='<div class="fld"><div class="lbl">DATE</div><input id="etx-d" type="date" class="inp" value="'+tx.date+'"/></div>';
-  h+='<button class="btn" style="background:#4ade80;color:#0a0a0f" onclick="submitEditTx()">Save Changes</button>';
+  h+='<button class="btn" style="background:#4ade80;color:#0a0a0f" onclick="submitEditTx()">Save Payment</button>';
   h+='<button class="btn" style="background:#1e1e2e;color:#f87171" onclick="delTx(\''+tx.id+'\');patch({editTx:null})">Delete Transaction</button>';
   h+='</div></div></div>';
   return h;
@@ -786,6 +786,9 @@ function modalRec(cats){
   var tOptsR=txOpts();
   tOptsR.forEach(function(o){h+='<option value="'+o.id+'"'+(S.newRec.transferTo===o.id?" selected":"")+'>'+o.icon+" "+esc(o.name)+'</option>';});
   h+='</select></div>';
+  h+='<div class="fld"><div class="lbl">END DATE (optional)</div>';
+  h+='<div style="font-size:11px;color:#ffffff30;margin-bottom:6px">Leave blank to repeat forever. Set a date to stop automatically.</div>';
+  h+='<input id="r-end" type="date" class="inp" value="'+S.newRec.endDate+'"/></div>';
   h+='<button class="btn" style="background:#a78bfa;color:#0a0a0f" onclick="submitRec()">Add Recurring</button></div></div></div>';
   return h;
 }
@@ -883,7 +886,7 @@ function submitTx(){
     D.recurring.push({id:uid(),name:name,amount:amount,category:category,freq:freq,day:day,moveTo:moveTo});
   }
   saveD(D);
-  var msg=moveTo?"Money moved! ✓":(isDebt?"Applied to debt!":(isGoal?"Added to savings goal!":"Transaction added!"));
+  var msg=moveTo?"Money moved! ✓":(isDebt?"Applied to debt!":(isGoal?"Added to savings goal!":"Payment recorded!"));
   if(S.newTx.makeRec) msg+=" + set as recurring";
   patch({showTx:false,newTx:{name:"",amount:"",category:"",date:tod(),makeRec:false,recFreq:"monthly",recDay:"1",moveTo:""}});
   showToast(msg);
@@ -919,7 +922,7 @@ function submitEditTx(){
     var erDay=(document.getElementById("etx-rd")||{}).value||"1";
     D.recurring.push({id:uid(),name:name,amount:amount,category:category,freq:erFreq,day:erDay,isTransfer:editIsTransfer,transferTo:editTransferTo});
   }
-  saveD(D);patch({editTx:null});showToast("Transaction updated!");
+  saveD(D);patch({editTx:null});showToast("Payment updated!");
 }
 function delTx(txId){
   var tx=null;for(var i=0;i<D.transactions.length;i++){if(String(D.transactions[i].id)===String(txId)){tx=D.transactions[i];break;}}
@@ -982,7 +985,7 @@ function submitRec(){
   var amount=(document.getElementById("r-a")||{}).value||"";
   if(!name||!amount){showToast("Fill in name & amount","#f87171");return;}
   D.recurring.push({id:uid(),name:name,amount:amount,category:(document.getElementById("r-c")||{}).value||"",freq:(document.getElementById("r-f")||{}).value||"monthly",day:(document.getElementById("r-d")||{}).value||"1"});
-  saveD(D);patch({showRec:false,newRec:{name:"",amount:"",category:"",freq:"monthly",day:"1",isTransfer:false,transferTo:""}});showToast("Recurring added!");
+  saveD(D);patch({showRec:false,newRec:{name:"",amount:"",category:"",freq:"monthly",day:"1",isTransfer:false,transferTo:"",endDate:""}});showToast("Recurring added!");
 }
 function saveRec(rid){
   var name=(document.getElementById("er-n")||{}).value||"";name=name.trim();
@@ -990,7 +993,8 @@ function saveRec(rid){
   if(!name||!amount){showToast("Fill in name & amount","#f87171");return;}
   var erIsTransfer=document.getElementById("er-transfer")&&document.getElementById("er-transfer").checked;
   var erTransferTo=erIsTransfer?(document.getElementById("er-tt")||{}).value||"":"";
-  D.recurring=D.recurring.map(function(r){return String(r.id)===String(rid)?Object.assign({},r,{name:name,amount:amount,category:(document.getElementById("er-c")||{}).value||r.category,freq:(document.getElementById("er-f")||{}).value||r.freq,day:(document.getElementById("er-d")||{}).value||r.day,isTransfer:erIsTransfer,transferTo:erTransferTo}):r;});
+  var erEndDate=(document.getElementById("er-end")||{}).value||"";
+  D.recurring=D.recurring.map(function(r){return String(r.id)===String(rid)?Object.assign({},r,{name:name,amount:amount,category:(document.getElementById("er-c")||{}).value||r.category,freq:(document.getElementById("er-f")||{}).value||r.freq,day:(document.getElementById("er-d")||{}).value||r.day,isTransfer:erIsTransfer,transferTo:erTransferTo,endDate:erEndDate}):r;});
   saveD(D);patch({editRecId:null});showToast("Recurring updated!");
 }
 function delRec(id){D.recurring=D.recurring.filter(function(r){return String(r.id)!==String(id);});saveD(D);patch({editRecId:null});render();}
@@ -1149,7 +1153,7 @@ function modalAdvisor(){
     h+='<div style="font-size:13px;color:#ffffff50;line-height:1.6;margin-bottom:20px">I will analyze your budget, spending, debts, and savings goals and give you specific advice on what to do right now with your money.</div>';
     h+='<div style="background:#a78bfa10;border:1.5px solid #a78bfa25;border-radius:14px;padding:12px;font-size:12px;color:#a78bfa;margin-bottom:20px;text-align:left">';
     h+='&#x1F4CB; I can see your:<br>• '+( D.categories?D.categories.length:0)+' budget categories<br>';
-    h+='• '+D.transactions.filter(function(t){return t.month===D.month;}).length+' transactions this month<br>';
+    h+='• '+D.transactions.filter(function(t){return t.month===D.month;}).length+' payments this month<br>';
     h+='• '+D.debts.length+' debts tracked<br>';
     h+='• '+D.goals.length+' savings goals';
     h+='</div>';
@@ -1200,6 +1204,64 @@ function importData(event){
   reader.readAsText(file);
 }
 
+// ── Auto-post recurring payments ─────────────────────────
+function autoPostRecurring(){
+  var today2=tod();
+  var currentMonth=thisMo();
+  var dayOfMonth=parseInt(today2.split("-")[2]);
+  var posted=false;
+  var autoPosted=[];
+
+  D.recurring.forEach(function(r){
+    // Skip if end date passed
+    if(r.endDate&&r.endDate<currentMonth)return;
+    // Only monthly for now for auto-post
+    if(r.freq!=="monthly")return;
+    // Check if today is on or past the scheduled day
+    var schedDay=parseInt(r.day)||1;
+    if(dayOfMonth<schedDay)return;
+    // Check if already posted this month
+    var alreadyPosted=D.transactions.some(function(t){
+      return t.recId===r.id&&t.month===currentMonth&&t.fromRec;
+    });
+    if(alreadyPosted)return;
+    // Auto post it
+    var parts=currentMonth.split("-"),yr=parseInt(parts[0]),mo=parseInt(parts[1]);
+    var day=Math.min(schedDay,new Date(yr,mo,0).getDate());
+    var date=currentMonth+"-"+(day<10?"0":"")+day;
+    var isDebt=r.category.indexOf("debt::")===0,isGoal=r.category.indexOf("goal::")===0;
+    var debtId=isDebt?r.category.replace("debt::","").trim():null;
+    var goalId=isGoal?r.category.replace("goal::","").trim():null;
+    var tx={id:uid(),name:r.name,amount:r.amount,category:r.category,date:date,month:currentMonth,
+      isDebtPay:isDebt,debtId:debtId,isGoalSave:isGoal,goalId:goalId,
+      fromRec:true,recId:r.id,autoPosted:true,moveTo:r.moveTo||""};
+    D.transactions.unshift(tx);
+    applyTx(tx,1);
+    if(r.moveTo){
+      var rxIsDebt=r.moveTo.indexOf("debt::")===0,rxIsGoal=r.moveTo.indexOf("goal::")===0;
+      var rxDebtId=rxIsDebt?r.moveTo.replace("debt::","").trim():null;
+      var rxGoalId=rxIsGoal?r.moveTo.replace("goal::","").trim():null;
+      var rxTx={id:uid(),name:r.name+" (moved in)",amount:r.amount,category:r.moveTo,date:date,month:currentMonth,
+        isDebtPay:rxIsDebt,debtId:rxDebtId,isGoalSave:rxIsGoal,goalId:rxGoalId,fromRec:true,recId:r.id,isTransferIn:true};
+      D.transactions.unshift(rxTx);
+      applyTx(rxTx,1);
+    }
+    autoPosted.push(r.name);
+    posted=true;
+  });
+
+  if(posted){
+    saveD(D);
+    if(autoPosted.length===1){
+      showToast("Auto-posted: "+autoPosted[0]);
+    }else if(autoPosted.length>1){
+      showToast("Auto-posted "+autoPosted.length+" recurring payments");
+    }
+  }
+}
+
+// Run auto-post on load
+autoPostRecurring();
 render();
 </script>
 </body>
