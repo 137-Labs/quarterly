@@ -251,12 +251,13 @@ function buildApp(){
   h+=sbox2("Budget Left",fmt(budgetLeft),budgetLeft<0?"#f87171":"#a78bfa");
   h+=sbox2("Free Money",fmt(unalloc),unalloc<0?"#f87171":"#4ade80");
   h+='</div></div>';
-  var tabs=[["budget","Budget"],["transactions","Payments"],["income","Income"],["recurring","Recurring"],["forecast","Forecast"],["goals","Goals"],["debt","Debt"]];
+  var tabs=[["dashboard","Dashboard"],["budget","Budget"],["transactions","Payments"],["income","Income"],["recurring","Recurring"],["forecast","Forecast"],["goals","Goals"],["debt","Debt"]];
   h+='<div class="tbar" style="border-bottom:1px solid #1e1e2e;background:#0d0d16;padding:0 4px">';
   tabs.forEach(function(t){var a=S.tab===t[0];h+='<button onclick="patch({tab:\''+t[0]+'\'})" style="background:none;border:none;border-bottom:'+(a?"2px solid #4ade80":"2px solid transparent")+';color:'+(a?"#4ade80":"#64748b")+';padding:12px 12px;cursor:pointer;font-family:monospace;font-size:12px;white-space:nowrap">'+t[1]+'</button>';});
   h+='</div>';
   h+='<div style="padding:16px 16px 80px;max-width:900px;margin:0 auto">';
-  if(S.tab==="budget")h+=tabBudget(cats,sp,unalloc);
+  if(S.tab==="dashboard")h+=tabDashboard(cats,sp,totB,totS,totI,unalloc);
+  else if(S.tab==="budget")h+=tabBudget(cats,sp,unalloc);
   else if(S.tab==="transactions")h+=tabTx(opts);
   else if(S.tab==="income")h+=tabIncome(totI);
   else if(S.tab==="recurring")h+=tabRecurring(opts);
@@ -279,6 +280,82 @@ function sbox(l,v,c){return '<div class="stat-pill"><div style="font-size:10px;c
 function sbox2(l,v,c){return '<div style="background:#ffffff06;border:1.5px solid #ffffff08;border-radius:14px;padding:10px 10px 9px">'+'<div style="font-size:9px;color:#ffffff35;font-weight:600;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">'+l+'</div>'+'<div style="font-size:13px;font-weight:700;color:'+c+';letter-spacing:-.2px">'+v+'</div></div>';}
 
 // ── BUDGET TAB ───────────────────────────────────────────
+function tabDashboard(cats,sp,totB,totS,totI,unalloc){
+  var budgetLeft=totB-totS;
+  var budgetPct=totB>0?Math.min((totS/totB)*100,100):0;
+  var totDebtRem=D.debts.reduce(function(a,d){return a+(Number(d.total)-Number(d.paid||0));},0);
+  var totSaved=D.goals.reduce(function(a,g){return a+Number(g.saved||0);},0);
+  var totTarget=D.goals.reduce(function(a,g){return a+Number(g.target||0);},0);
+  var savingsPct=totTarget>0?Math.min((totSaved/totTarget)*100,100):0;
+  var monthTxCount=D.transactions.filter(function(t){return t.month===D.month&&!t.isTransferIn;}).length;
+  var h='';
+
+  // Health score
+  var score=100;
+  if(unalloc<0)score-=20;
+  if(budgetPct>90)score-=20;
+  if(totDebtRem>0)score-=10;
+  if(D.goals.length===0)score-=10;
+  score=Math.max(0,score);
+  var scoreColor=score>=80?"#4ade80":score>=50?"#facc15":"#f87171";
+  var scoreLabel=score>=80?"Great":score>=50?"OK":"Needs Work";
+
+  h+='<div style="background:linear-gradient(135deg,#1a1428,#0f0f18);border:1.5px solid #a78bfa20;border-radius:20px;padding:20px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between">';
+  h+='<div><div style="font-size:11px;color:#ffffff40;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">Financial Health</div>';
+  h+='<div style="font-size:36px;font-weight:800;color:'+scoreColor+'">'+score+'<span style="font-size:18px;color:'+scoreColor+'80">/100</span></div>';
+  h+='<div style="font-size:12px;color:'+scoreColor+'80;font-weight:500;margin-top:2px">'+scoreLabel+' for '+D.month+'</div></div>';
+  h+='<div style="text-align:right"><div style="font-size:42px;margin-bottom:4px">'+(score>=80?"🟢":score>=50?"🟡":"🔴")+'</div>';
+  h+='<div style="font-size:11px;color:#ffffff25">'+monthTxCount+' payments this month</div></div>';
+  h+='</div>';
+
+  // 4 quick stats
+  h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">';
+  h+=dashCard("💰","Free Money",fmt(unalloc),unalloc<0?"#f87171":"#4ade80",unalloc<0?"Over budget":"Available to assign");
+  h+=dashCard("📊","Budget Used",Math.round(budgetPct)+"%",budgetPct>=100?"#f87171":budgetPct>=80?"#facc15":"#4ade80",fmt(totS)+" of "+fmt(totB));
+  h+=dashCard("💳","Total Debt",fmt(totDebtRem),"#f87171",D.debts.length+" debts tracked");
+  h+=dashCard("🏦","Saved",fmt(totSaved),"#2dd4bf",Math.round(savingsPct)+"% of "+fmt(totTarget)+" goal");
+  h+='</div>';
+
+  // Budget progress bars per category
+  h+='<div style="background:#13131f;border:1.5px solid #ffffff08;border-radius:18px;padding:16px;margin-bottom:14px">';
+  h+='<div style="font-size:13px;font-weight:700;color:#f1f0eb;margin-bottom:12px">Budget by Category</div>';
+  cats.forEach(function(cat){
+    var b=catBudget(cat),s=catSpent(cat,sp),pct=b>0?Math.min((s/b)*100,100):0;
+    if(b===0)return;
+    h+='<div style="margin-bottom:10px">';
+    h+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">';
+    h+='<div style="display:flex;align-items:center;gap:6px"><span style="font-size:14px">'+cat.icon+'</span><span style="font-size:12px;color:#e2e8f0;font-weight:500">'+esc(cat.name)+'</span></div>';
+    h+='<div style="font-size:11px;color:'+(pct>=100?"#f87171":"#ffffff40")+'">'+fmt(s)+'<span style="color:#ffffff20"> / '+fmt(b)+'</span></div>';
+    h+='</div>';
+    h+='<div style="height:5px;background:#ffffff08;border-radius:100px;overflow:hidden">';
+    h+='<div style="height:100%;width:'+pct+'%;background:'+(pct>=100?"#f87171":pct>=80?"#facc15":cat.color)+';border-radius:100px;transition:width .5s"></div>';
+    h+='</div></div>';
+  });
+  h+='</div>';
+
+  // AI tip - proactive alert
+  var alerts=[];
+  if(unalloc<0)alerts.push({icon:"⚠️",msg:"You are over-budgeted by "+fmt(Math.abs(unalloc))+". Reduce a category to balance.",color:"#f87171"});
+  if(budgetPct>=80&&budgetPct<100)alerts.push({icon:"💡",msg:"You have used "+Math.round(budgetPct)+"% of your budget. "+fmt(budgetLeft)+" remaining.",color:"#facc15"});
+  if(unalloc>0&&D.debts.length>0){var bd=D.debts.sort(function(a,b){return (Number(b.total)-Number(b.paid||0))-(Number(a.total)-Number(a.paid||0));})[0];alerts.push({icon:"💳",msg:fmt(unalloc)+" is unassigned. Consider putting it toward "+bd.name+".",color:"#a78bfa"});}
+  if(D.goals.length>0&&savingsPct<10)alerts.push({icon:"🏦",msg:"Your savings goals are below 10%. Try allocating more this month.",color:"#2dd4bf"});
+  if(alerts.length>0){
+    h+='<div style="display:flex;flex-direction:column;gap:8px">';
+    alerts.forEach(function(a){
+      h+='<div style="background:'+a.color+'08;border:1.5px solid '+a.color+'25;border-radius:14px;padding:12px 14px;display:flex;align-items:flex-start;gap:10px">';
+      h+='<span style="font-size:18px;flex-shrink:0">'+a.icon+'</span>';
+      h+='<span style="font-size:12px;color:'+a.color+';line-height:1.5;font-weight:500">'+a.msg+'</span>';
+      h+='</div>';
+    });
+    h+='</div>';
+  }
+  return h;
+}
+
+function dashCard(icon,label,val,color,sub){
+  return '<div style="background:#13131f;border:1.5px solid #ffffff08;border-radius:16px;padding:14px">'+'<div style="font-size:20px;margin-bottom:6px">'+icon+'</div>'+'<div style="font-size:10px;color:#ffffff35;text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px">'+label+'</div>'+'<div style="font-size:16px;font-weight:700;color:'+color+';letter-spacing:-.3px">'+val+'</div>'+'<div style="font-size:10px;color:#ffffff25;margin-top:3px">'+sub+'</div>'+'</div>';
+}
+
 function tabBudget(cats,sp,unalloc){
   var h='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;gap:8px">';
   h+='<div style="font-size:11px;color:#ffffff30;font-weight:400">Tap icon or name to edit</div>';
@@ -472,137 +549,127 @@ function tabRecurring(opts){
 function tabForecast(cats,totI,totB){
   var base=D.month.split("-"),y=parseInt(base[0]),m=parseInt(base[1]);
   var months=[{label:moLabel(y,m),key:moKey(y,m)},{label:moLabel(y,m+1),key:moKey(y,m+1)},{label:moLabel(y,m+2),key:moKey(y,m+2)},{label:moLabel(y,m+3),key:moKey(y,m+3)}];
-  var h='<div style="margin-bottom:14px"><div style="font-size:13px;color:#64748b;font-family:monospace;margin-bottom:2px">4-month forecast - tap any value to override for that month</div><div style="font-size:11px;color:#3d3d5e;font-family:monospace">Swipe to see all months</div></div>';
-  // Summary row at top
-  var grandTotalIncome=0,grandTotalRec=0,grandTotalSpent=0;
-  h+='<div style="overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:8px"><div style="display:flex;gap:12px;min-width:min-content">';
+  var totDebtRem=D.debts.reduce(function(a,d){return a+(Number(d.total)-Number(d.paid||0));},0);
+  var totSaved=D.goals.reduce(function(a,g){return a+Number(g.saved||0);},0);
+  var h='';
+  h+='<div style="font-size:12px;color:#ffffff30;margin-bottom:14px">Tap income or budget to override for a specific month</div>';
+  // Horizontal scroll months
+  h+='<div style="overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:8px;margin-bottom:16px">';
+  h+='<div style="display:flex;gap:10px;min-width:min-content">';
+  var grandI=0,grandS=0,grandR=0;
   months.forEach(function(mo){
     var isCur=mo.key===D.month;
     var ov=D.monthOverrides[mo.key]||{};
     var moI=ov.income!=null?Number(ov.income):totI;
     var moB=ov.budget!=null?Number(ov.budget):totB;
     var actualSpent=D.transactions.filter(function(t){return t.month===mo.key&&!t.isTransferIn;}).reduce(function(a,t){return a+Number(t.amount);},0);
-    var recItems=D.recurring.filter(function(r){return r.freq==="monthly";});
+    var recItems=D.recurring.filter(function(r){return r.freq==="monthly"&&(!r.endDate||r.endDate>=mo.key);});
     var postedIds=D.transactions.filter(function(t){return t.month===mo.key&&t.fromRec;}).map(function(t){return t.recId;});
-    // Only count UNPOSTED recurring items in projection - posted ones already in actualSpent
     var unpostedRec=recItems.filter(function(r){return postedIds.indexOf(r.id)===-1;});
     var recTotal=unpostedRec.reduce(function(a,r){return a+Number(r.amount);},0);
     var remaining=moI-actualSpent-recTotal;
-    var actPct=moI>0?Math.min((actualSpent/moI)*100,100):0;
-    var recPct=moI>0?Math.min(((actualSpent+recTotal)/moI)*100,100):0;
-    grandTotalIncome+=moI;grandTotalRec+=recTotal;grandTotalSpent+=actualSpent;
-    h+='<div style="min-width:265px;max-width:300px;background:#0d0d16;border:1px solid '+(isCur?"#4ade8055":"#1e1e2e")+';border-radius:14px;padding:14px;flex-shrink:0">';
-    h+='<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:11px">';
-    h+='<div><div style="font-size:15px;font-weight:bold;color:'+(isCur?"#4ade80":"#e2e8f0")+'">'+(isCur?"* ":"")+mo.label+'</div>'+(isCur?'<div style="font-size:10px;color:#4ade80;font-family:monospace">CURRENT</div>':'')+'</div>';
-    h+='<div style="font-size:10px;color:#3d3d5e;font-family:monospace;text-align:right">tap to override</div></div>';
-    // Income override
-    h+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;background:#161620;border-radius:8px;padding:8px 10px">';
-    h+='<span style="font-size:11px;color:#475569;font-family:monospace">Income</span>';
-    h+='<input type="number" value="'+moI+'" onchange="setMonthOverride(\''+mo.key+'\',\'income\',this.value)" class="inp-sm" style="width:90px;text-align:right;color:#4ade80"/>';
+    var spentPct=moI>0?Math.min((actualSpent/moI)*100,100):0;
+    var projPct=moI>0?Math.min(((actualSpent+recTotal)/moI)*100,100):0;
+    grandI+=moI;grandS+=actualSpent;grandR+=recTotal;
+    h+='<div style="min-width:220px;background:'+(isCur?"#1a1428":"#0f0f18")+';border:1.5px solid '+(isCur?"#a78bfa40":"#ffffff08")+';border-radius:18px;padding:14px;flex-shrink:0">';
+    // Month header
+    h+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">';
+    h+='<div><div style="font-size:13px;font-weight:700;color:'+(isCur?"#a78bfa":"#e2e8f0")+'">'+(isCur?"● ":"")+mo.label+'</div>';
+    if(isCur)h+='<div style="font-size:9px;color:#a78bfa80;text-transform:uppercase;letter-spacing:.05em">Current</div>';
     h+='</div>';
-    // Budget override
-    h+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;background:#161620;border-radius:8px;padding:8px 10px">';
-    h+='<span style="font-size:11px;color:#475569;font-family:monospace">Budget</span>';
-    h+='<input type="number" value="'+moB+'" onchange="setMonthOverride(\''+mo.key+'\',\'budget\',this.value)" class="inp-sm" style="width:90px;text-align:right;color:#60a5fa"/>';
+    h+='<div style="text-align:right"><div style="font-size:14px;font-weight:700;color:'+(remaining>=0?"#4ade80":"#f87171")+'">'+fmt(remaining)+'</div><div style="font-size:9px;color:#ffffff30">remaining</div></div>';
     h+='</div>';
-    // Bars
-    h+='<div style="margin-bottom:8px"><div style="display:flex;justify-content:space-between;font-size:11px;color:#475569;font-family:monospace;margin-bottom:3px"><span>Actual Spent</span><span>'+fmt(actualSpent)+'</span></div><div class="pt" style="height:5px"><div class="pb" style="width:'+actPct+'%;background:#fb923c;height:5px"></div></div></div>';
-    if(recItems.length>0){
-      h+='<div style="margin-bottom:10px"><div style="display:flex;justify-content:space-between;font-size:11px;color:#475569;font-family:monospace;margin-bottom:3px"><span>Recurring Bills</span><span>'+fmt(recTotal)+'</span></div><div class="pt" style="height:5px"><div class="pb" style="width:'+recPct+'%;background:#a78bfa;height:5px"></div></div><div style="font-size:10px;color:#3d3d5e;font-family:monospace;margin-top:2px">Projected: '+fmt(actualSpent+recTotal)+'</div></div>';
-      h+='<div style="display:flex;flex-direction:column;gap:5px;margin-bottom:10px">';
-      recItems.forEach(function(r){
-        var isPosted=postedIds.indexOf(r.id)>-1;
-        var opts2=txOpts(),opt2=null;for(var i=0;i<opts2.length;i++){if(opts2[i].id===r.category){opt2=opts2[i];break;}}if(!opt2)opt2={icon:"\uD83D\uDCE6",name:r.category};
-        h+='<div style="background:#161620;border-radius:8px;padding:8px 11px;display:flex;align-items:center;gap:7px">';
-        h+='<span style="font-size:15px">'+opt2.icon+'</span>';
-        h+='<div style="flex:1;min-width:0"><div style="font-size:12px;color:#e2e8f0">'+esc(r.name)+'</div><div style="font-size:10px;color:#475569;font-family:monospace">Day '+r.day+'</div></div>';
-        h+='<div style="text-align:right"><div style="font-size:12px;font-weight:bold;color:#a78bfa;font-family:monospace">-'+fmt(r.amount)+'</div>';
-        h+=isPosted?'<div style="font-size:9px;color:#4ade80;font-family:monospace">POSTED</div>':'<button onclick="postRec(\''+r.id+'\',\''+mo.key+'\')" style="font-size:9px;background:#a78bfa22;color:#a78bfa;border:1px solid #a78bfa44;border-radius:4px;padding:2px 6px;cursor:pointer;font-family:monospace;margin-top:2px">POST</button>';
+    // Mini progress bar
+    h+='<div style="height:4px;background:#ffffff08;border-radius:100px;overflow:hidden;margin-bottom:10px">';
+    h+='<div style="height:100%;width:'+projPct+'%;background:'+(projPct>=100?"#f87171":"linear-gradient(90deg,#a78bfa,#7c6dfa)")+';border-radius:100px"></div>';
+    h+='</div>';
+    // Stats row
+    h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px">';
+    h+='<div style="background:#ffffff06;border-radius:10px;padding:7px 9px"><div style="font-size:9px;color:#ffffff30;text-transform:uppercase;letter-spacing:.04em">Income</div><div style="font-size:12px;font-weight:700;color:#4ade80">'+fmt(moI)+'</div></div>';
+    h+='<div style="background:#ffffff06;border-radius:10px;padding:7px 9px"><div style="font-size:9px;color:#ffffff30;text-transform:uppercase;letter-spacing:.04em">Spent</div><div style="font-size:12px;font-weight:700;color:#fb923c">'+fmt(actualSpent)+'</div></div>';
+    h+='<div style="background:#ffffff06;border-radius:10px;padding:7px 9px"><div style="font-size:9px;color:#ffffff30;text-transform:uppercase;letter-spacing:.04em">Bills Due</div><div style="font-size:12px;font-weight:700;color:#a78bfa">'+fmt(recTotal)+'</div></div>';
+    h+='<div style="background:#ffffff06;border-radius:10px;padding:7px 9px"><div style="font-size:9px;color:#ffffff30;text-transform:uppercase;letter-spacing:.04em">Budget</div><div style="font-size:12px;font-weight:700;color:#818cf8">'+fmt(moB)+'</div></div>';
+    h+='</div>';
+    // Upcoming bills - compact
+    if(unpostedRec.length>0){
+      h+='<div style="border-top:1px solid #ffffff08;padding-top:8px">';
+      h+='<div style="font-size:10px;color:#ffffff25;margin-bottom:6px;text-transform:uppercase;letter-spacing:.04em">Upcoming</div>';
+      unpostedRec.slice(0,3).forEach(function(r){
+        h+='<div style="display:flex;justify-content:space-between;align-items:center;padding:4px 0">';
+        h+='<span style="font-size:12px;color:#9090a8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:130px">'+esc(r.name)+'</span>';
+        h+='<div style="display:flex;align-items:center;gap:6px">';
+        h+='<span style="font-size:11px;font-weight:600;color:#a78bfa">-'+fmt(r.amount)+'</span>';
+        h+='<button data-rid="'+r.id+'" data-mok="'+mo.key+'" onclick="postRecMonth(this.dataset.rid,this.dataset.mok)" style="font-size:9px;background:#a78bfa18;color:#a78bfa;border:1px solid #a78bfa33;border-radius:5px;padding:2px 6px;cursor:pointer;font-family:monospace">POST</button>';
         h+='</div></div>';
       });
+      if(unpostedRec.length>3)h+='<div style="font-size:10px;color:#ffffff20;margin-top:4px">+'+( unpostedRec.length-3)+' more</div>';
       h+='</div>';
-    } else {
-      h+='<div style="font-size:12px;color:#3d3d5e;font-family:monospace;text-align:center;padding:6px 0;margin-bottom:8px">No recurring payments</div>';
     }
-    h+='<div style="padding-top:9px;border-top:1px solid #1a1a2a;display:flex;justify-content:space-between;align-items:center"><div style="font-size:11px;color:#475569;font-family:monospace">Est. Remaining</div><div style="font-size:14px;font-weight:bold;font-family:monospace;color:'+(remaining>=0?"#4ade80":"#f87171")+'">'+fmt(remaining)+'</div></div>';
-    if(ov.income!=null||ov.budget!=null){h+='<button onclick="clearOverride(\''+mo.key+'\')" style="margin-top:8px;width:100%;background:none;border:1px solid #2d2d3e;border-radius:6px;color:#475569;cursor:pointer;padding:5px;font-family:monospace;font-size:11px">Reset to defaults</button>';}
+    if(ov.income!=null||ov.budget!=null){
+      h+='<button data-mok="'+mo.key+'" onclick="clearOverride(this.dataset.mok)" style="margin-top:8px;width:100%;background:none;border:1px solid #ffffff0f;border-radius:8px;color:#ffffff25;cursor:pointer;padding:5px;font-size:10px">Reset overrides</button>';
+    }
     h+='</div>';
   });
   h+='</div></div>';
-  // 4-month summary
-  h+='<div style="margin-top:16px;background:#0d0d16;border:1px solid #2d2d3e;border-radius:12px;padding:14px">';
-  h+='<div style="font-size:13px;font-weight:bold;color:#e2e8f0;margin-bottom:12px">4-Month Summary</div>';
-  h+='<div style="display:flex;flex-direction:column;gap:8px">';
-  var grandRemaining=grandTotalIncome-grandTotalSpent-grandTotalRec;
-  h+=summaryRow("Total Income",fmt(grandTotalIncome),"#4ade80");
-  h+=summaryRow("Total Spent (actual)",fmt(grandTotalSpent),"#fb923c");
-  h+=summaryRow("Still to come (recurring)",fmt(grandTotalRec),"#a78bfa");
-  h+=summaryRow("Est. Remaining",fmt(grandRemaining),grandRemaining>=0?"#4ade80":"#f87171");
-  // Debt remaining block
-  var totDebtRem=D.debts.reduce(function(a,d){return a+(Number(d.total)-Number(d.paid||0));},0);
+  // 4-month summary card
+  h+='<div style="background:#13131f;border:1.5px solid #ffffff08;border-radius:18px;padding:16px;margin-bottom:12px">';
+  h+='<div style="font-size:13px;font-weight:700;color:#f1f0eb;margin-bottom:12px">4-Month Summary</div>';
+  h+='<div style="display:flex;flex-direction:column;gap:6px">';
+  var gr=grandI-grandS-grandR;
+  h+=sumRow("Total Income",fmt(grandI),"#4ade80");
+  h+=sumRow("Total Spent",fmt(grandS),"#fb923c");
+  h+=sumRow("Recurring Bills",fmt(grandR),"#a78bfa");
+  h+=sumRow("Est. Remaining",fmt(gr),gr>=0?"#4ade80":"#f87171");
+  h+='</div></div>';
+  // Debt remaining collapsible
   if(D.debts.length>0){
-    h+='<div style="margin-top:12px;background:#0d0d16;border:1px solid #f8717133;border-radius:12px;overflow:hidden">';
-    h+='<button onclick="patch({showForecastDebt:!S.showForecastDebt})" style="width:100%;background:none;border:none;padding:13px 16px;display:flex;justify-content:space-between;align-items:center;cursor:pointer">';
-    h+='<div style="display:flex;align-items:center;gap:8px"><span style="font-size:13px;font-weight:bold;color:#f87171;font-family:monospace">Total Debt Remaining</span></div>';
-    h+='<div style="display:flex;align-items:center;gap:10px"><span style="font-size:15px;font-weight:bold;color:#f87171;font-family:monospace">'+fmt(totDebtRem)+'</span><span style="color:#475569;font-size:12px">'+(S.showForecastDebt?"&#x25B2;":"&#x25BC;")+'</span></div>';
+    h+='<div style="background:#13131f;border:1.5px solid #f8717120;border-radius:18px;overflow:hidden;margin-bottom:12px">';
+    h+='<button onclick="toggleForecastDebt()" style="width:100%;background:none;border:none;padding:13px 16px;display:flex;justify-content:space-between;align-items:center;cursor:pointer">';
+    h+='<span style="font-size:13px;font-weight:600;color:#f87171">Total Debt Remaining</span>';
+    h+='<div style="display:flex;align-items:center;gap:10px"><span style="font-size:14px;font-weight:700;color:#f87171">'+fmt(totDebtRem)+'</span><span style="color:#ffffff30;font-size:11px">'+(S.showForecastDebt?"▲":"▼")+'</span></div>';
     h+='</button>';
     if(S.showForecastDebt){
-      h+='<div style="border-top:1px solid #1a1a2a;padding:12px 16px;display:flex;flex-direction:column;gap:6px">';
-      D.debts.forEach(function(debt){
-        var total=Number(debt.total)||0,paid=Number(debt.paid)||0,remaining=total-paid,pct=total>0?Math.min((paid/total)*100,100):0;
-        h+='<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #0e0e1a">';
-        h+='<div><div style="font-size:13px;color:#e2e8f0">'+esc(debt.name)+'</div>';
-        h+='<div style="font-size:10px;color:#475569;font-family:monospace;margin-top:2px">'+Math.round(pct)+'% cleared</div></div>';
-        h+='<div style="text-align:right"><div style="font-size:14px;font-weight:bold;color:#f87171;font-family:monospace">'+fmt(remaining)+'</div>';
-        var monthly=Number(debt.monthly)||0;
-        if(monthly>0){h+='<div style="font-size:10px;color:#475569;font-family:monospace">~'+Math.ceil(remaining/monthly)+' mo left</div>';}
-        h+='</div></div>';
-      });
-      h+='</div>';
-    }
-    h+='</div>';
-  }
-
-  // Savings goals block
-  var totSaved=D.goals.reduce(function(a,g){return a+Number(g.saved||0);},0);
-  var totTarget=D.goals.reduce(function(a,g){return a+Number(g.target||0);},0);
-  if(D.goals.length>0){
-    h+='<div style="margin-top:12px;background:#0d0d16;border:1px solid #2dd4bf33;border-radius:12px;overflow:hidden">';
-    h+='<button onclick="patch({showForecastSavings:!S.showForecastSavings})" style="width:100%;background:none;border:none;padding:13px 16px;display:flex;justify-content:space-between;align-items:center;cursor:pointer">';
-    h+='<div style="display:flex;align-items:center;gap:8px"><span style="font-size:13px;font-weight:bold;color:#2dd4bf;font-family:monospace">Total Savings</span></div>';
-    h+='<div style="display:flex;align-items:center;gap:10px">';
-    h+='<span style="font-size:15px;font-weight:bold;color:#2dd4bf;font-family:monospace">'+fmt(totSaved)+'</span>';
-    h+='<span style="font-size:11px;color:#475569;font-family:monospace">of '+fmt(totTarget)+'</span>';
-    h+='<span style="color:#475569;font-size:12px">'+(S.showForecastSavings?"&#x25B2;":"&#x25BC;")+'</span>';
-    h+='</div></button>';
-    if(S.showForecastSavings){
-      h+='<div style="border-top:1px solid #1a2a2a;padding:12px 16px;display:flex;flex-direction:column;gap:6px">';
-      D.goals.forEach(function(g){
-        var saved=Number(g.saved)||0,target=Number(g.target)||0;
-        var pct=target>0?Math.min((saved/target)*100,100):0;
-        h+='<div style="padding:8px 0;border-bottom:1px solid #0e0e1a">';
-        h+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">';
-        h+='<div style="display:flex;align-items:center;gap:6px"><span style="font-size:15px">'+g.icon+'</span><span style="font-size:13px;color:#e2e8f0">'+esc(g.name)+'</span></div>';
-        h+='<div style="text-align:right"><div style="font-size:14px;font-weight:bold;color:#2dd4bf;font-family:monospace">'+fmt(saved)+'</div>';
-        h+='<div style="font-size:10px;color:#475569;font-family:monospace">of '+fmt(target)+'</div></div></div>';
-        h+='<div class="pt" style="height:4px"><div class="pb" style="width:'+pct+'%;background:'+(pct>=100?"#4ade80":"#2dd4bf")+';height:4px"></div></div>';
-        h+='<div style="font-size:10px;color:#475569;font-family:monospace;margin-top:3px">'+Math.round(pct)+'% of goal reached</div>';
+      h+='<div style="border-top:1px solid #ffffff08;padding:10px 16px;display:flex;flex-direction:column;gap:6px">';
+      D.debts.forEach(function(d){
+        var rem=Number(d.total)-Number(d.paid||0),pct=Number(d.total)>0?Math.min((Number(d.paid||0)/Number(d.total))*100,100):0;
+        h+='<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid #ffffff06">';
+        h+='<div><div style="font-size:12px;color:#e2e8f0">'+esc(d.name)+'</div><div style="font-size:10px;color:#ffffff25;margin-top:2px">'+Math.round(pct)+'% cleared</div></div>';
+        h+='<span style="font-size:13px;font-weight:700;color:#f87171">'+fmt(rem)+'</span>';
         h+='</div>';
       });
       h+='</div>';
     }
     h+='</div>';
   }
-
-  h+='</div></div>';
+  // Savings collapsible
+  if(D.goals.length>0){
+    h+='<div style="background:#13131f;border:1.5px solid #2dd4bf20;border-radius:18px;overflow:hidden">';
+    h+='<button onclick="toggleForecastSavings()" style="width:100%;background:none;border:none;padding:13px 16px;display:flex;justify-content:space-between;align-items:center;cursor:pointer">';
+    h+='<span style="font-size:13px;font-weight:600;color:#2dd4bf">Total Savings</span>';
+    h+='<div style="display:flex;align-items:center;gap:10px"><span style="font-size:14px;font-weight:700;color:#2dd4bf">'+fmt(totSaved)+'</span><span style="color:#ffffff30;font-size:11px">'+(S.showForecastSavings?"▲":"▼")+'</span></div>';
+    h+='</button>';
+    if(S.showForecastSavings){
+      h+='<div style="border-top:1px solid #ffffff08;padding:10px 16px;display:flex;flex-direction:column;gap:6px">';
+      D.goals.forEach(function(g){
+        var pct=Number(g.target)>0?Math.min((Number(g.saved||0)/Number(g.target))*100,100):0;
+        h+='<div style="padding:6px 0;border-bottom:1px solid #ffffff06">';
+        h+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px">';
+        h+='<span style="font-size:12px;color:#e2e8f0">'+g.icon+' '+esc(g.name)+'</span>';
+        h+='<span style="font-size:13px;font-weight:700;color:#2dd4bf">'+fmt(g.saved||0)+'</span>';
+        h+='</div>';
+        h+='<div style="height:3px;background:#ffffff08;border-radius:100px;overflow:hidden"><div style="height:100%;width:'+pct+'%;background:#2dd4bf;border-radius:100px"></div></div>';
+        h+='</div>';
+      });
+      h+='</div>';
+    }
+    h+='</div>';
+  }
   return h;
 }
 
-function summaryRow(label,val,col){
-  return '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:#161620;border-radius:8px"><span style="font-size:13px;color:#9090a8;font-family:monospace">'+label+'</span><span style="font-size:14px;font-weight:bold;color:'+col+';font-family:monospace">'+val+'</span></div>';
-}
+function sumRow(l,v,c){return '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:#ffffff05;border-radius:10px"><span style="font-size:12px;color:#9090a8">'+l+'</span><span style="font-size:13px;font-weight:700;color:'+c+'">'+v+'</span></div>';}
 
-// ── GOALS TAB ────────────────────────────────────────────
+
 function tabGoals(){
   var h='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px"><div style="font-size:13px;color:#64748b;font-family:monospace">'+D.goals.length+' goals</div><button onclick="patch({showGoal:true})" style="background:#4ade80;color:#0a0a0f;border:none;border-radius:10px;padding:11px 16px;cursor:pointer;font-family:monospace;font-weight:bold;font-size:14px">+ New Goal</button></div>';
   if(D.goals.length===0){return h+'<div style="text-align:center;color:#475569;font-family:monospace;padding:40px;border:1px dashed #1e1e2e;border-radius:12px">No goals yet.</div>';}
@@ -997,6 +1064,9 @@ function saveRec(rid){
   D.recurring=D.recurring.map(function(r){return String(r.id)===String(rid)?Object.assign({},r,{name:name,amount:amount,category:(document.getElementById("er-c")||{}).value||r.category,freq:(document.getElementById("er-f")||{}).value||r.freq,day:(document.getElementById("er-d")||{}).value||r.day,isTransfer:erIsTransfer,transferTo:erTransferTo,endDate:erEndDate}):r;});
   saveD(D);patch({editRecId:null});showToast("Recurring updated!");
 }
+function postRecMonth(recId,moKey){postRec(recId,moKey);}
+function toggleForecastDebt(){patch({showForecastDebt:!S.showForecastDebt});}
+function toggleForecastSavings(){patch({showForecastSavings:!S.showForecastSavings});}
 function delRec(id){D.recurring=D.recurring.filter(function(r){return String(r.id)!==String(id);});saveD(D);patch({editRecId:null});render();}
 function postRec(recId,moKey2){
   var r=null;for(var i=0;i<D.recurring.length;i++){if(String(D.recurring[i].id)===String(recId)){r=D.recurring[i];break;}}if(!r)return;
