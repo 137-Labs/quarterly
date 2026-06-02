@@ -232,8 +232,13 @@ function buildApp(){
   h+=sbox("LEFT",fmt(totB-totS),"#a78bfa");
   h+='</div></div>';
   var tabs=[["dashboard","Dashboard"],["budget","Budget"],["transactions","Transactions"],["income","Income"],["recurring","Recurring"],["forecast","Forecast"],["goals","Goals"],["debt","Debt"]];
-  h+='<div class="tbar" style="border-bottom:1px solid #1e1e2e;background:#0d0d16;padding:0 4px">';
-  tabs.forEach(function(t){var a=S.tab===t[0];h+='<button onclick="patch({tab:\''+t[0]+'\'})" style="background:none;border:none;border-bottom:'+(a?"2px solid #4ade80":"2px solid transparent")+';color:'+(a?"#4ade80":"#64748b")+';padding:12px 12px;cursor:pointer;font-family:monospace;font-size:12px;white-space:nowrap">'+t[1]+'</button>';});
+  var tabColors={"dashboard":"#a78bfa","budget":"#4ade80","transactions":"#60a5fa","income":"#facc15","recurring":"#fb923c","forecast":"#f472b6","goals":"#2dd4bf","debt":"#f87171"};
+  h+='<div class="tbar" style="background:#0c0c14;padding:0 6px;border-bottom:1px solid #ffffff08">';
+  tabs.forEach(function(t){
+    var a=S.tab===t[0];
+    var col=tabColors[t[0]]||"#a78bfa";
+    h+='<button onclick="patch({tab:\''+t[0]+'\'})" style="background:'+(a?col+'18':'transparent')+';border:none;border-bottom:3px solid '+(a?col:'transparent')+';color:'+(a?col:'#ffffff30')+';padding:12px 12px;cursor:pointer;font-family:Inter,sans-serif;font-size:12px;font-weight:'+(a?'700':'400')+';white-space:nowrap;transition:all .15s;border-radius:'+(a?'8px 8px 0 0':'0')+'">'+t[1]+'</button>';
+  });
   h+='</div>';
   h+='<div style="padding:16px 16px 80px;max-width:900px;margin:0 auto">';
   if(S.tab==="dashboard")h+=tabDashboard(cats,sp,totB,totS,totI,unalloc);
