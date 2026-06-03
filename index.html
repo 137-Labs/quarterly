@@ -76,7 +76,7 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
 .bdg{font-size:10px;border-radius:100px;padding:3px 8px;font-family:'Inter',sans-serif;font-weight:500;white-space:nowrap;border-width:1px;border-style:solid}
 
 /* Edit rows */
-.edit-row{background:#13131f;border:1.5px solid #7c6dfa33;border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:12px}
+.edit-row{background:#13131f;border:1.5px solid #7c6dfa33;border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:10px}
 
 /* Nav tab active indicator */
 .tab-active{color:#a78bfa!important;border-bottom-color:#a78bfa!important}
@@ -135,22 +135,15 @@ function defCats(){
   ];
 }
 function defBudgets(cats){
-  var presets={
-    "debts":0,"debts-swa":180,"debts-bcs":60,"debts-pdf":250,"debts-cs":260,
-    "fixed":0,"fixed-far":221,"fixed-pai":36,"fixed-mbf":10,"fixed-vhs":330,"fixed-deu":63,
-    "personal":0,"personal-psn":9,"personal-pm":5,"personal-hc":25,"personal-pkt":61,
-    "emergency":0,"emergency-sav":50,
-    "other":0
-  };
   var b={};
   cats.forEach(function(c){
-    b[c.id]=presets[c.id]!==undefined?presets[c.id]:0;
-    (c.subs||[]).forEach(function(s){b[s.id]=presets[s.id]!==undefined?presets[s.id]:0;});
+    b[c.id]=0;
+    (c.subs||[]).forEach(function(s){b[s.id]=0;});
   });
   return b;
 }
 
-var APP_VERSION = "v3-custom-cats";
+var APP_VERSION = "v4-debt-strategy-networth-chat";
 var D=loadD()||{income:0,budgets:{},transactions:[],goals:[],debts:[],recurring:[],incomeStreams:[],monthOverrides:{},month:thisMo(),categories:defCats()};
 if(!D.monthOverrides)D.monthOverrides={};
 
@@ -165,7 +158,7 @@ if(D.appVersion !== APP_VERSION){
 // Ensure any budget entries exist for all categories
 (function(){var cats=D.categories||defCats();cats.forEach(function(c){if(D.budgets[c.id]===undefined)D.budgets[c.id]=0;(c.subs||[]).forEach(function(s){if(D.budgets[s.id]===undefined)D.budgets[s.id]=0;});});})();
 
-var S={tab:"budget",emojiPicker:null,editingId:null,collapsed:{},showTx:false,showGoal:false,showDebt:false,showRec:false,editTx:null,editStreamId:null,editRecId:null,editDebtId:null,editGoalId:null,newTx:{name:"",amount:"",category:"",date:tod(),makeRec:false,recFreq:"monthly",recDay:"1",moveTo:""},newGoal:{name:"",target:"",saved:"",icon:"\uD83C\uDFAF"},newDebt:{name:"",total:"",paid:"",rate:"",monthly:""},newRec:{name:"",amount:"",category:"",freq:"monthly",day:"1",isTransfer:false,transferTo:""},showForecastDebt:false,showForecastSavings:false,makeRecTxId:null,showAdvisor:false,advisorLoading:false,advisorText:""};
+var S={tab:"budget",emojiPicker:null,editingId:null,collapsed:{},showTx:false,showGoal:false,showDebt:false,showRec:false,editTx:null,editStreamId:null,editRecId:null,editDebtId:null,editGoalId:null,newTx:{name:"",amount:"",category:"",date:tod(),makeRec:false,recFreq:"monthly",recDay:"1",moveTo:""},newGoal:{name:"",target:"",saved:"",icon:"\uD83C\uDFAF"},newDebt:{name:"",total:"",paid:"",rate:"",monthly:""},newRec:{name:"",amount:"",category:"",freq:"monthly",day:"1",isTransfer:false,transferTo:""},showForecastDebt:false,showForecastSavings:false,makeRecTxId:null,showAdvisor:false,advisorLoading:false,advisorMessages:[],advisorInput:"",debtStrategy:"avalanche",showNetWorth:false,showPayoffPlan:false};
 
 function patch(o){Object.assign(S,o);render();}
 function sbcFn(mo){var a={};var m=mo||D.month;D.transactions.forEach(function(t){if(t.month===m)a[t.category]=(a[t.category]||0)+Number(t.amount);});return a;}
@@ -309,13 +302,13 @@ function tabDashboard(cats,sp,totB,totS,totI,unalloc){
   h+='<div><div style="font-size:11px;color:#ffffff40;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">Financial Health</div>';
   h+='<div style="font-size:34px;font-weight:800;color:'+scoreColor+'">'+score+'<span style="font-size:16px;color:'+scoreColor+'80">/100</span></div>';
   h+='<div style="font-size:12px;color:'+scoreColor+'80;font-weight:500;margin-top:2px">'+scoreLabel+' for '+D.month+'</div></div>';
-  h+='<div style="text-align:right"><div style="font-size:38px;margin-bottom:4px">'+(score>=80?"\U0001F7E2":score>=50?"\U0001F7E1":"\U0001F534")+'</div>';
+  h+='<div style="text-align:right"><div style="font-size:38px;margin-bottom:4px">'+(score>=80?"🟢":score>=50?"🟡":"🔴")+'</div>';
   h+='<div style="font-size:11px;color:#ffffff25">'+monthTxCount+' payments this month</div></div></div>';
   h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">';
-  h+=dashCard("\U0001F4B0","Free Money",fmt(unalloc),unalloc<0?"#f87171":"#4ade80",unalloc<0?"Over budget":"Available");
-  h+=dashCard("\U0001F4CA","Budget Used",Math.round(budgetPct)+"%",budgetPct>=100?"#f87171":budgetPct>=80?"#facc15":"#4ade80",fmt(totS)+" of "+fmt(totB));
-  h+=dashCard("\U0001F4B3","Total Debt",fmt(totDebtRem),"#f87171",D.debts.length+" debts");
-  h+=dashCard("\U0001F3E6","Saved",fmt(totSaved),"#2dd4bf",Math.round(savingsPct)+"% of target");
+  h+=dashCard("💰","Free Money",fmt(unalloc),unalloc<0?"#f87171":"#4ade80",unalloc<0?"Over budget":"Available");
+  h+=dashCard("📊","Budget Used",Math.round(budgetPct)+"%",budgetPct>=100?"#f87171":budgetPct>=80?"#facc15":"#4ade80",fmt(totS)+" of "+fmt(totB));
+  h+=dashCard("💳","Total Debt",fmt(totDebtRem),"#f87171",D.debts.length+" debts");
+  h+=dashCard("🏦","Saved",fmt(totSaved),"#2dd4bf",Math.round(savingsPct)+"% of target");
   h+='</div>';
   h+='<div style="background:#13131f;border:1.5px solid #ffffff08;border-radius:18px;padding:16px;margin-bottom:14px">';
   h+='<div style="font-size:13px;font-weight:700;color:#f1f0eb;margin-bottom:12px">Budget by Category</div>';
@@ -331,10 +324,10 @@ function tabDashboard(cats,sp,totB,totS,totI,unalloc){
   });
   h+='</div>';
   var alerts=[];
-  if(unalloc<0)alerts.push({icon:"\u26A0\uFE0F",msg:"Over-budgeted by "+fmt(Math.abs(unalloc))+". Reduce a category.",color:"#f87171"});
-  if(budgetPct>=80&&budgetPct<100)alerts.push({icon:"\U0001F4A1",msg:"Used "+Math.round(budgetPct)+"% of budget. "+fmt(budgetLeft)+" remaining.",color:"#facc15"});
-  if(unalloc>0&&D.debts.length>0){var bd=D.debts[0];alerts.push({icon:"\U0001F4B3",msg:fmt(unalloc)+" unassigned. Consider putting it toward "+bd.name+".",color:"#a78bfa"});}
-  if(D.goals.length>0&&savingsPct<10)alerts.push({icon:"\U0001F3E6",msg:"Savings below 10%. Try allocating more this month.",color:"#2dd4bf"});
+  if(unalloc<0)alerts.push({icon:"⚠️",msg:"Over-budgeted by "+fmt(Math.abs(unalloc))+". Reduce a category.",color:"#f87171"});
+  if(budgetPct>=80&&budgetPct<100)alerts.push({icon:"💡",msg:"Used "+Math.round(budgetPct)+"% of budget. "+fmt(budgetLeft)+" remaining.",color:"#facc15"});
+  if(unalloc>0&&D.debts.length>0){var bd=D.debts[0];alerts.push({icon:"💳",msg:fmt(unalloc)+" unassigned. Consider putting it toward "+bd.name+".",color:"#a78bfa"});}
+  if(D.goals.length>0&&savingsPct<10)alerts.push({icon:"🏦",msg:"Savings below 10%. Try allocating more this month.",color:"#2dd4bf"});
   if(alerts.length>0){
     h+='<div style="display:flex;flex-direction:column;gap:8px">';
     alerts.forEach(function(a){
@@ -344,6 +337,56 @@ function tabDashboard(cats,sp,totB,totS,totI,unalloc){
     });
     h+='</div>';
   }
+
+  // ── NET WORTH ────────────────────────────────────────────
+  var totAssets=D.goals.reduce(function(a,g){return a+Number(g.saved||0);},0);
+  var totLiabilities=D.debts.reduce(function(a,d){return a+(Number(d.total)-Number(d.paid||0));},0);
+  var netWorth=totAssets-totLiabilities;
+  h+='<div style="background:#13131f;border:1.5px solid #ffffff08;border-radius:18px;overflow:hidden;margin-top:14px">';
+  h+='<button onclick="patch({showNetWorth:!S.showNetWorth})" style="width:100%;background:none;border:none;padding:14px 16px;display:flex;justify-content:space-between;align-items:center;cursor:pointer">';
+  h+='<div style="display:flex;align-items:center;gap:8px"><span style="font-size:16px">📊</span><span style="font-size:13px;font-weight:700;color:#f1f0eb">Net Worth</span></div>';
+  h+='<div style="display:flex;align-items:center;gap:10px">';
+  h+='<span style="font-size:15px;font-weight:700;color:'+(netWorth>=0?"#4ade80":"#f87171")+'">'+fmt(netWorth)+'</span>';
+  h+='<span style="color:#ffffff30;font-size:11px">'+(S.showNetWorth?"▲":"▼")+'</span>';
+  h+='</div></button>';
+  if(S.showNetWorth){
+    h+='<div style="border-top:1px solid #ffffff08;padding:14px 16px">';
+    h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">';
+    h+='<div style="background:#4ade8010;border:1.5px solid #4ade8025;border-radius:12px;padding:12px">';
+    h+='<div style="font-size:10px;color:#4ade8080;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">Assets (Savings)</div>';
+    h+='<div style="font-size:17px;font-weight:700;color:#4ade80">'+fmt(totAssets)+'</div></div>';
+    h+='<div style="background:#f8717110;border:1.5px solid #f8717125;border-radius:12px;padding:12px">';
+    h+='<div style="font-size:10px;color:#f8717180;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">Liabilities (Debt)</div>';
+    h+='<div style="font-size:17px;font-weight:700;color:#f87171">'+fmt(totLiabilities)+'</div></div>';
+    h+='</div>';
+    // Assets breakdown
+    if(D.goals.length>0){
+      h+='<div style="margin-bottom:10px"><div style="font-size:10px;color:#ffffff30;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px">Assets Breakdown</div>';
+      D.goals.forEach(function(g){
+        h+='<div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid #ffffff05">';
+        h+='<span style="font-size:12px;color:#e2e8f0">'+g.icon+' '+esc(g.name)+'</span>';
+        h+='<span style="font-size:12px;font-weight:600;color:#4ade80">'+fmt(g.saved||0)+'</span></div>';
+      });
+      h+='</div>';
+    }
+    // Liabilities breakdown
+    if(D.debts.length>0){
+      h+='<div><div style="font-size:10px;color:#ffffff30;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px">Liabilities Breakdown</div>';
+      D.debts.forEach(function(d){
+        var rem=Number(d.total)-Number(d.paid||0);
+        h+='<div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid #ffffff05">';
+        h+='<span style="font-size:12px;color:#e2e8f0">💳 '+esc(d.name)+'</span>';
+        h+='<span style="font-size:12px;font-weight:600;color:#f87171">-'+fmt(rem)+'</span></div>';
+      });
+      h+='</div>';
+    }
+    h+='<div style="margin-top:12px;padding-top:10px;border-top:1px solid #ffffff08;display:flex;justify-content:space-between;align-items:center">';
+    h+='<span style="font-size:13px;font-weight:600;color:#f1f0eb">Net Worth</span>';
+    h+='<span style="font-size:15px;font-weight:700;color:'+(netWorth>=0?"#4ade80":"#f87171")+'">'+fmt(netWorth)+'</span></div>';
+    h+='</div>';
+  }
+  h+='</div>';
+
   return h;
 }
 function dashCard(icon,label,val,color,sub){
@@ -423,10 +466,10 @@ function txRow(tx,opts){
   var gp=lGoal?Math.min(((Number(lGoal.saved)||0)/(Number(lGoal.target)||1))*100,100):0;
   var bg=tx.isDebtPay?"background:#100a0a;border-color:#f8717133":tx.isGoalSave?"background:#0a100e;border-color:#2dd4bf33":"";
   var h='<div class="txr" style="'+bg+'">';
-  h+='<div style="width:34px;height:34px;border-radius:8px;background:'+(opt.color||"#94a3b8")+'22;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0">'+opt.icon+'</div>';
+  h+='<div style="width:28px;height:28px;border-radius:8px;background:'+(opt.color||"#94a3b8")+'18;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0">'+opt.icon+'</div>';
   h+='<div style="flex:1;min-width:0">';
   h+='<div style="display:flex;align-items:center;gap:5px;flex-wrap:wrap">';
-  h+='<span style="font-size:14px;color:#e2e8f0;font-weight:bold">'+esc(tx.name)+'</span>';
+  h+='<span style="font-size:13px;color:#e2e8f0;font-weight:600">'+esc(tx.name)+'</span>';
   if(tx.isTransfer&&tx.isTransferIn)h+='<span class="bdg" style="background:#2dd4bf22;color:#2dd4bf;border-color:#2dd4bf44">TRANSFER IN</span>';
   else if(tx.isTransfer)h+='<span class="bdg" style="background:#2dd4bf22;color:#2dd4bf;border-color:#2dd4bf44">TRANSFER OUT</span>';
   else if(tx.isDebtPay)h+='<span class="bdg" style="background:#f8717122;color:#f87171;border-color:#f8717144">DEBT</span>';
@@ -438,7 +481,7 @@ function txRow(tx,opts){
   if(lDebt)h+=' | '+Math.round(dp)+'% paid';
   if(lGoal)h+=' | '+Math.round(gp)+'% of goal';
   h+='</div></div>';
-  h+='<div style="font-size:14px;font-weight:bold;color:#f87171;font-family:monospace;flex-shrink:0">-'+fmt(tx.amount)+'</div>';
+  h+='<div style="font-size:13px;font-weight:700;color:#f87171;flex-shrink:0">-'+fmt(tx.amount)+'</div>';
   h+='<button onclick="openEditTx(\''+tx.id+'\')" style="background:none;border:1px solid #2d2d3e;border-radius:6px;color:#64748b;cursor:pointer;font-size:12px;padding:4px 7px;flex-shrink:0;font-family:monospace">Edit</button>';
   h+='<button onclick="delTx(\''+tx.id+'\')" style="background:none;border:none;color:#475569;cursor:pointer;font-size:15px;padding:3px;flex-shrink:0">&#x2715;</button>';
   h+='</div>';
@@ -483,7 +526,7 @@ function tabIncome(totI){
         h+='<div style="display:flex;gap:8px"><button onclick="saveStream(\''+s.id+'\')" style="flex:1;background:#4ade80;color:#0a0a0f;border:none;border-radius:8px;padding:10px;cursor:pointer;font-family:monospace;font-weight:bold">Save</button><button onclick="removeStream(\''+s.id+'\')" style="background:#f8717122;color:#f87171;border:1px solid #f8717144;border-radius:8px;padding:10px 14px;cursor:pointer;font-family:monospace">Delete</button><button onclick="patch({editStreamId:null})" style="background:#1e1e2e;color:#64748b;border:1px solid #2d2d3e;border-radius:8px;padding:10px 14px;cursor:pointer;font-family:monospace">Cancel</button></div>';
         h+='</div>';
       } else {
-        h+='<div class="txr" style="background:#0a100a;border-color:#4ade8033">';
+        h+='<div style="background:#0a100a;border:1px solid #4ade8022;border-radius:12px;padding:9px 12px;display:flex;align-items:center;gap:9px">';
         h+='<div style="width:34px;height:34px;border-radius:8px;background:#4ade8022;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0">&#x1F4B5;</div>';
         h+='<div style="flex:1;min-width:0"><div style="font-size:14px;color:#e2e8f0;font-weight:bold">'+esc(s.name)+'</div>';
         h+='<div style="font-size:11px;color:#475569;font-family:monospace;margin-top:2px">'+(fl[s.freq]||s.freq)+' - Day '+s.day+' - ~'+fmt(streamMonthly(s))+'/mo</div></div>';
@@ -669,7 +712,7 @@ function tabGoals(){
       h+='<div style="display:flex;gap:8px"><button onclick="saveGoal(\''+g.id+'\')" style="flex:1;background:#2dd4bf;color:#0a0a0f;border:none;border-radius:8px;padding:10px;cursor:pointer;font-family:monospace;font-weight:bold">Save</button><button onclick="removeGoal(\''+g.id+'\')" style="background:#f8717122;color:#f87171;border:1px solid #f8717144;border-radius:8px;padding:10px 14px;cursor:pointer;font-family:monospace">Delete</button><button onclick="patch({editGoalId:null})" style="background:#1e1e2e;color:#64748b;border:1px solid #2d2d3e;border-radius:8px;padding:10px 14px;cursor:pointer;font-family:monospace">Cancel</button></div>';
       h+='</div>';
     } else {
-      h+='<div class="card" style="padding:16px">';
+      h+='<div class="card" style="padding:12px 14px">';
       h+='<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:11px"><div><div style="font-size:24px;margin-bottom:4px">'+g.icon+'</div><div style="font-size:15px;font-weight:bold;color:#e2e8f0">'+esc(g.name)+'</div></div>';
       h+='<div style="display:flex;gap:6px"><button onclick="patch({editGoalId:\''+g.id+'\'})" style="background:none;border:1px solid #2d2d3e;border-radius:6px;color:#64748b;cursor:pointer;font-size:12px;padding:4px 7px;font-family:monospace">Edit</button><button onclick="removeGoal(\''+g.id+'\')" style="background:none;border:none;color:#475569;cursor:pointer;font-size:15px">&#x2715;</button></div></div>';
       h+='<div class="pt" style="height:8px;margin-bottom:7px"><div class="pb" style="width:'+pct+'%;background:'+(pct>=100?"#4ade80":"#2dd4bf")+';height:8px"></div></div>';
@@ -684,16 +727,73 @@ function tabGoals(){
 }
 
 // ── DEBT TAB ─────────────────────────────────────────────
+function calcPayoffOrder(strategy){
+  var debts=D.debts.map(function(d){return {id:d.id,name:d.name,remaining:Number(d.total)-Number(d.paid||0),rate:Number(d.rate)||0,monthly:Number(d.monthly)||0};}).filter(function(d){return d.remaining>0;});
+  if(strategy==="avalanche"){debts.sort(function(a,b){return b.rate-a.rate;});}
+  else{debts.sort(function(a,b){return a.remaining-b.remaining;});}
+  return debts;
+}
+function calcPayoffMonths(remaining,rate,monthly){
+  if(monthly<=0)return null;
+  if(rate<=0){return Math.ceil(remaining/monthly);}
+  var r=rate/100/12;
+  if(monthly<=remaining*r)return null; // payment doesn't cover interest
+  return Math.ceil(Math.log(monthly/(monthly-remaining*r))/Math.log(1+r));
+}
 function tabDebt(){
   var totR=D.debts.reduce(function(a,d){return a+(Number(d.total)-Number(d.paid||0));},0);
-  var h='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px"><div style="font-size:13px;color:#64748b;font-family:monospace">Total: '+fmt(totR)+'</div><button onclick="patch({showDebt:true})" style="background:#f87171;color:#0a0a0f;border:none;border-radius:10px;padding:11px 16px;cursor:pointer;font-family:monospace;font-weight:bold;font-size:14px">+ Track Debt</button></div>';
+  var totPaid=D.debts.reduce(function(a,d){return a+Number(d.paid||0);},0);
+  var totalEver=D.debts.reduce(function(a,d){return a+Number(d.total||0);},0);
+  var h='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">';
+  h+='<div><div style="font-size:13px;color:#64748b;font-family:monospace">'+D.debts.length+' debts tracked</div><div style="font-size:11px;color:#f87171;font-family:monospace">'+fmt(totR)+' remaining</div></div>';
+  h+='<button onclick="patch({showDebt:true})" style="background:#f87171;color:#0a0a0f;border:none;border-radius:10px;padding:11px 16px;cursor:pointer;font-family:monospace;font-weight:bold;font-size:14px">+ Track Debt</button>';
+  h+='</div>';
   if(D.debts.length===0){return h+'<div style="text-align:center;color:#475569;font-family:monospace;padding:40px;border:1px dashed #1e1e2e;border-radius:12px">No debts tracked.</div>';}
+
+  // ── PAYOFF STRATEGY ──────────────────────────────────────
+  h+='<div style="background:#13131f;border:1.5px solid #f8717120;border-radius:18px;padding:16px;margin-bottom:14px">';
+  h+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">';
+  h+='<div style="font-size:13px;font-weight:700;color:#f1f0eb">🎯 Payoff Strategy</div>';
+  h+='<button onclick="patch({showPayoffPlan:!S.showPayoffPlan})" style="background:#ffffff08;border:1.5px solid #ffffff0f;border-radius:8px;padding:4px 10px;color:#ffffff50;cursor:pointer;font-size:11px">'+(S.showPayoffPlan?"Hide":"Show Plan")+'</button>';
+  h+='</div>';
+  h+='<div style="display:flex;gap:8px;margin-bottom:12px">';
+  var avActive=S.debtStrategy==="avalanche";
+  h+='<button onclick="patch({debtStrategy:\'avalanche\'})" style="flex:1;padding:10px;border-radius:12px;border:1.5px solid '+(avActive?"#f87171":"#ffffff12")+';background:'+(avActive?"#f8717118":"#ffffff05")+';color:'+(avActive?"#f87171":"#ffffff40")+';cursor:pointer;font-size:12px;font-weight:600">';
+  h+='🔥 Avalanche<div style="font-size:10px;font-weight:400;margin-top:2px;opacity:.7">Highest APR first</div></button>';
+  h+='<button onclick="patch({debtStrategy:\'snowball\'})" style="flex:1;padding:10px;border-radius:12px;border:1.5px solid '+(!avActive?"#60a5fa":"#ffffff12")+';background:'+(!avActive?"#60a5fa18":"#ffffff05")+';color:'+(!avActive?"#60a5fa":"#ffffff40")+';cursor:pointer;font-size:12px;font-weight:600">';
+  h+='❄️ Snowball<div style="font-size:10px;font-weight:400;margin-top:2px;opacity:.7">Smallest balance first</div></button>';
+  h+='</div>';
+  var stratDesc=avActive?"Pay minimums on all, throw every extra dollar at the highest-rate debt. Saves the most in interest.":"Pay minimums on all, throw every extra dollar at the smallest balance. Builds momentum with quick wins.";
+  h+='<div style="font-size:12px;color:#ffffff40;line-height:1.5">'+stratDesc+'</div>';
+
+  if(S.showPayoffPlan){
+    var ordered=calcPayoffOrder(S.debtStrategy);
+    h+='<div style="margin-top:14px;border-top:1px solid #ffffff08;padding-top:12px">';
+    h+='<div style="font-size:11px;color:#ffffff30;text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px">Recommended Payoff Order</div>';
+    ordered.forEach(function(d,i){
+      var mo=calcPayoffMonths(d.remaining,d.rate,d.monthly);
+      h+='<div style="display:flex;align-items:center;gap:10px;padding:8px 10px;background:#ffffff05;border-radius:10px;margin-bottom:6px">';
+      h+='<div style="width:22px;height:22px;border-radius:50%;background:'+(i===0?"#f87171":"#ffffff15")+';display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:'+(i===0?"#0a0a0f":"#ffffff50")+';flex-shrink:0">'+(i+1)+'</div>';
+      h+='<div style="flex:1;min-width:0"><div style="font-size:12px;color:#e2e8f0;font-weight:600">'+esc(d.name)+'</div>';
+      h+='<div style="font-size:10px;color:#ffffff30">'+fmt(d.remaining)+' remaining'+(d.rate?' · '+d.rate+'% APR':'')+'</div></div>';
+      if(i===0)h+='<div style="font-size:10px;background:#f8717120;color:#f87171;border-radius:6px;padding:3px 7px;font-weight:600;flex-shrink:0">FOCUS</div>';
+      if(mo)h+='<div style="font-size:11px;color:#ffffff40;flex-shrink:0">~'+mo+' mo</div>';
+      h+='</div>';
+    });
+    h+='</div>';
+  }
+  h+='</div>';
+
+  // ── DEBT CARDS ────────────────────────────────────────────
   h+='<div style="display:flex;flex-direction:column;gap:12px">';
   D.debts.forEach(function(debt){
     var total=Number(debt.total)||0,paid=Number(debt.paid)||0,remaining=total-paid,pct=total>0?Math.min((paid/total)*100,100):0;
-    var monthly=Number(debt.monthly)||0,moLeft=monthly>0?Math.ceil(remaining/monthly):null;
+    var monthly=Number(debt.monthly)||0;
+    var moLeft=calcPayoffMonths(remaining,Number(debt.rate)||0,monthly);
     var dtxs=D.transactions.filter(function(t){return t.isDebtPay&&String(t.debtId)===String(debt.id);}).sort(function(a,b){return b.date.localeCompare(a.date);}).slice(0,5);
     var isEdit=S.editDebtId===debt.id;
+    var ordered=calcPayoffOrder(S.debtStrategy);
+    var isFocus=ordered.length>0&&ordered[0].id===debt.id;
     if(isEdit){
       h+='<div class="edit-row" style="border-color:#f8717133;border-radius:14px">';
       h+='<div class="fld"><div class="lbl">DEBT NAME</div><input id="ed-n" class="inp" value="'+esc(debt.name)+'"/></div>';
@@ -704,9 +804,14 @@ function tabDebt(){
       h+='<div style="display:flex;gap:8px"><button onclick="saveDebt(\''+debt.id+'\')" style="flex:1;background:#f87171;color:#0a0a0f;border:none;border-radius:8px;padding:10px;cursor:pointer;font-family:monospace;font-weight:bold">Save</button><button onclick="removeDebt(\''+debt.id+'\')" style="background:#f8717122;color:#f87171;border:1px solid #f8717144;border-radius:8px;padding:10px 14px;cursor:pointer;font-family:monospace">Delete</button><button onclick="patch({editDebtId:null})" style="background:#1e1e2e;color:#64748b;border:1px solid #2d2d3e;border-radius:8px;padding:10px 14px;cursor:pointer;font-family:monospace">Cancel</button></div>';
       h+='</div>';
     } else {
-      h+='<div class="card" style="padding:15px">';
-      h+='<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:11px"><div><div style="font-size:15px;font-weight:bold;color:#e2e8f0;margin-bottom:3px">'+esc(debt.name)+'</div><div style="display:flex;gap:12px;font-size:12px;color:#475569;font-family:monospace">'+(debt.rate?'<span>'+debt.rate+'% APR</span>':'')+(moLeft?'<span>~'+moLeft+' mo left</span>':'')+'</div></div>';
-      h+='<div style="display:flex;gap:6px;align-items:flex-start"><div style="text-align:right"><div style="font-size:17px;font-weight:bold;color:#f87171;font-family:monospace">'+fmt(remaining)+'</div><div style="font-size:11px;color:#475569;font-family:monospace">remaining</div></div></div></div>';
+      h+='<div class="card" style="padding:12px 14px;'+(isFocus?"border-color:#f8717140;":"")+'">';
+      h+='<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:11px"><div>';
+      h+='<div style="display:flex;align-items:center;gap:7px">';
+      h+='<div style="font-size:15px;font-weight:bold;color:#e2e8f0">'+esc(debt.name)+'</div>';
+      if(isFocus)h+='<span style="font-size:10px;background:#f8717122;color:#f87171;border-radius:100px;padding:2px 8px;font-weight:700;border:1px solid #f8717144">FOCUS</span>';
+      h+='</div>';
+      h+='<div style="display:flex;gap:12px;font-size:12px;color:#475569;font-family:monospace;margin-top:3px">'+(debt.rate?'<span>'+debt.rate+'% APR</span>':'')+(moLeft?'<span>~'+moLeft+' mo left</span>':'')+'</div></div>';
+      h+='<div style="text-align:right"><div style="font-size:17px;font-weight:bold;color:#f87171;font-family:monospace">'+fmt(remaining)+'</div><div style="font-size:11px;color:#475569;font-family:monospace">remaining</div></div></div>';
       h+='<div class="pt" style="height:8px;margin-bottom:6px"><div class="pb" style="width:'+pct+'%;background:'+(pct>=100?"#4ade80":"#f87171")+';height:8px"></div></div>';
       h+='<div style="display:flex;justify-content:space-between;font-size:11px;color:#475569;font-family:monospace;margin-bottom:11px"><span>'+fmt(paid)+' paid</span><span>'+Math.round(pct)+'% cleared</span></div>';
       h+='<div style="display:flex;gap:7px;align-items:center;'+(dtxs.length>0?"margin-bottom:11px":"")+'"><input type="number" placeholder="Quick payment $" class="inp" style="flex:1;font-size:13px;padding:9px 11px" onkeydown="if(event.key===\'Enter\'&&this.value){quickPay(\''+debt.id+'\',this.value);this.value=\'\'}"/>';
@@ -1153,74 +1258,100 @@ function buildFinancialSummary(){
 }
 
 function openAdvisor(){
-  patch({showAdvisor:true,advisorLoading:false,advisorText:""});
+  patch({showAdvisor:true,advisorLoading:false,advisorInput:""});
 }
 function resetAdvisor(){
-  S.advisorText="";
+  S.advisorMessages=[];
   S.advisorLoading=false;
+  S.advisorInput="";
   render();
 }
 
-async function runAdvisor(){
-  patch({advisorLoading:true,advisorText:""});
+async function sendAdvisorMessage(userMsg){
+  if(!userMsg||!userMsg.trim())return;
   var summary=buildFinancialSummary();
-  var sysMsg=[
-    "You are a friendly practical personal financial advisor.",
-    "The user uses a zero-based budgeting app called Quarterly with a cash envelope and jar savings system.",
-    "They are actively paying off debts and building savings.",
-    "Analyze their financial data and give specific actionable advice using their actual numbers.",
-    "Cover: 1) What they are doing well 2) Where to cut or adjust spending 3) Best use of free money",
-    "4) Which debt to pay first and why 5) Savings recommendations.",
-    "Be conversational encouraging and direct. Use bullet points. Keep it practical not overwhelming."
-  ].join(" ");
-  var prompt=sysMsg+" Here is their financial data: "+summary;
+  var sysMsg="You are a friendly, practical personal financial advisor built into a zero-based budgeting app called Quarterly. The user uses a cash envelope and jar savings system, is actively paying off debts, and building savings. You have full access to their financial data below. Give specific, actionable advice using their real numbers. Be conversational, encouraging, and direct. Keep responses concise and practical.\n\nFINANCIAL DATA:\n"+summary;
+  var newUserMsg={role:"user",content:userMsg.trim()};
+  var updatedMessages=S.advisorMessages.concat([newUserMsg]);
+  S.advisorMessages=updatedMessages;
+  S.advisorLoading=true;
+  S.advisorInput="";
+  render();
   try{
+    var apiMessages=updatedMessages.map(function(m){return {role:m.role,content:m.content};});
     var resp=await fetch("https://api.anthropic.com/v1/messages",{
       method:"POST",
       headers:{"Content-Type":"application/json"},
       body:JSON.stringify({
         model:"claude-sonnet-4-20250514",
         max_tokens:1000,
-        messages:[{role:"user",content:prompt}]
+        system:sysMsg,
+        messages:apiMessages
       })
     });
     var data=await resp.json();
-    var text=data.content&&data.content[0]?data.content[0].text:"Sorry, I could not analyze your data right now.";
-    patch({advisorLoading:false,advisorText:text});
+    var text=data.content&&data.content[0]?data.content[0].text:"Sorry, I could not respond right now.";
+    S.advisorMessages=S.advisorMessages.concat([{role:"assistant",content:text}]);
+    S.advisorLoading=false;
+    render();
   }catch(e){
-    patch({advisorLoading:false,advisorText:"Could not connect to AI advisor. Please try again."});
+    S.advisorMessages=S.advisorMessages.concat([{role:"assistant",content:"Could not connect. Please try again."}]);
+    S.advisorLoading=false;
+    render();
   }
 }
 
 function modalAdvisor(){
-  var h='<div class="mbg" onclick="if(event.target===this)patch({showAdvisor:false})"><div class="modal" style="max-height:85vh">';
+  var h='<div class="mbg" onclick="if(event.target===this)patch({showAdvisor:false})"><div class="modal" style="max-height:88vh;display:flex;flex-direction:column">';
   h+=mHead("&#x1F9E0; AI Financial Advisor","patch({showAdvisor:false})");
-  if(!S.advisorLoading&&!S.advisorText){
-    h+='<div style="text-align:center;padding:10px 0 20px">';
-    h+='<div style="font-size:48px;margin-bottom:16px">&#x1F9E0;</div>';
-    h+='<div style="font-size:15px;font-weight:600;color:#f1f0eb;margin-bottom:8px">Your Personal Money Advisor</div>';
-    h+='<div style="font-size:13px;color:#ffffff50;line-height:1.6;margin-bottom:20px">I will analyze your budget, spending, debts, and savings goals and give you specific advice on what to do right now with your money.</div>';
-    h+='<div style="background:#a78bfa10;border:1.5px solid #a78bfa25;border-radius:14px;padding:12px;font-size:12px;color:#a78bfa;margin-bottom:20px;text-align:left">';
-    h+='&#x1F4CB; I can see your:<br>• '+( D.categories?D.categories.length:0)+' budget categories<br>';
-    h+='• '+D.transactions.filter(function(t){return t.month===D.month;}).length+' transactions this month<br>';
-    h+='• '+D.debts.length+' debts tracked<br>';
-    h+='• '+D.goals.length+' savings goals';
+
+  // Chat history area
+  h+='<div id="advisor-msgs" style="flex:1;overflow-y:auto;min-height:120px;max-height:50vh;display:flex;flex-direction:column;gap:10px;margin-bottom:14px;padding-right:2px">';
+
+  if(S.advisorMessages.length===0&&!S.advisorLoading){
+    h+='<div style="text-align:center;padding:16px 0 8px">';
+    h+='<div style="font-size:36px;margin-bottom:10px">&#x1F9E0;</div>';
+    h+='<div style="font-size:14px;font-weight:600;color:#f1f0eb;margin-bottom:6px">Your Personal Money Advisor</div>';
+    h+='<div style="font-size:12px;color:#ffffff40;line-height:1.6;margin-bottom:14px">Ask me anything about your finances, or tap a suggestion below.</div>';
+    h+='<div style="background:#a78bfa10;border:1.5px solid #a78bfa25;border-radius:12px;padding:10px 12px;font-size:12px;color:#a78bfa;text-align:left;margin-bottom:16px">';
+    h+='📋 I can see your '+D.categories.length+' budget categories, '+D.transactions.filter(function(t){return t.month===D.month;}).length+' transactions this month, '+D.debts.length+' debts, and '+D.goals.length+' savings goals.';
     h+='</div>';
-    h+='<button onclick="runAdvisor()" style="background:linear-gradient(135deg,#a78bfa,#7c6dfa);color:#fff;border:none;border-radius:16px;padding:15px 32px;cursor:pointer;font-weight:600;font-size:15px;width:100%;box-shadow:0 4px 20px #7c6dfa30">Analyze My Finances</button>';
+    var suggestions=["Analyze my finances and give me your top 3 tips","Which debt should I focus on first and why?","How am I doing this month compared to my budget?","What's the best use of my free money right now?"];
+    h+='<div style="display:flex;flex-direction:column;gap:6px">';
+    suggestions.forEach(function(s){
+      h+='<button onclick="sendAdvisorMessage(\''+s.replace(/'/g,"\\'")+'\')\" style="background:#ffffff08;border:1.5px solid #ffffff12;border-radius:10px;padding:9px 12px;text-align:left;cursor:pointer;font-size:12px;color:#e2e8f0;line-height:1.4">'+s+'</button>';
+    });
+    h+='</div></div>';
+  }
+
+  S.advisorMessages.forEach(function(m){
+    var isUser=m.role==="user";
+    h+='<div style="display:flex;'+(isUser?"justify-content:flex-end":"justify-content:flex-start")+'">';
+    h+='<div style="max-width:88%;background:'+(isUser?"linear-gradient(135deg,#a78bfa,#7c6dfa)":"#1e1e2e")+';border:1.5px solid '+(isUser?"transparent":"#ffffff0f")+';border-radius:'+(isUser?"16px 16px 4px 16px":"16px 16px 16px 4px")+';padding:10px 13px;font-size:13px;color:#f1f0eb;line-height:1.6;white-space:pre-wrap;word-break:break-word">'+esc(m.content)+'</div>';
     h+='</div>';
-  } else if(S.advisorLoading){
-    h+='<div style="text-align:center;padding:40px 20px">';
-    h+='<div style="font-size:36px;margin-bottom:16px">&#x231B;</div>';
-    h+='<div style="font-size:14px;color:#a78bfa;font-weight:500;margin-bottom:8px">Analyzing your finances...</div>';
-    h+='<div style="font-size:12px;color:#ffffff30">Looking at your budget, spending, debts and goals</div>';
+  });
+
+  if(S.advisorLoading){
+    h+='<div style="display:flex;justify-content:flex-start">';
+    h+='<div style="background:#1e1e2e;border:1.5px solid #ffffff0f;border-radius:16px 16px 16px 4px;padding:12px 16px;font-size:13px;color:#a78bfa">Thinking...</div>';
     h+='</div>';
-  } else {
-    // Show advice
-    h+='<div style="background:#a78bfa08;border:1.5px solid #a78bfa20;border-radius:14px;padding:16px;margin-bottom:16px;font-size:13px;color:#e2e0f0;line-height:1.7;white-space:pre-wrap">'+esc(S.advisorText)+'</div>';
-    h+='<button onclick="resetAdvisor()" style="background:#ffffff08;border:1.5px solid #ffffff0f;border-radius:14px;padding:12px;cursor:pointer;font-weight:500;font-size:13px;width:100%;color:#ffffff60;margin-bottom:8px">&#x1F504; Get Fresh Advice</button>';
-    h+='<button onclick="patch({showAdvisor:false})" style="background:linear-gradient(135deg,#a78bfa,#7c6dfa);color:#fff;border:none;border-radius:14px;padding:13px;cursor:pointer;font-weight:600;font-size:14px;width:100%">Done</button>';
+  }
+
+  h+='</div>';
+
+  // Input row
+  h+='<div style="display:flex;gap:8px;align-items:flex-end">';
+  h+='<textarea id="advisor-inp" placeholder="Ask about your finances..." rows="2" style="flex:1;background:#1a1a28;border:1.5px solid #ffffff0f;border-radius:14px;padding:11px 14px;color:#f1f0eb;font-family:Inter,sans-serif;font-size:14px;outline:none;resize:none;line-height:1.5;max-height:80px" onkeydown="if(event.key===\'Enter\'&&!event.shiftKey){event.preventDefault();var v=this.value.trim();if(v)sendAdvisorMessage(v);}">'+esc(S.advisorInput||"")+'</textarea>';
+  h+='<button onclick="var v=document.getElementById(\'advisor-inp\').value.trim();if(v)sendAdvisorMessage(v)" style="background:linear-gradient(135deg,#a78bfa,#7c6dfa);color:#fff;border:none;border-radius:14px;padding:12px 14px;cursor:pointer;font-size:18px;flex-shrink:0;line-height:1">➤</button>';
+  h+='</div>';
+  if(S.advisorMessages.length>0){
+    h+='<button onclick="resetAdvisor()" style="margin-top:8px;background:none;border:1.5px solid #ffffff0f;border-radius:10px;padding:8px;color:#ffffff30;cursor:pointer;font-size:11px;width:100%">🔄 Clear conversation</button>';
   }
   h+='</div></div>';
+
+  // Auto-scroll chat to bottom after render
+  setTimeout(function(){var el=document.getElementById("advisor-msgs");if(el)el.scrollTop=el.scrollHeight;},50);
+
   return h;
 }
 
