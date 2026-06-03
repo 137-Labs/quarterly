@@ -147,13 +147,11 @@ var APP_VERSION = "v4-debt-strategy-networth-chat";
 var D=loadD()||{income:0,budgets:{},transactions:[],goals:[],debts:[],recurring:[],incomeStreams:[],monthOverrides:{},month:thisMo(),categories:defCats()};
 if(!D.monthOverrides)D.monthOverrides={};
 
-// Version migration — if old version, replace categories and budgets but keep all personal data
-if(D.appVersion !== APP_VERSION){
-  D.appVersion = APP_VERSION;
-  D.categories = defCats();
-  D.budgets = defBudgets(D.categories);
-  saveD(D);
-}
+// Version migration — only add missing fields, NEVER wipe existing data
+D.appVersion = APP_VERSION;
+if(!D.categories||D.categories.length===0)D.categories=defCats();
+if(!D.budgets||Object.keys(D.budgets).length===0)D.budgets=defBudgets(D.categories);
+saveD(D);
 
 // Ensure any budget entries exist for all categories
 (function(){var cats=D.categories||defCats();cats.forEach(function(c){if(D.budgets[c.id]===undefined)D.budgets[c.id]=0;(c.subs||[]).forEach(function(s){if(D.budgets[s.id]===undefined)D.budgets[s.id]=0;});});})();
@@ -1374,6 +1372,16 @@ function importData(event){
     try{
       var imported=JSON.parse(e.target.result);
       if(!imported.categories&&!imported.transactions){showToast("Invalid backup file","#f87171");return;}
+      // Stamp current version so page reload never triggers a data wipe
+      imported.appVersion=APP_VERSION;
+      // Ensure required fields exist
+      if(!imported.debts)imported.debts=[];
+      if(!imported.goals)imported.goals=[];
+      if(!imported.transactions)imported.transactions=[];
+      if(!imported.recurring)imported.recurring=[];
+      if(!imported.incomeStreams)imported.incomeStreams=[];
+      if(!imported.monthOverrides)imported.monthOverrides={};
+      if(!imported.budgets)imported.budgets=defBudgets(imported.categories||defCats());
       Object.assign(D,imported);
       saveD(D);
       render();
