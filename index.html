@@ -69,7 +69,7 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
 .ei{background:transparent;border:none;border-bottom:1.5px solid #7c6dfa;outline:none;color:#a78bfa;font-family:'Inter',sans-serif;font-size:14px;font-weight:600;min-width:60px;max-width:160px}
 
 /* Transaction rows */
-.txr{background:#13131f;border:1.5px solid #ffffff08;border-radius:16px;padding:14px 15px;display:flex;align-items:center;gap:10px;transition:border-color .15s}
+.txr{background:#13131f;border:1.5px solid #ffffff08;border-radius:12px;padding:8px 11px;display:flex;align-items:center;gap:8px;transition:border-color .15s}
 .txr:active{border-color:#ffffff18}
 
 /* Badges */
@@ -398,7 +398,7 @@ function tabBudget(cats,sp,unalloc){
   h+='<button onclick="addCat()" style="background:#a78bfa15;border:1.5px solid #a78bfa30;border-radius:12px;padding:8px 14px;color:#a78bfa;cursor:pointer;font-size:12px;font-weight:600">+ Category</button>';
   h+='</div>';
   if(unalloc!==0){var neg=unalloc<0;h+='<div style="background:'+(neg?"#f8717108":"#4ade8008")+';border:1.5px solid '+(neg?"#f8717130":"#4ade8030")+';border-radius:14px;padding:11px 16px;margin-bottom:14px;font-size:13px;font-weight:500;color:'+(neg?"#f87171":"#4ade80")+'">'+(neg?"⚠️ Over-budgeted by "+fmt(Math.abs(unalloc)):"💡 "+fmt(unalloc)+" left to assign")+'</div>';}
-  h+='<div style="display:flex;flex-direction:column;gap:10px">';
+  h+='<div style="display:flex;flex-direction:column;gap:7px">';
   cats.forEach(function(cat){h+=catCard(cat,sp);});
   h+='</div>';
   return h;
@@ -408,7 +408,7 @@ function catCard(cat,sp){
   var pB=catBudget(cat),pS=catSpent(cat,sp),pR=pB-pS,pct=pB>0?Math.min((pS/pB)*100,100):0;
   var hasSubs=(cat.subs||[]).length>0,coll=S.collapsed[cat.id];
   var ek="cat::"+cat.id,isEd=S.editingId===ek;
-  var h='<div class="card"><div style="padding:13px 13px 11px">';
+  var h='<div class="card"><div style="padding:10px 11px 8px">';
   h+='<div style="display:flex;align-items:center;gap:7px;margin-bottom:9px">';
   h+='<button onclick="patch({collapsed:Object.assign({},S.collapsed,{\''+cat.id+'\':(S.collapsed[\''+cat.id+'\']?false:true)})})" style="background:none;border:none;color:'+(hasSubs?"#64748b":"transparent")+';cursor:'+(hasSubs?"pointer":"default")+';font-size:11px;padding:2px;width:16px;flex-shrink:0">'+(hasSubs?(coll?"&#x25B6;":"&#x25BC;"):"")+'</button>';
   h+='<button class="ib" onclick="openEmoji(\'cat\',\''+cat.id+'\',\'\')">'+cat.icon+'</button>';
@@ -450,7 +450,7 @@ function tabTx(opts){
   var h='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">';
   h+='<div style="font-size:13px;color:#64748b;font-family:monospace">'+txs.length+' transactions</div>';
   h+='<button onclick="openTxModal()" style="background:linear-gradient(135deg,#a78bfa,#7c6dfa);color:#fff;border:none;border-radius:14px;padding:11px 20px;cursor:pointer;font-weight:600;font-size:14px;letter-spacing:.01em;box-shadow:0 4px 16px #7c6dfa30">+ Add</button>';
-  h+='</div><div style="display:flex;flex-direction:column;gap:8px">';
+  h+='</div><div style="display:flex;flex-direction:column;gap:5px">';
   if(txs.length===0){h+='<div style="text-align:center;color:#ffffff25;padding:48px 20px;border:1.5px dashed #ffffff0f;border-radius:20px"><div style="font-size:32px;margin-bottom:12px">&#x1F4B8;</div><div style="font-size:14px;font-weight:500">No transactions yet</div><div style="font-size:12px;margin-top:6px;color:#ffffff20">Tap + Add to get started</div></div>';}
   else{txs.forEach(function(tx){h+=txRow(tx,opts);});}
   h+='</div>';
@@ -466,24 +466,23 @@ function txRow(tx,opts){
   var gp=lGoal?Math.min(((Number(lGoal.saved)||0)/(Number(lGoal.target)||1))*100,100):0;
   var bg=tx.isDebtPay?"background:#100a0a;border-color:#f8717133":tx.isGoalSave?"background:#0a100e;border-color:#2dd4bf33":"";
   var h='<div class="txr" style="'+bg+'">';
-  h+='<div style="width:28px;height:28px;border-radius:8px;background:'+(opt.color||"#94a3b8")+'18;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0">'+opt.icon+'</div>';
+  h+='<div style="width:24px;height:24px;border-radius:7px;background:'+(opt.color||"#94a3b8")+'18;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0">'+opt.icon+'</div>';
   h+='<div style="flex:1;min-width:0">';
-  h+='<div style="display:flex;align-items:center;gap:5px;flex-wrap:wrap">';
-  h+='<span style="font-size:13px;color:#e2e8f0;font-weight:600">'+esc(tx.name)+'</span>';
-  if(tx.isTransfer&&tx.isTransferIn)h+='<span class="bdg" style="background:#2dd4bf22;color:#2dd4bf;border-color:#2dd4bf44">TRANSFER IN</span>';
-  else if(tx.isTransfer)h+='<span class="bdg" style="background:#2dd4bf22;color:#2dd4bf;border-color:#2dd4bf44">TRANSFER OUT</span>';
+  h+='<div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap">';
+  h+='<span style="font-size:12px;color:#e2e8f0;font-weight:600">'+esc(tx.name)+'</span>';
+  if(tx.isTransfer&&tx.isTransferIn)h+='<span class="bdg" style="background:#2dd4bf22;color:#2dd4bf;border-color:#2dd4bf44">IN</span>';
+  else if(tx.isTransfer)h+='<span class="bdg" style="background:#2dd4bf22;color:#2dd4bf;border-color:#2dd4bf44">OUT</span>';
   else if(tx.isDebtPay)h+='<span class="bdg" style="background:#f8717122;color:#f87171;border-color:#f8717144">DEBT</span>';
-  else if(tx.isGoalSave)h+='<span class="bdg" style="background:#2dd4bf22;color:#2dd4bf;border-color:#2dd4bf44">SAVINGS</span>';
-  else h+='<span class="bdg" style="background:#60a5fa22;color:#60a5fa;border-color:#60a5fa33">BUDGET</span>';
+  else if(tx.isGoalSave)h+='<span class="bdg" style="background:#2dd4bf22;color:#2dd4bf;border-color:#2dd4bf44">SAVE</span>';
   if(tx.fromRec)h+='<span class="bdg" style="background:#a78bfa22;color:#a78bfa;border-color:#a78bfa44">REC</span>';
   h+='</div>';
-  h+='<div style="font-size:11px;color:#475569;font-family:monospace;margin-top:2px">'+esc(opt.name)+' - '+tx.date;
-  if(lDebt)h+=' | '+Math.round(dp)+'% paid';
-  if(lGoal)h+=' | '+Math.round(gp)+'% of goal';
+  h+='<div style="font-size:10px;color:#475569;font-family:monospace;margin-top:1px">'+esc(opt.name)+' · '+tx.date;
+  if(lDebt)h+=' · '+Math.round(dp)+'% paid';
+  if(lGoal)h+=' · '+Math.round(gp)+'% of goal';
   h+='</div></div>';
-  h+='<div style="font-size:13px;font-weight:700;color:#f87171;flex-shrink:0">-'+fmt(tx.amount)+'</div>';
-  h+='<button onclick="openEditTx(\''+tx.id+'\')" style="background:none;border:1px solid #2d2d3e;border-radius:6px;color:#64748b;cursor:pointer;font-size:12px;padding:4px 7px;flex-shrink:0;font-family:monospace">Edit</button>';
-  h+='<button onclick="delTx(\''+tx.id+'\')" style="background:none;border:none;color:#475569;cursor:pointer;font-size:15px;padding:3px;flex-shrink:0">&#x2715;</button>';
+  h+='<div style="font-size:12px;font-weight:700;color:#f87171;flex-shrink:0">-'+fmt(tx.amount)+'</div>';
+  h+='<button onclick="openEditTx(\''+tx.id+'\')" style="background:none;border:1px solid #2d2d3e;border-radius:5px;color:#64748b;cursor:pointer;font-size:10px;padding:3px 6px;flex-shrink:0;font-family:monospace">Edit</button>';
+  h+='<button onclick="delTx(\''+tx.id+'\')" style="background:none;border:none;color:#475569;cursor:pointer;font-size:13px;padding:2px;flex-shrink:0">&#x2715;</button>';
   h+='</div>';
   return h;
 }
@@ -514,7 +513,7 @@ function tabIncome(totI){
   // List
   if(D.incomeStreams.length===0){h+='<div style="text-align:center;color:#475569;font-family:monospace;padding:30px;border:1px dashed #1e1e2e;border-radius:12px">No income sources yet.</div>';}
   else{
-    h+='<div style="display:flex;flex-direction:column;gap:8px">';
+    h+='<div style="display:flex;flex-direction:column;gap:5px">';
     D.incomeStreams.forEach(function(s){
       var isEdit=S.editStreamId===s.id;
       if(isEdit){
@@ -526,12 +525,12 @@ function tabIncome(totI){
         h+='<div style="display:flex;gap:8px"><button onclick="saveStream(\''+s.id+'\')" style="flex:1;background:#4ade80;color:#0a0a0f;border:none;border-radius:8px;padding:10px;cursor:pointer;font-family:monospace;font-weight:bold">Save</button><button onclick="removeStream(\''+s.id+'\')" style="background:#f8717122;color:#f87171;border:1px solid #f8717144;border-radius:8px;padding:10px 14px;cursor:pointer;font-family:monospace">Delete</button><button onclick="patch({editStreamId:null})" style="background:#1e1e2e;color:#64748b;border:1px solid #2d2d3e;border-radius:8px;padding:10px 14px;cursor:pointer;font-family:monospace">Cancel</button></div>';
         h+='</div>';
       } else {
-        h+='<div style="background:#0a100a;border:1px solid #4ade8022;border-radius:12px;padding:9px 12px;display:flex;align-items:center;gap:9px">';
-        h+='<div style="width:34px;height:34px;border-radius:8px;background:#4ade8022;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0">&#x1F4B5;</div>';
-        h+='<div style="flex:1;min-width:0"><div style="font-size:14px;color:#e2e8f0;font-weight:bold">'+esc(s.name)+'</div>';
-        h+='<div style="font-size:11px;color:#475569;font-family:monospace;margin-top:2px">'+(fl[s.freq]||s.freq)+' - Day '+s.day+' - ~'+fmt(streamMonthly(s))+'/mo</div></div>';
-        h+='<div style="font-size:14px;font-weight:bold;color:#4ade80;font-family:monospace;flex-shrink:0">+'+fmt(s.amount)+'</div>';
-        h+='<button onclick="patch({editStreamId:\''+s.id+'\'})" style="background:none;border:1px solid #2d2d3e;border-radius:6px;color:#64748b;cursor:pointer;font-size:12px;padding:4px 7px;font-family:monospace;flex-shrink:0">Edit</button>';
+        h+='<div style="background:#0a100a;border:1px solid #4ade8022;border-radius:10px;padding:7px 10px;display:flex;align-items:center;gap:8px">';
+        h+='<div style="width:24px;height:24px;border-radius:7px;background:#4ade8022;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0">&#x1F4B5;</div>';
+        h+='<div style="flex:1;min-width:0"><div style="font-size:12px;color:#e2e8f0;font-weight:bold">'+esc(s.name)+'</div>';
+        h+='<div style="font-size:10px;color:#475569;font-family:monospace;margin-top:1px">'+(fl[s.freq]||s.freq)+' · Day '+s.day+' · ~'+fmt(streamMonthly(s))+'/mo</div></div>';
+        h+='<div style="font-size:12px;font-weight:bold;color:#4ade80;font-family:monospace;flex-shrink:0">+'+fmt(s.amount)+'</div>';
+        h+='<button onclick="patch({editStreamId:\''+s.id+'\'})" style="background:none;border:1px solid #2d2d3e;border-radius:5px;color:#64748b;cursor:pointer;font-size:10px;padding:3px 6px;font-family:monospace;flex-shrink:0">Edit</button>';
         h+='</div>';
       }
     });
@@ -549,7 +548,7 @@ function tabRecurring(opts){
   h+='</div>';
   if(D.recurring.length===0){h+='<div style="text-align:center;color:#475569;font-family:monospace;padding:40px;border:1px dashed #1e1e2e;border-radius:12px">No recurring payments yet. Add rent, bills, subscriptions, debt payments, savings contributions.</div>';}
   else{
-    h+='<div style="display:flex;flex-direction:column;gap:8px">';
+    h+='<div style="display:flex;flex-direction:column;gap:5px">';
     D.recurring.forEach(function(r){
       var opt=null;for(var i=0;i<opts.length;i++){if(opts[i].id===r.category){opt=opts[i];break;}}if(!opt)opt={icon:"\uD83D\uDCE6",name:r.category,color:"#94a3b8"};
       var isEdit=S.editRecId===r.id;
@@ -566,12 +565,12 @@ function tabRecurring(opts){
         h+='<div style="display:flex;gap:8px"><button onclick="saveRec(\''+r.id+'\')" style="flex:1;background:#a78bfa;color:#0a0a0f;border:none;border-radius:8px;padding:10px;cursor:pointer;font-family:monospace;font-weight:bold">Save</button><button onclick="delRec(\''+r.id+'\')" style="background:#f8717122;color:#f87171;border:1px solid #f8717144;border-radius:8px;padding:10px 14px;cursor:pointer;font-family:monospace">Delete</button><button onclick="patch({editRecId:null})" style="background:#1e1e2e;color:#64748b;border:1px solid #2d2d3e;border-radius:8px;padding:10px 14px;cursor:pointer;font-family:monospace">Cancel</button></div>';
         h+='</div>';
       } else {
-        h+='<div style="background:#0a080f;border:1px solid #a78bfa22;border-radius:12px;padding:9px 12px;display:flex;align-items:center;gap:9px">';
-        h+='<div style="width:28px;height:28px;border-radius:8px;background:'+opt.color+'18;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0">'+opt.icon+'</div>';
-        h+='<div style="flex:1;min-width:0"><div style="font-size:13px;color:#e2e8f0;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+esc(r.name)+'</div>';
+        h+='<div style="background:#0a080f;border:1px solid #a78bfa22;border-radius:10px;padding:7px 10px;display:flex;align-items:center;gap:8px">';
+        h+='<div style="width:24px;height:24px;border-radius:7px;background:'+opt.color+'18;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0">'+opt.icon+'</div>';
+        h+='<div style="flex:1;min-width:0"><div style="font-size:12px;color:#e2e8f0;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+esc(r.name)+'</div>';
         h+='<div style="font-size:10px;color:#ffffff30;margin-top:1px">'+esc(opt.name)+' · Day '+r.day+' · '+(fl[r.freq]||r.freq)+(r.endDate?' · ends '+r.endDate:'')+'</div></div>';
-        h+='<div style="font-size:13px;font-weight:700;color:#a78bfa;flex-shrink:0">-'+fmt(r.amount)+'</div>';
-        h+='<button data-eid="'+r.id+'" onclick="patch({editRecId:this.dataset.eid})" style="background:none;border:1px solid #ffffff10;border-radius:7px;color:#ffffff30;cursor:pointer;font-size:11px;padding:3px 7px;flex-shrink:0">Edit</button>';
+        h+='<div style="font-size:12px;font-weight:700;color:#a78bfa;flex-shrink:0">-'+fmt(r.amount)+'</div>';
+        h+='<button data-eid="'+r.id+'" onclick="patch({editRecId:this.dataset.eid})" style="background:none;border:1px solid #ffffff10;border-radius:6px;color:#ffffff30;cursor:pointer;font-size:10px;padding:3px 6px;flex-shrink:0">Edit</button>';
         h+='</div>';
       }
     });
@@ -699,7 +698,7 @@ function sumRow(l,v,c){return '<div style="display:flex;justify-content:space-be
 function tabGoals(){
   var h='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px"><div style="font-size:13px;color:#64748b;font-family:monospace">'+D.goals.length+' goals</div><button onclick="patch({showGoal:true})" style="background:#4ade80;color:#0a0a0f;border:none;border-radius:10px;padding:11px 16px;cursor:pointer;font-family:monospace;font-weight:bold;font-size:14px">+ New Goal</button></div>';
   if(D.goals.length===0){return h+'<div style="text-align:center;color:#475569;font-family:monospace;padding:40px;border:1px dashed #1e1e2e;border-radius:12px">No goals yet.</div>';}
-  h+='<div class="g2">';
+  h+='<div class="g2" style="gap:8px">';
   D.goals.forEach(function(g){
     var target=Number(g.target)||0,saved=Number(g.saved)||0,pct=target>0?Math.min((saved/target)*100,100):0;
     var gtxs=D.transactions.filter(function(t){return t.isGoalSave&&String(t.goalId)===String(g.id);}).sort(function(a,b){return b.date.localeCompare(a.date);}).slice(0,5);
@@ -712,12 +711,12 @@ function tabGoals(){
       h+='<div style="display:flex;gap:8px"><button onclick="saveGoal(\''+g.id+'\')" style="flex:1;background:#2dd4bf;color:#0a0a0f;border:none;border-radius:8px;padding:10px;cursor:pointer;font-family:monospace;font-weight:bold">Save</button><button onclick="removeGoal(\''+g.id+'\')" style="background:#f8717122;color:#f87171;border:1px solid #f8717144;border-radius:8px;padding:10px 14px;cursor:pointer;font-family:monospace">Delete</button><button onclick="patch({editGoalId:null})" style="background:#1e1e2e;color:#64748b;border:1px solid #2d2d3e;border-radius:8px;padding:10px 14px;cursor:pointer;font-family:monospace">Cancel</button></div>';
       h+='</div>';
     } else {
-      h+='<div class="card" style="padding:12px 14px">';
-      h+='<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:11px"><div><div style="font-size:24px;margin-bottom:4px">'+g.icon+'</div><div style="font-size:15px;font-weight:bold;color:#e2e8f0">'+esc(g.name)+'</div></div>';
-      h+='<div style="display:flex;gap:6px"><button onclick="patch({editGoalId:\''+g.id+'\'})" style="background:none;border:1px solid #2d2d3e;border-radius:6px;color:#64748b;cursor:pointer;font-size:12px;padding:4px 7px;font-family:monospace">Edit</button><button onclick="removeGoal(\''+g.id+'\')" style="background:none;border:none;color:#475569;cursor:pointer;font-size:15px">&#x2715;</button></div></div>';
-      h+='<div class="pt" style="height:8px;margin-bottom:7px"><div class="pb" style="width:'+pct+'%;background:'+(pct>=100?"#4ade80":"#2dd4bf")+';height:8px"></div></div>';
-      h+='<div style="display:flex;justify-content:space-between;font-size:12px;color:#475569;font-family:monospace;margin-bottom:11px"><span>'+fmt(saved)+' saved</span><span>'+Math.round(pct)+'% of '+fmt(target)+'</span></div>';
-      h+='<div style="display:flex;gap:7px;align-items:center;'+(gtxs.length>0?"margin-bottom:11px":"")+'"><input type="number" placeholder="Add $" class="inp" style="flex:1;font-size:13px;padding:9px 11px" onkeydown="if(event.key===\'Enter\'&&this.value){addToGoal(\''+g.id+'\',this.value);this.value=\'\'}"/><span style="color:#475569;font-size:11px;font-family:monospace;flex-shrink:0">Enter</span></div>';
+      h+='<div class="card" style="padding:10px 12px">';
+      h+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><div><div style="font-size:18px;margin-bottom:2px">'+g.icon+'</div><div style="font-size:13px;font-weight:bold;color:#e2e8f0">'+esc(g.name)+'</div></div>';
+      h+='<div style="display:flex;gap:5px"><button onclick="patch({editGoalId:\''+g.id+'\'})" style="background:none;border:1px solid #2d2d3e;border-radius:5px;color:#64748b;cursor:pointer;font-size:10px;padding:3px 6px;font-family:monospace">Edit</button><button onclick="removeGoal(\''+g.id+'\')" style="background:none;border:none;color:#475569;cursor:pointer;font-size:13px">&#x2715;</button></div></div>';
+      h+='<div class="pt" style="height:5px;margin-bottom:5px"><div class="pb" style="width:'+pct+'%;background:'+(pct>=100?"#4ade80":"#2dd4bf")+';height:5px"></div></div>';
+      h+='<div style="display:flex;justify-content:space-between;font-size:10px;color:#475569;font-family:monospace;margin-bottom:8px"><span>'+fmt(saved)+' saved</span><span>'+Math.round(pct)+'% of '+fmt(target)+'</span></div>';
+      h+='<div style="display:flex;gap:6px;align-items:center;'+(gtxs.length>0?"margin-bottom:8px":"")+'"><input type="number" placeholder="Add $" class="inp" style="flex:1;font-size:12px;padding:7px 10px" onkeydown="if(event.key===\'Enter\'&&this.value){addToGoal(\''+g.id+'\',this.value);this.value=\'\'}"/><span style="color:#475569;font-size:10px;font-family:monospace;flex-shrink:0">Enter</span></div>';
       if(gtxs.length>0){h+='<div style="border-top:1px solid #1a1a2a;padding-top:9px"><div style="font-size:10px;color:#3d3d5e;font-family:monospace;margin-bottom:5px">CONTRIBUTIONS</div>';gtxs.forEach(function(t){h+='<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid #0e0e1a"><div><span style="font-size:12px;color:#9090a8">'+esc(t.name)+'</span><span style="font-size:10px;color:#3d3d5e;margin-left:5px;font-family:monospace">'+t.date+'</span></div><span style="font-size:12px;font-weight:bold;color:#2dd4bf;font-family:monospace">+'+fmt(t.amount)+'</span></div>';});h+='</div>';}
       h+='</div>';
     }
@@ -785,7 +784,7 @@ function tabDebt(){
   h+='</div>';
 
   // ── DEBT CARDS ────────────────────────────────────────────
-  h+='<div style="display:flex;flex-direction:column;gap:12px">';
+  h+='<div style="display:flex;flex-direction:column;gap:8px">';
   D.debts.forEach(function(debt){
     var total=Number(debt.total)||0,paid=Number(debt.paid)||0,remaining=total-paid,pct=total>0?Math.min((paid/total)*100,100):0;
     var monthly=Number(debt.monthly)||0;
@@ -804,18 +803,18 @@ function tabDebt(){
       h+='<div style="display:flex;gap:8px"><button onclick="saveDebt(\''+debt.id+'\')" style="flex:1;background:#f87171;color:#0a0a0f;border:none;border-radius:8px;padding:10px;cursor:pointer;font-family:monospace;font-weight:bold">Save</button><button onclick="removeDebt(\''+debt.id+'\')" style="background:#f8717122;color:#f87171;border:1px solid #f8717144;border-radius:8px;padding:10px 14px;cursor:pointer;font-family:monospace">Delete</button><button onclick="patch({editDebtId:null})" style="background:#1e1e2e;color:#64748b;border:1px solid #2d2d3e;border-radius:8px;padding:10px 14px;cursor:pointer;font-family:monospace">Cancel</button></div>';
       h+='</div>';
     } else {
-      h+='<div class="card" style="padding:12px 14px;'+(isFocus?"border-color:#f8717140;":"")+'">';
-      h+='<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:11px"><div>';
-      h+='<div style="display:flex;align-items:center;gap:7px">';
-      h+='<div style="font-size:15px;font-weight:bold;color:#e2e8f0">'+esc(debt.name)+'</div>';
-      if(isFocus)h+='<span style="font-size:10px;background:#f8717122;color:#f87171;border-radius:100px;padding:2px 8px;font-weight:700;border:1px solid #f8717144">FOCUS</span>';
+      h+='<div class="card" style="padding:10px 12px;'+(isFocus?"border-color:#f8717140;":"")+'">';
+      h+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:7px"><div>';
+      h+='<div style="display:flex;align-items:center;gap:6px">';
+      h+='<div style="font-size:13px;font-weight:bold;color:#e2e8f0">'+esc(debt.name)+'</div>';
+      if(isFocus)h+='<span style="font-size:9px;background:#f8717122;color:#f87171;border-radius:100px;padding:2px 6px;font-weight:700;border:1px solid #f8717144">FOCUS</span>';
       h+='</div>';
-      h+='<div style="display:flex;gap:12px;font-size:12px;color:#475569;font-family:monospace;margin-top:3px">'+(debt.rate?'<span>'+debt.rate+'% APR</span>':'')+(moLeft?'<span>~'+moLeft+' mo left</span>':'')+'</div></div>';
-      h+='<div style="text-align:right"><div style="font-size:17px;font-weight:bold;color:#f87171;font-family:monospace">'+fmt(remaining)+'</div><div style="font-size:11px;color:#475569;font-family:monospace">remaining</div></div></div>';
-      h+='<div class="pt" style="height:8px;margin-bottom:6px"><div class="pb" style="width:'+pct+'%;background:'+(pct>=100?"#4ade80":"#f87171")+';height:8px"></div></div>';
-      h+='<div style="display:flex;justify-content:space-between;font-size:11px;color:#475569;font-family:monospace;margin-bottom:11px"><span>'+fmt(paid)+' paid</span><span>'+Math.round(pct)+'% cleared</span></div>';
-      h+='<div style="display:flex;gap:7px;align-items:center;'+(dtxs.length>0?"margin-bottom:11px":"")+'"><input type="number" placeholder="Quick payment $" class="inp" style="flex:1;font-size:13px;padding:9px 11px" onkeydown="if(event.key===\'Enter\'&&this.value){quickPay(\''+debt.id+'\',this.value);this.value=\'\'}"/>';
-      h+='<button onclick="patch({editDebtId:\''+debt.id+'\'})" style="background:none;border:1px solid #2d2d3e;border-radius:7px;color:#64748b;cursor:pointer;padding:9px 11px;font-size:12px;font-family:monospace">Edit</button></div>';
+      h+='<div style="display:flex;gap:10px;font-size:11px;color:#475569;font-family:monospace;margin-top:2px">'+(debt.rate?'<span>'+debt.rate+'% APR</span>':'')+(moLeft?'<span>~'+moLeft+' mo</span>':'')+'</div></div>';
+      h+='<div style="text-align:right"><div style="font-size:15px;font-weight:bold;color:#f87171;font-family:monospace">'+fmt(remaining)+'</div><div style="font-size:10px;color:#475569;font-family:monospace">left</div></div></div>';
+      h+='<div class="pt" style="height:5px;margin-bottom:4px"><div class="pb" style="width:'+pct+'%;background:'+(pct>=100?"#4ade80":"#f87171")+';height:5px"></div></div>';
+      h+='<div style="display:flex;justify-content:space-between;font-size:10px;color:#475569;font-family:monospace;margin-bottom:8px"><span>'+fmt(paid)+' paid</span><span>'+Math.round(pct)+'% cleared</span></div>';
+      h+='<div style="display:flex;gap:6px;align-items:center;'+(dtxs.length>0?"margin-bottom:8px":"")+'"><input type="number" placeholder="Quick payment $" class="inp" style="flex:1;font-size:12px;padding:7px 10px" onkeydown="if(event.key===\'Enter\'&&this.value){quickPay(\''+debt.id+'\',this.value);this.value=\'\'}"/>';
+      h+='<button onclick="patch({editDebtId:\''+debt.id+'\'})" style="background:none;border:1px solid #2d2d3e;border-radius:6px;color:#64748b;cursor:pointer;padding:7px 10px;font-size:11px;font-family:monospace">Edit</button></div>';
       if(dtxs.length>0){h+='<div style="border-top:1px solid #1a1a2a;padding-top:9px"><div style="font-size:10px;color:#3d3d5e;font-family:monospace;margin-bottom:5px">PAYMENT HISTORY</div>';dtxs.forEach(function(t){h+='<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid #0e0e1a"><div><span style="font-size:12px;color:#9090a8">'+esc(t.name)+'</span><span style="font-size:10px;color:#3d3d5e;margin-left:5px;font-family:monospace">'+t.date+'</span></div><span style="font-size:12px;font-weight:bold;color:#4ade80;font-family:monospace">-'+fmt(t.amount)+'</span></div>';});h+='</div>';}
       h+='</div>';
     }
