@@ -144,8 +144,9 @@ function defBudgets(cats){
 }
 
 var APP_VERSION = "v4-debt-strategy-networth-chat";
-var D=loadD()||{income:0,budgets:{},transactions:[],goals:[],debts:[],recurring:[],incomeStreams:[],monthOverrides:{},month:thisMo(),categories:defCats()};
+var D=loadD()||{income:0,budgets:{},transactions:[],goals:[],debts:[],recurring:[],incomeStreams:[],oneTimeIncome:[],monthOverrides:{},month:thisMo(),categories:defCats()};
 if(!D.monthOverrides)D.monthOverrides={};
+if(!D.oneTimeIncome)D.oneTimeIncome=[];
 
 // Version migration — only add missing fields, NEVER wipe existing data
 D.appVersion = APP_VERSION;
@@ -173,7 +174,8 @@ function totalIncome(){
   }
   var base=Number(D.income)||0;
   var streams=D.incomeStreams.reduce(function(a,s){return a+streamMonthly(s);},0);
-  return base+streams;
+  var oneTime=(D.oneTimeIncome||[]).filter(function(t){return t.month===D.month;}).reduce(function(a,t){return a+Number(t.amount);},0);
+  return base+streams+oneTime;
 }
 function moIncome(moKey2){var ov=D.monthOverrides[moKey2];return ov&&ov.income!=null?Number(ov.income):totalIncome();}
 function moBudget(moKey2){var ov=D.monthOverrides[moKey2];return ov&&ov.budget!=null?Number(ov.budget):totBudget();}
@@ -491,14 +493,42 @@ function tabIncome(totI){
   var h='<div style="background:#0d0d16;border:1px solid #4ade8033;border-radius:12px;padding:14px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center">';
   h+='<div><div class="lbl">TOTAL MONTHLY INCOME</div><div style="font-size:22px;font-weight:bold;color:#4ade80;font-family:monospace">'+fmt(totI)+'</div></div>';
   h+='<div style="text-align:right"><div class="lbl">SOURCES</div><div style="font-size:18px;font-weight:bold;color:#e2e8f0;font-family:monospace">'+D.incomeStreams.length+'</div></div></div>';
+
+  // ── ONE-TIME INCOME ──────────────────────────────────────
+  var oneTimeTxs=(D.oneTimeIncome||[]).filter(function(t){return t.month===D.month;}).sort(function(a,b){return b.date.localeCompare(a.date);});
+  var oneTimeTotal=oneTimeTxs.reduce(function(a,t){return a+Number(t.amount);},0);
+  h+='<div style="background:#0d0d16;border:1.5px solid #4ade8033;border-radius:12px;padding:14px;margin-bottom:14px">';
+  h+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">';
+  h+='<div><div style="font-size:13px;font-weight:bold;color:#e2e8f0">💰 One-Time Income</div>';
+  h+='<div style="font-size:10px;color:#475569;font-family:monospace;margin-top:2px">Extra cash, gifts, freelance, etc.</div></div>';
+  if(oneTimeTotal>0)h+='<div style="font-size:13px;font-weight:700;color:#4ade80;font-family:monospace">+'+fmt(oneTimeTotal)+' this month</div>';
+  h+='</div>';
+  h+='<div style="display:flex;gap:7px;margin-bottom:'+(oneTimeTxs.length>0?"10px":"0")+'">';
+  h+='<input id="oti-n" class="inp" placeholder="Description (e.g. Freelance job)" style="flex:2;font-size:12px;padding:8px 10px"/>';
+  h+='<input id="oti-a" type="number" class="inp" placeholder="$" style="flex:1;font-size:12px;padding:8px 10px"/>';
+  h+='<button onclick="addOneTimeIncome()" style="background:#4ade80;color:#0a0a0f;border:none;border-radius:8px;padding:8px 12px;cursor:pointer;font-weight:700;font-size:13px;flex-shrink:0">+</button>';
+  h+='</div>';
+  if(oneTimeTxs.length>0){
+    oneTimeTxs.forEach(function(t){
+      h+='<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-top:1px solid #ffffff06">';
+      h+='<div style="flex:1;min-width:0"><div style="font-size:12px;color:#e2e8f0">'+esc(t.name)+'</div>';
+      h+='<div style="font-size:10px;color:#475569;font-family:monospace">'+t.date+'</div></div>';
+      h+='<div style="font-size:12px;font-weight:700;color:#4ade80;font-family:monospace">+'+fmt(t.amount)+'</div>';
+      h+='<button onclick="delOneTimeIncome(\''+t.id+'\')" style="background:none;border:none;color:#475569;cursor:pointer;font-size:13px;padding:2px;flex-shrink:0">✕</button>';
+      h+='</div>';
+    });
+  }
+  h+='</div>';
+
   // Base income
   h+='<div style="background:#0d0d16;border:1px solid #1e1e2e;border-radius:12px;padding:14px;margin-bottom:14px">';
-  h+='<div class="lbl" style="margin-bottom:8px">BASE / OTHER INCOME ($)</div>';
+  h+='<div class="lbl" style="margin-bottom:8px">BASE / FIXED INCOME ($)</div>';
   h+='<div style="display:flex;align-items:center;gap:8px">';
   h+='<input id="base-inc" type="number" class="inp" placeholder="0" value="'+(D.income||"")+'" style="font-size:16px"/>';
   h+='<button onclick="saveBaseIncome()" style="background:#4ade8022;border:1px solid #4ade8044;border-radius:8px;color:#4ade80;cursor:pointer;padding:10px 14px;font-family:monospace;font-size:13px;white-space:nowrap;flex-shrink:0">Save</button>';
-  h+='</div><div style="font-size:11px;color:#3d3d5e;font-family:monospace;margin-top:6px">For variable or one-time income. Add recurring sources below.</div></div>';
-  // Add new
+  h+='</div><div style="font-size:11px;color:#3d3d5e;font-family:monospace;margin-top:6px">Your regular base income. Add recurring sources below.</div></div>';
+
+  // Add new recurring
   h+='<div style="background:#0d0d16;border:1px solid #1e1e2e;border-radius:12px;padding:14px;margin-bottom:14px">';
   h+='<div style="font-size:13px;font-weight:bold;color:#e2e8f0;margin-bottom:12px">+ Add Recurring Income Source</div>';
   h+='<div style="display:flex;flex-direction:column;gap:10px">';
@@ -508,8 +538,9 @@ function tabIncome(totI){
   h+='<div class="fld"><div class="lbl">DAY RECEIVED</div><input id="is-d" type="number" class="inp" placeholder="1" min="1" max="31" value="1"/></div>';
   h+='<button onclick="addStream()" style="background:#4ade80;color:#0a0a0f;border:none;border-radius:10px;padding:12px;cursor:pointer;font-family:monospace;font-weight:bold;font-size:14px;width:100%;margin-top:4px">Add Income Source</button>';
   h+='</div></div>';
+
   // List
-  if(D.incomeStreams.length===0){h+='<div style="text-align:center;color:#475569;font-family:monospace;padding:30px;border:1px dashed #1e1e2e;border-radius:12px">No income sources yet.</div>';}
+  if(D.incomeStreams.length===0){h+='<div style="text-align:center;color:#475569;font-family:monospace;padding:30px;border:1px dashed #1e1e2e;border-radius:12px">No recurring income sources yet.</div>';}
   else{
     h+='<div style="display:flex;flex-direction:column;gap:5px">';
     D.incomeStreams.forEach(function(s){
@@ -1114,6 +1145,18 @@ function saveDebt(debtId){
 function quickPay(debtId,amount){D.debts=D.debts.map(function(d){return String(d.id)===String(debtId)?Object.assign({},d,{paid:Number(d.paid||0)+Number(amount)}):d;});saveD(D);render();showToast("Payment recorded!");}
 function removeDebt(debtId){D.debts=D.debts.filter(function(d){return String(d.id)!==String(debtId);});saveD(D);patch({editDebtId:null});render();}
 function saveBaseIncome(){var v=(document.getElementById("base-inc")||{}).value||"0";D.income=v;saveD(D);render();showToast("Base income saved!");}
+function addOneTimeIncome(){
+  var name=(document.getElementById("oti-n")||{}).value||"";
+  var amount=Number((document.getElementById("oti-a")||{}).value||0);
+  if(!name.trim()||!amount)return showToast("Enter a description and amount","#f87171");
+  if(!D.oneTimeIncome)D.oneTimeIncome=[];
+  D.oneTimeIncome.push({id:uid(),name:name.trim(),amount:amount,date:tod(),month:D.month});
+  saveD(D);render();showToast("Income added!");
+}
+function delOneTimeIncome(id){
+  D.oneTimeIncome=(D.oneTimeIncome||[]).filter(function(t){return t.id!==id;});
+  saveD(D);render();
+}
 function addStream(){
   var name=(document.getElementById("is-n")||{}).value||"";name=name.trim();
   var amount=(document.getElementById("is-a")||{}).value||"";
@@ -1380,6 +1423,7 @@ function importData(event){
       if(!imported.transactions)imported.transactions=[];
       if(!imported.recurring)imported.recurring=[];
       if(!imported.incomeStreams)imported.incomeStreams=[];
+      if(!imported.oneTimeIncome)imported.oneTimeIncome=[];
       if(!imported.monthOverrides)imported.monthOverrides={};
       if(!imported.budgets)imported.budgets=defBudgets(imported.categories||defCats());
       Object.assign(D,imported);
