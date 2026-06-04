@@ -159,7 +159,7 @@ saveD(D);
 // Ensure any budget entries exist for all categories
 (function(){var cats=D.categories||defCats();cats.forEach(function(c){if(D.budgets[c.id]===undefined)D.budgets[c.id]=0;(c.subs||[]).forEach(function(s){if(D.budgets[s.id]===undefined)D.budgets[s.id]=0;});});})();
 
-var S={tab:"budget",emojiPicker:null,editingId:null,collapsed:{},showTx:false,showGoal:false,showDebt:false,showRec:false,editTx:null,editStreamId:null,editRecId:null,editDebtId:null,editGoalId:null,newTx:{name:"",amount:"",category:"",date:tod(),makeRec:false,recFreq:"monthly",recDay:"1",moveTo:""},newGoal:{name:"",target:"",saved:"",icon:"\uD83C\uDFAF"},newDebt:{name:"",total:"",paid:"",rate:"",monthly:""},newRec:{name:"",amount:"",category:"",freq:"monthly",day:"1",isTransfer:false,transferTo:""},showForecastDebt:false,showForecastSavings:false,makeRecTxId:null,showAdvisor:false,advisorLoading:false,advisorMessages:[],advisorInput:"",debtStrategy:"avalanche",showNetWorth:false,showPayoffPlan:false};
+var S={tab:"budget",emojiPicker:null,editingId:null,collapsed:{},showTx:false,showGoal:false,showDebt:false,showRec:false,editTx:null,editStreamId:null,editRecId:null,editDebtId:null,editGoalId:null,newTx:{name:"",amount:"",category:"",date:tod(),makeRec:false,recFreq:"monthly",recDay:"1",moveTo:""},newGoal:{name:"",target:"",saved:"",icon:"\uD83C\uDFAF"},newDebt:{name:"",total:"",paid:"",rate:"",monthly:""},newRec:{name:"",amount:"",category:"",freq:"monthly",day:"1",isTransfer:false,transferTo:""},showForecastDebt:false,showForecastSavings:false,makeRecTxId:null,showAdvisor:false,advisorLoading:false,advisorMessages:[],advisorInput:"",debtStrategy:"avalanche",showNetWorth:false,showPayoffPlan:false,showBackupMenu:false};
 
 function patch(o){Object.assign(S,o);render();}
 function sbcFn(mo){var a={};var m=mo||D.month;D.transactions.forEach(function(t){if(t.month===m)a[t.category]=(a[t.category]||0)+Number(t.amount);});return a;}
@@ -202,20 +202,35 @@ function buildApp(){
   var totI=totalIncome();
   var unalloc=totI-totB;
   var h="";
-  h+='<div style="padding:8px 12px 6px;display:flex;align-items:center;justify-content:space-between;background:#0c0c14;border-bottom:1px solid #ffffff08;flex-shrink:0">';
+  // ── HEADER ───────────────────────────────────────────────
+  h+='<div style="padding:7px 12px 6px;display:flex;align-items:center;justify-content:space-between;background:#0c0c14;border-bottom:1px solid #ffffff08;flex-shrink:0">';
   h+='<div style="display:flex;align-items:center;gap:7px">';
   h+='<div style="width:28px;height:28px;background:linear-gradient(135deg,#7c6dfa,#4ade80);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0">&#x1F4B8;</div>';
-  h+='<div style="font-size:16px;font-weight:700;color:#f1f0eb;letter-spacing:-.3px"><span style="color:#a78bfa">Quarter</span>ly</div></div>';
-  h+='<div style="display:flex;align-items:center;gap:4px">';
-  h+='<input type="month" id="mpick" value="'+esc(D.month)+'" style="background:#1a1a28;border:1.5px solid #ffffff0f;border-radius:9px;padding:5px 7px;color:#f1f0eb;font-family:Inter,sans-serif;font-size:11px;font-weight:500;outline:none;width:120px"/>';
-  h+='<button onclick="exportData()" title="Save Backup" style="background:#ffffff08;border:1.5px solid #ffffff0f;border-radius:9px;padding:5px 8px;color:#facc15;cursor:pointer;font-size:14px;flex-shrink:0;line-height:1">&#x1F4BE;</button>';
-  h+='<label title="Restore Backup" style="background:#ffffff08;border:1.5px solid #ffffff0f;border-radius:9px;padding:5px 8px;color:#60a5fa;cursor:pointer;font-size:14px;flex-shrink:0;display:flex;align-items:center;line-height:1">&#x1F4C2;<input type="file" accept=".json" onchange="importData(event)" style="display:none"/></label>';
-  h+='<label title="Import SCHUFA PDF" style="background:#f8717110;border:1.5px solid #f8717133;border-radius:9px;padding:5px 8px;color:#f87171;cursor:pointer;font-size:14px;flex-shrink:0;display:flex;align-items:center;line-height:1">&#x1F4CB;<input type="file" accept=".pdf,.PDF" onchange="importSchufa(event)" style="display:none"/></label>';
-  h+='<button onclick="openAdvisor()" title="AI Advisor" style="background:linear-gradient(135deg,#a78bfa22,#7c6dfa22);border:1.5px solid #a78bfa44;border-radius:9px;padding:5px 8px;color:#a78bfa;cursor:pointer;font-size:14px;flex-shrink:0;line-height:1">&#x1F9E0;</button>';
+  h+='<div style="font-size:16px;font-weight:700;color:#f1f0eb;letter-spacing:-.3px"><span style="color:#a78bfa">Quarter</span>ly</div>';
+  h+='<input type="month" id="mpick" value="'+esc(D.month)+'" style="background:#1a1a28;border:1.5px solid #ffffff0f;border-radius:9px;padding:4px 7px;color:#f1f0eb;font-family:Inter,sans-serif;font-size:11px;font-weight:500;outline:none;width:116px"/>';
+  h+='</div>';
+  h+='<div style="display:flex;align-items:center;gap:5px">';
+  // Backup combo button
+  h+='<div style="position:relative">';
+  h+='<button onclick="patch({showBackupMenu:!S.showBackupMenu})" title="Backup / Restore" style="background:#ffffff08;border:1.5px solid #ffffff0f;border-radius:9px;padding:5px 9px;color:#facc15;cursor:pointer;font-size:14px;line-height:1;display:flex;align-items:center;gap:3px">&#x1F4BE;<span style="font-size:9px;color:#ffffff30">▾</span></button>';
+  if(S.showBackupMenu){
+    h+='<div style="position:absolute;top:calc(100% + 4px);right:0;background:#1e1e2e;border:1.5px solid #ffffff14;border-radius:12px;overflow:hidden;z-index:200;min-width:150px;box-shadow:0 8px 24px #000000a0">';
+    h+='<button onclick="exportData();patch({showBackupMenu:false})" style="width:100%;background:none;border:none;padding:10px 14px;text-align:left;color:#facc15;cursor:pointer;font-size:12px;display:flex;align-items:center;gap:8px">&#x1F4BE; Save Backup</button>';
+    h+='<div style="height:1px;background:#ffffff08"></div>';
+    h+='<label style="width:100%;display:flex;align-items:center;gap:8px;padding:10px 14px;color:#60a5fa;cursor:pointer;font-size:12px">&#x1F4C2; Load Backup<input type="file" accept=".json" onchange="importData(event);patch({showBackupMenu:false})" style="display:none"/></label>';
+    h+='</div>';
+  }
+  h+='</div>';
+  // SCHUFA
+  h+='<label title="Import SCHUFA / Debt PDF" style="background:#f8717110;border:1.5px solid #f8717133;border-radius:9px;padding:5px 9px;color:#f87171;cursor:pointer;font-size:14px;flex-shrink:0;display:flex;align-items:center;line-height:1">&#x1F4CB;<input type="file" accept=".pdf,.PDF" onchange="importSchufa(event)" style="display:none"/></label>';
+  // AI brain
+  h+='<button onclick="openAdvisor()" title="AI Advisor" style="background:linear-gradient(135deg,#a78bfa22,#7c6dfa22);border:1.5px solid #a78bfa44;border-radius:9px;padding:5px 9px;color:#a78bfa;cursor:pointer;font-size:14px;flex-shrink:0;line-height:1">&#x1F9E0;</button>';
   h+='</div></div>';
-  h+='<div style="background:linear-gradient(135deg,#0f1a0f,#0a0a1a);border-bottom:1px solid #1e1e2e;padding:8px 12px;flex-shrink:0">';
+  // ── STATS BAR (with month picker above income) ───────────
+  h+='<div style="background:linear-gradient(135deg,#0f1a0f,#0a0a1a);border-bottom:1px solid #1e1e2e;padding:6px 12px;flex-shrink:0">';
   h+='<div style="display:flex;align-items:center;gap:10px;overflow-x:auto;-webkit-overflow-scrolling:touch">';
-  h+='<div style="flex-shrink:0"><div class="lbl" style="margin-bottom:1px">INCOME</div>';
+  h+='<div style="flex-shrink:0">';
+  h+='<div class="lbl" style="margin-bottom:1px">INCOME</div>';
   h+='<div style="display:flex;align-items:center;gap:5px">';
   h+='<div style="font-size:15px;font-weight:bold;color:#4ade80;font-family:monospace">'+fmt(totI)+'</div>';
   h+='<button onclick="patch({tab:\'income\'})" style="background:#4ade8022;border:1px solid #4ade8044;border-radius:5px;color:#4ade80;cursor:pointer;font-size:9px;padding:2px 5px;font-family:monospace">MGT</button>';
@@ -372,6 +387,56 @@ function tabDashboard(cats,sp,totB,totS,totI,unalloc){
     h+='</div>';
   }
   h+='</div>';
+
+  // ── BILL BUFFER ──────────────────────────────────────────
+  var monthlyBills=D.recurring.reduce(function(a,r){
+    if(r.freq==="monthly")return a+Number(r.amount||0);
+    if(r.freq==="weekly")return a+Number(r.amount||0)*4.33;
+    if(r.freq==="biweekly")return a+Number(r.amount||0)*2.17;
+    if(r.freq==="yearly")return a+Number(r.amount||0)/12;
+    return a;
+  },0);
+  var bufferGoal=D.goals.find(function(g){return g.isBuffer;});
+  var bufferSaved=bufferGoal?Number(bufferGoal.saved||0):0;
+  var buffer1mo=monthlyBills;
+  var buffer3mo=monthlyBills*3;
+  var bufferPct=buffer1mo>0?Math.min((bufferSaved/buffer1mo)*100,100):0;
+  var bufferPct3=buffer3mo>0?Math.min((bufferSaved/buffer3mo)*100,100):0;
+  var bufferStatus=bufferSaved>=buffer3mo?"Bulletproof":bufferSaved>=buffer1mo?"Safe":"Building";
+  var bufferColor=bufferSaved>=buffer3mo?"#4ade80":bufferSaved>=buffer1mo?"#facc15":"#60a5fa";
+  if(monthlyBills>0||bufferGoal){
+    h+='<div style="background:#13131f;border:1.5px solid '+bufferColor+'30;border-radius:18px;padding:14px;margin-top:14px">';
+    h+='<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px">';
+    h+='<div><div style="display:flex;align-items:center;gap:6px;margin-bottom:2px">';
+    h+='<span style="font-size:15px">🛡️</span><span style="font-size:13px;font-weight:700;color:#f1f0eb">Bill Buffer</span>';
+    h+='<span style="font-size:10px;background:'+bufferColor+'18;color:'+bufferColor+';border-radius:100px;padding:2px 7px;border:1px solid '+bufferColor+'33;font-weight:600">'+bufferStatus+'</span>';
+    h+='</div>';
+    h+='<div style="font-size:11px;color:#ffffff35;line-height:1.5">Pay bills on time regardless of payday</div></div>';
+    h+='<div style="text-align:right"><div style="font-size:15px;font-weight:700;color:'+bufferColor+';font-family:monospace">'+fmt(bufferSaved)+'</div>';
+    h+='<div style="font-size:10px;color:#ffffff30">saved</div></div></div>';
+    h+='<div style="margin-bottom:8px">';
+    h+='<div style="display:flex;justify-content:space-between;font-size:10px;margin-bottom:3px"><span style="color:#ffffff40">1 month (safe)</span><span style="color:'+bufferColor+'">'+fmt(buffer1mo)+'</span></div>';
+    h+='<div style="height:6px;background:#ffffff08;border-radius:100px;overflow:hidden;margin-bottom:6px"><div style="height:100%;width:'+Math.min(bufferPct,100)+'%;background:'+bufferColor+';border-radius:100px"></div></div>';
+    h+='<div style="display:flex;justify-content:space-between;font-size:10px;margin-bottom:3px"><span style="color:#ffffff40">3 months (bulletproof)</span><span style="color:#ffffff30">'+fmt(buffer3mo)+'</span></div>';
+    h+='<div style="height:4px;background:#ffffff08;border-radius:100px;overflow:hidden"><div style="height:100%;width:'+Math.min(bufferPct3,100)+'%;background:'+bufferColor+'50;border-radius:100px"></div></div>';
+    h+='</div>';
+    h+='<div style="font-size:11px;color:#ffffff30;margin-bottom:8px">'+D.recurring.length+' bills · '+fmt(monthlyBills)+'/mo total</div>';
+    if(!bufferGoal){
+      h+='<button onclick="createBufferGoal()" style="width:100%;background:'+bufferColor+'15;border:1.5px solid '+bufferColor+'33;border-radius:10px;padding:9px;color:'+bufferColor+';cursor:pointer;font-size:12px;font-weight:600">+ Start Building My Buffer</button>';
+    } else {
+      var moToSafe=unalloc>0&&bufferSaved<buffer1mo?Math.ceil((buffer1mo-bufferSaved)/unalloc):null;
+      if(moToSafe)h+='<div style="font-size:11px;color:#ffffff40;text-align:center">Put <span style="color:'+bufferColor+';font-weight:600">'+fmt(unalloc)+'</span>/mo here → safe in ~'+moToSafe+' month'+(moToSafe===1?"":"s")+'</div>';
+      h+='<button onclick="patch({tab:\'goals\'})" style="width:100%;background:#ffffff08;border:1.5px solid #ffffff0f;border-radius:10px;padding:7px;color:#ffffff40;cursor:pointer;font-size:11px;margin-top:6px">Add to Buffer →</button>';
+    }
+    h+='</div>';
+  } else {
+    h+='<div style="background:#13131f;border:1.5px solid #ffffff08;border-radius:18px;padding:14px;margin-top:14px;text-align:center">';
+    h+='<div style="font-size:22px;margin-bottom:6px">🛡️</div>';
+    h+='<div style="font-size:13px;font-weight:600;color:#f1f0eb;margin-bottom:4px">Bill Buffer</div>';
+    h+='<div style="font-size:11px;color:#ffffff30;margin-bottom:10px">Add recurring bills to calculate your buffer target.</div>';
+    h+='<button onclick="patch({tab:\'recurring\'})" style="background:#ffffff08;border:1.5px solid #ffffff12;border-radius:10px;padding:8px 14px;color:#ffffff50;cursor:pointer;font-size:11px">Add Recurring Bills →</button>';
+    h+='</div>';
+  }
 
   return h;
 }
@@ -1003,6 +1068,16 @@ function modalEmoji(){
 function bindEv(){
   var mp=document.getElementById("mpick");if(mp)mp.onchange=function(e){D.month=e.target.value;saveD(D);render();};
   if(S.editingId){var el=document.getElementById("ei-"+S.editingId);if(el){el.focus();el.select();}}
+  if(S.showBackupMenu){
+    setTimeout(function(){
+      document.addEventListener("click",function dismiss(e){
+        if(!e.target.closest||!e.target.closest("[data-backup-menu]")){
+          patch({showBackupMenu:false});
+          document.removeEventListener("click",dismiss);
+        }
+      });
+    },10);
+  }
 }
 function setBudget(id,v){D.budgets[id]=v;saveD(D);}
 function openEmoji(type,catId,subId){patch({emojiPicker:{type:type,catId:catId,subId:subId}});}
@@ -1111,6 +1186,17 @@ function saveGoal(goalId){
   if(!name||!target){showToast("Fill in name & target","#f87171");return;}
   D.goals=D.goals.map(function(g){return String(g.id)===String(goalId)?Object.assign({},g,{name:name,target:target,saved:saved}):g;});
   saveD(D);patch({editGoalId:null});showToast("Goal updated!");
+}
+function createBufferGoal(){
+  var monthlyBills=D.recurring.reduce(function(a,r){
+    if(r.freq==="monthly")return a+Number(r.amount||0);
+    if(r.freq==="weekly")return a+Number(r.amount||0)*4.33;
+    if(r.freq==="biweekly")return a+Number(r.amount||0)*2.17;
+    if(r.freq==="yearly")return a+Number(r.amount||0)/12;
+    return a;
+  },0);
+  D.goals.push({id:uid(),name:"Bill Buffer",icon:"🛡️",target:Math.round(monthlyBills*3),saved:0,isBuffer:true});
+  saveD(D);render();showToast("Buffer goal created!");patch({tab:"goals"});
 }
 function addToGoal(goalId,amount){D.goals=D.goals.map(function(g){return String(g.id)===String(goalId)?Object.assign({},g,{saved:Number(g.saved||0)+Number(amount)}):g;});saveD(D);render();showToast("Saved!");}
 function removeGoal(goalId){D.goals=D.goals.filter(function(g){return String(g.id)!==String(goalId);});saveD(D);patch({editGoalId:null});render();}
