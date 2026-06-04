@@ -11,7 +11,9 @@
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-body{font-family:'Inter',sans-serif;background:#0c0c14;color:#f1f0eb;min-height:100vh}
+body{font-family:'Inter',sans-serif;background:#0c0c14;color:#f1f0eb;height:100vh;height:100dvh;overflow:hidden;display:flex;flex-direction:column}
+#app{display:flex;flex-direction:column;height:100%;overflow:hidden}
+.tab-content{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding:12px 14px 16px;max-width:900px;width:100%;margin:0 auto}
 input,select,button{font-family:'Inter',sans-serif;-webkit-appearance:none}
 input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
 
@@ -82,7 +84,7 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
 .tab-active{color:#a78bfa!important;border-bottom-color:#a78bfa!important}
 
 /* Stat boxes */
-.stat-pill{background:#ffffff08;border-radius:12px;padding:8px 12px;flex-shrink:0}
+.stat-pill{background:#ffffff08;border-radius:9px;padding:5px 9px;flex-shrink:0}
 
 /* Summary rows in forecast */
 .sum-row{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:#ffffff05;border-radius:12px}
@@ -200,63 +202,47 @@ function buildApp(){
   var totI=totalIncome();
   var unalloc=totI-totB;
   var h="";
-  h+='<div style="padding:16px 18px 12px;display:flex;align-items:center;justify-content:space-between;background:#0c0c14;position:sticky;top:0;z-index:100;border-bottom:1px solid #ffffff08">';
-  h+='<div style="display:flex;align-items:center;gap:10px">';
-  h+='<div style="width:36px;height:36px;background:linear-gradient(135deg,#7c6dfa,#4ade80);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">&#x1F4B8;</div>';
-  h+='<div><div style="font-size:18px;font-weight:700;color:#f1f0eb;letter-spacing:-.3px"><span style="color:#a78bfa">Quarter</span>ly</div>';
-  h+='<div style="font-size:11px;color:#ffffff40;font-weight:400">Zero-Based Budgeting</div></div></div>';
-  h+='<div style="display:flex;align-items:center;gap:6px">';
-  h+='<input type="month" id="mpick" value="'+esc(D.month)+'" style="background:#1a1a28;border:1.5px solid #ffffff0f;border-radius:12px;padding:7px 11px;color:#f1f0eb;font-family:Inter,sans-serif;font-size:12px;font-weight:500;outline:none"/>';
-  h+='<button onclick="exportData()" title="Backup" style="background:#ffffff08;border:1.5px solid #ffffff0f;border-radius:12px;padding:7px 10px;color:#facc15;cursor:pointer;font-size:15px;flex-shrink:0">&#x1F4BE;</button>';
-  h+='<label title="Restore" style="background:#ffffff08;border:1.5px solid #ffffff0f;border-radius:12px;padding:7px 10px;color:#60a5fa;cursor:pointer;font-size:15px;flex-shrink:0;display:flex;align-items:center">&#x1F4C2;<input type="file" accept=".json" onchange="importData(event)" style="display:none"/></label>';
-  h+='<button onclick="openAdvisor()" title="AI Advisor" style="background:linear-gradient(135deg,#a78bfa22,#7c6dfa22);border:1.5px solid #a78bfa44;border-radius:12px;padding:7px 10px;color:#a78bfa;cursor:pointer;font-size:15px;flex-shrink:0">&#x1F9E0;</button>';
+  h+='<div style="padding:8px 12px 6px;display:flex;align-items:center;justify-content:space-between;background:#0c0c14;border-bottom:1px solid #ffffff08;flex-shrink:0">';
+  h+='<div style="display:flex;align-items:center;gap:7px">';
+  h+='<div style="width:28px;height:28px;background:linear-gradient(135deg,#7c6dfa,#4ade80);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0">&#x1F4B8;</div>';
+  h+='<div style="font-size:16px;font-weight:700;color:#f1f0eb;letter-spacing:-.3px"><span style="color:#a78bfa">Quarter</span>ly</div></div>';
+  h+='<div style="display:flex;align-items:center;gap:4px">';
+  h+='<input type="month" id="mpick" value="'+esc(D.month)+'" style="background:#1a1a28;border:1.5px solid #ffffff0f;border-radius:9px;padding:5px 7px;color:#f1f0eb;font-family:Inter,sans-serif;font-size:11px;font-weight:500;outline:none;width:120px"/>';
+  h+='<button onclick="exportData()" title="Save Backup" style="background:#ffffff08;border:1.5px solid #ffffff0f;border-radius:9px;padding:5px 8px;color:#facc15;cursor:pointer;font-size:14px;flex-shrink:0;line-height:1">&#x1F4BE;</button>';
+  h+='<label title="Restore Backup" style="background:#ffffff08;border:1.5px solid #ffffff0f;border-radius:9px;padding:5px 8px;color:#60a5fa;cursor:pointer;font-size:14px;flex-shrink:0;display:flex;align-items:center;line-height:1">&#x1F4C2;<input type="file" accept=".json" onchange="importData(event)" style="display:none"/></label>';
+  h+='<label title="Import SCHUFA PDF" style="background:#f8717110;border:1.5px solid #f8717133;border-radius:9px;padding:5px 8px;color:#f87171;cursor:pointer;font-size:14px;flex-shrink:0;display:flex;align-items:center;line-height:1">&#x1F4CB;<input type="file" accept=".pdf,.PDF" onchange="importSchufa(event)" style="display:none"/></label>';
+  h+='<button onclick="openAdvisor()" title="AI Advisor" style="background:linear-gradient(135deg,#a78bfa22,#7c6dfa22);border:1.5px solid #a78bfa44;border-radius:9px;padding:5px 8px;color:#a78bfa;cursor:pointer;font-size:14px;flex-shrink:0;line-height:1">&#x1F9E0;</button>';
   h+='</div></div>';
-  h+='<div style="background:linear-gradient(135deg,#0f1a0f,#0a0a1a);border-bottom:1px solid #1e1e2e;padding:12px 16px">';
-  h+='<div style="display:flex;align-items:center;gap:14px;overflow-x:auto;-webkit-overflow-scrolling:touch">';
-  h+='<div style="flex-shrink:0"><div class="lbl">TOTAL INCOME</div>';
-  h+='<div style="display:flex;align-items:center;gap:6px">';
-  h+='<div style="font-size:18px;font-weight:bold;color:#4ade80;font-family:monospace">'+fmt(totI)+'</div>';
-  h+='<button onclick="patch({tab:\'income\'})" style="background:#4ade8022;border:1px solid #4ade8044;border-radius:6px;color:#4ade80;cursor:pointer;font-size:10px;padding:3px 7px;font-family:monospace">MANAGE</button>';
+  h+='<div style="background:linear-gradient(135deg,#0f1a0f,#0a0a1a);border-bottom:1px solid #1e1e2e;padding:8px 12px;flex-shrink:0">';
+  h+='<div style="display:flex;align-items:center;gap:10px;overflow-x:auto;-webkit-overflow-scrolling:touch">';
+  h+='<div style="flex-shrink:0"><div class="lbl" style="margin-bottom:1px">INCOME</div>';
+  h+='<div style="display:flex;align-items:center;gap:5px">';
+  h+='<div style="font-size:15px;font-weight:bold;color:#4ade80;font-family:monospace">'+fmt(totI)+'</div>';
+  h+='<button onclick="patch({tab:\'income\'})" style="background:#4ade8022;border:1px solid #4ade8044;border-radius:5px;color:#4ade80;cursor:pointer;font-size:9px;padding:2px 5px;font-family:monospace">MGT</button>';
   h+='</div></div>';
-  h+='<div style="width:1px;height:32px;background:#1e1e2e;flex-shrink:0"></div>';
+  h+='<div style="width:1px;height:26px;background:#1e1e2e;flex-shrink:0"></div>';
   h+=sbox("BUDGETED",fmt(totB),"#60a5fa");
   h+=sbox("SPENT",fmt(totS),"#fb923c");
   h+=sbox("FREE",fmt(unalloc),unalloc<0?"#f87171":"#4ade80");
   h+=sbox("LEFT",fmt(totB-totS),"#a78bfa");
   h+='</div></div>';
-  var tabs=[["dashboard","Dashboard"],["budget","Budget"],["transactions","Transactions"],["income","Income"],["recurring","Recurring"],["forecast","Forecast"],["goals","Goals"],["debt","Debt"]];
+  var tabs=[["dashboard","Dashboard"],["budget","Budget"],["transactions","Pay"],["income","Income"],["recurring","Rec"],["forecast","Forecast"],["goals","Goals"],["debt","Debt"]];
   var tabColors={"dashboard":"#a78bfa","budget":"#4ade80","transactions":"#60a5fa","income":"#facc15","recurring":"#fb923c","forecast":"#f472b6","goals":"#2dd4bf","debt":"#f87171"};
-  var tabIcons={"dashboard":"dash","budget":"budg","transactions":"pay","income":"inc","recurring":"rec","forecast":"fore","goals":"goal","debt":"debt"};
-  var tabShort={"dashboard":"Dash","budget":"Budget","transactions":"Pay","income":"Income","recurring":"Rec","forecast":"Fore","goals":"Goals","debt":"Debt"};
-  h+='<div style="background:#0c0c14;border-bottom:2px solid #ffffff0a;display:flex;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;gap:2px;padding:0 8px 0 8px;align-items:flex-end">';
+  h+='<div style="background:#0c0c14;border-bottom:2px solid #ffffff0a;display:flex;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;gap:1px;padding:0 6px;align-items:flex-end;flex-shrink:0">';
   tabs.forEach(function(t){
     var a=S.tab===t[0];
     var col=tabColors[t[0]]||"#a78bfa";
-    var lbl=tabShort[t[0]]||t[1];
     h+='<button onclick="patch({tab:\''+t[0]+'\'})" style="';
-    h+='background:'+(a?col:'#1a1a28')+';';
-    h+='border:1.5px solid '+(a?col:'#ffffff0a')+';';
-    h+='border-bottom:'+(a?'2px solid '+col:'1.5px solid #ffffff0a')+';';
-    h+='border-radius:6px 6px 0 0;';
-    h+='color:'+(a?'#0a0a0f':col)+';';
-    h+='padding:'+(a?'6px 10px':'4px 9px')+';';
-    h+='cursor:pointer;';
-    h+='font-family:Inter,sans-serif;';
-    h+='font-size:10px;';
-    h+='font-weight:'+(a?'800':'500')+';';
-    h+='white-space:nowrap;';
-    h+='letter-spacing:.03em;';
-    h+='text-transform:uppercase;';
-    h+='flex-shrink:0;';
-    h+='transition:all .15s;';
-    h+='margin-bottom:-2px;';
-    h+='min-width:36px;text-align:center;';
-    h+='box-shadow:'+(a?'0 -2px 8px '+col+'40':'none')+';';
-    h+='">'+lbl+'</button>';
+    h+='background:'+(a?col+'22':'transparent')+';';
+    h+='border:none;border-bottom:2px solid '+(a?col:'transparent')+';';
+    h+='color:'+(a?col:'#ffffff40')+';';
+    h+='padding:7px 8px 5px;';
+    h+='cursor:pointer;font-family:Inter,sans-serif;font-size:10px;font-weight:'+(a?'700':'500')+';';
+    h+='white-space:nowrap;letter-spacing:.03em;text-transform:uppercase;flex-shrink:0;transition:all .15s;';
+    h+='">'+t[1]+'</button>';
   });
   h+='</div>';
-  h+='</div>';
-  h+='<div style="padding:16px 16px 80px;max-width:900px;margin:0 auto">';
+  h+='<div class="tab-content">';
   if(S.tab==="dashboard")h+=tabDashboard(cats,sp,totB,totS,totI,unalloc);
   else if(S.tab==="budget")h+=tabBudget(cats,sp,unalloc);
   else if(S.tab==="transactions")h+=tabTx(opts);
@@ -277,7 +263,7 @@ function buildApp(){
   return h;
 }
 
-function sbox(l,v,c){return '<div class="stat-pill"><div style="font-size:10px;color:#ffffff40;font-weight:500;text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px">'+l+'</div><div style="font-size:15px;font-weight:700;color:'+c+'">'+v+'</div></div>';}
+function sbox(l,v,c){return '<div class="stat-pill"><div style="font-size:9px;color:#ffffff40;font-weight:500;text-transform:uppercase;letter-spacing:.06em;margin-bottom:1px">'+l+'</div><div style="font-size:13px;font-weight:700;color:'+c+'">'+v+'</div></div>';}
 function sbox2(l,v,c){return '<div style="background:#ffffff06;border:1.5px solid #ffffff08;border-radius:14px;padding:10px 10px 9px">'+'<div style="font-size:9px;color:#ffffff35;font-weight:600;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">'+l+'</div>'+'<div style="font-size:13px;font-weight:700;color:'+c+';letter-spacing:-.2px">'+v+'</div></div>';}
 
 // ── BUDGET TAB ───────────────────────────────────────────
@@ -1156,6 +1142,56 @@ function addOneTimeIncome(){
 function delOneTimeIncome(id){
   D.oneTimeIncome=(D.oneTimeIncome||[]).filter(function(t){return t.id!==id;});
   saveD(D);render();
+}
+async function importSchufa(event){
+  var file=event.target.files[0];
+  if(!file)return;
+  showToast("Reading PDF...");
+  var reader=new FileReader();
+  reader.onload=async function(e){
+    try{
+      var base64=e.target.result.split(",")[1];
+      showToast("AI scanning for debts...");
+      var resp=await fetch("https://api.anthropic.com/v1/messages",{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({
+          model:"claude-sonnet-4-20250514",
+          max_tokens:1000,
+          messages:[{role:"user",content:[
+            {type:"document",source:{type:"base64",media_type:"application/pdf",data:base64}},
+            {type:"text",text:"Extract all debts, loans, credit accounts, or collection entries from this document. Return ONLY valid JSON, no markdown, no explanation. Format: {\"debts\":[{\"name\":\"creditor name\",\"total\":amount_as_number,\"paid\":0,\"rate\":interest_rate_or_0,\"monthly\":suggested_minimum_payment_or_0}]}. If no debts found return {\"debts\":[]}."}
+          ]}]
+        })
+      });
+      var data=await resp.json();
+      var text=data.content&&data.content[0]?data.content[0].text:"{}";
+      var clean=text.replace(/```json|```/g,"").trim();
+      var result=JSON.parse(clean);
+      var added=0;
+      (result.debts||[]).forEach(function(d){
+        if(d.name&&d.total>0){
+          // Skip if already tracked
+          var exists=D.debts.some(function(ex){return ex.name.toLowerCase()===d.name.toLowerCase();});
+          if(!exists){
+            D.debts.push({id:uid(),name:d.name,total:d.total,paid:d.paid||0,rate:d.rate||0,monthly:d.monthly||0});
+            added++;
+          }
+        }
+      });
+      if(added>0){
+        saveD(D);render();
+        showToast(added+" debt(s) imported from PDF!");
+        patch({tab:"debt"});
+      } else {
+        showToast("No new debts found in PDF","#facc15");
+      }
+    }catch(err){
+      showToast("Could not read PDF","#f87171");
+    }
+  };
+  reader.readAsDataURL(file);
+  event.target.value="";
 }
 function addStream(){
   var name=(document.getElementById("is-n")||{}).value||"";name=name.trim();
