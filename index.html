@@ -159,7 +159,7 @@ saveD(D);
 // Ensure any budget entries exist for all categories
 (function(){var cats=D.categories||defCats();cats.forEach(function(c){if(D.budgets[c.id]===undefined)D.budgets[c.id]=0;(c.subs||[]).forEach(function(s){if(D.budgets[s.id]===undefined)D.budgets[s.id]=0;});});})();
 
-var S={tab:"budget",emojiPicker:null,editingId:null,collapsed:{},showTx:false,showGoal:false,showDebt:false,showRec:false,editTx:null,editStreamId:null,editRecId:null,editDebtId:null,editGoalId:null,newTx:{name:"",amount:"",category:"",date:tod(),makeRec:false,recFreq:"monthly",recDay:"1",moveTo:""},newGoal:{name:"",target:"",saved:"",icon:"\uD83C\uDFAF"},newDebt:{name:"",total:"",paid:"",rate:"",monthly:""},newRec:{name:"",amount:"",category:"",freq:"monthly",day:"1",isTransfer:false,transferTo:""},showForecastDebt:false,showForecastSavings:false,makeRecTxId:null,showAdvisor:false,advisorLoading:false,advisorMessages:[],advisorInput:"",debtStrategy:"avalanche",showNetWorth:false,showPayoffPlan:false,showBackupMenu:false};
+var S={tab:"dashboard",emojiPicker:null,editingId:null,collapsed:{},showTx:false,showGoal:false,showDebt:false,showRec:false,editTx:null,editStreamId:null,editRecId:null,editDebtId:null,editGoalId:null,newTx:{name:"",amount:"",category:"",date:tod(),makeRec:false,recFreq:"monthly",recDay:"1",moveTo:""},newGoal:{name:"",target:"",saved:"",icon:"🎯"},newDebt:{name:"",total:"",paid:"",rate:"",monthly:""},newRec:{name:"",amount:"",category:"",freq:"monthly",day:"1",isTransfer:false,transferTo:""},showForecastDebt:false,showForecastSavings:false,makeRecTxId:null,showAdvisor:false,advisorLoading:false,advisorMessages:[],advisorInput:"",debtStrategy:"avalanche",showNetWorth:false,showPayoffPlan:false,showBackupMenu:false,moneySection:"income",showAddStream:false};
 
 function patch(o){Object.assign(S,o);render();}
 function sbcFn(mo){var a={};var m=mo||D.month;D.transactions.forEach(function(t){if(t.month===m)a[t.category]=(a[t.category]||0)+Number(t.amount);});return a;}
@@ -233,7 +233,7 @@ function buildApp(){
   h+='<div class="lbl" style="margin-bottom:1px">INCOME</div>';
   h+='<div style="display:flex;align-items:center;gap:5px">';
   h+='<div style="font-size:15px;font-weight:bold;color:#4ade80;font-family:monospace">'+fmt(totI)+'</div>';
-  h+='<button onclick="patch({tab:\'income\'})" style="background:#4ade8022;border:1px solid #4ade8044;border-radius:5px;color:#4ade80;cursor:pointer;font-size:9px;padding:2px 5px;font-family:monospace">MGT</button>';
+  h+='<button onclick="patch({tab:\'money\',moneySection:\'income\'})" style="background:#4ade8022;border:1px solid #4ade8044;border-radius:5px;color:#4ade80;cursor:pointer;font-size:9px;padding:2px 5px;font-family:monospace">MGT</button>';
   h+='</div></div>';
   h+='<div style="width:1px;height:26px;background:#1e1e2e;flex-shrink:0"></div>';
   h+=sbox("BUDGETED",fmt(totB),"#60a5fa");
@@ -241,31 +241,20 @@ function buildApp(){
   h+=sbox("FREE",fmt(unalloc),unalloc<0?"#f87171":"#4ade80");
   h+=sbox("LEFT",fmt(totB-totS),"#a78bfa");
   h+='</div></div>';
-  var tabs=[["dashboard","Dashboard"],["budget","Budget"],["transactions","Pay"],["income","Income"],["recurring","Rec"],["forecast","Forecast"],["goals","Goals"],["debt","Debt"]];
-  var tabColors={"dashboard":"#a78bfa","budget":"#4ade80","transactions":"#60a5fa","income":"#facc15","recurring":"#fb923c","forecast":"#f472b6","goals":"#2dd4bf","debt":"#f87171"};
-  h+='<div style="background:#0c0c14;border-bottom:2px solid #ffffff0a;display:flex;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;gap:1px;padding:0 6px;align-items:flex-end;flex-shrink:0">';
+  var tabs=[["dashboard","📊 Home"],["budget","💰 Budget"],["transactions","💳 Pay"],["money","⚡ Money"]];
+  var tabColors={"dashboard":"#a78bfa","budget":"#4ade80","transactions":"#60a5fa","money":"#facc15"};
+  h+='<div style="background:#0c0c14;border-bottom:2px solid #ffffff0a;display:flex;gap:1px;padding:0 6px;align-items:flex-end;flex-shrink:0">';
   tabs.forEach(function(t){
     var a=S.tab===t[0];
     var col=tabColors[t[0]]||"#a78bfa";
-    h+='<button onclick="patch({tab:\''+t[0]+'\'})" style="';
-    h+='background:'+(a?col+'22':'transparent')+';';
-    h+='border:none;border-bottom:2px solid '+(a?col:'transparent')+';';
-    h+='color:'+(a?col:'#ffffff40')+';';
-    h+='padding:7px 8px 5px;';
-    h+='cursor:pointer;font-family:Inter,sans-serif;font-size:10px;font-weight:'+(a?'700':'500')+';';
-    h+='white-space:nowrap;letter-spacing:.03em;text-transform:uppercase;flex-shrink:0;transition:all .15s;';
-    h+='">'+t[1]+'</button>';
+    h+='<button onclick="patch({tab:\''+t[0]+'\'})" style="flex:1;background:'+(a?col+'18':'transparent')+';border:none;border-bottom:2px solid '+(a?col:'transparent')+';color:'+(a?col:'#ffffff35')+';padding:8px 4px 6px;cursor:pointer;font-family:Inter,sans-serif;font-size:11px;font-weight:'+(a?'700':'500')+';white-space:nowrap;letter-spacing:.01em;transition:all .15s">'+t[1]+'</button>';
   });
   h+='</div>';
   h+='<div class="tab-content">';
   if(S.tab==="dashboard")h+=tabDashboard(cats,sp,totB,totS,totI,unalloc);
   else if(S.tab==="budget")h+=tabBudget(cats,sp,unalloc);
   else if(S.tab==="transactions")h+=tabTx(opts);
-  else if(S.tab==="income")h+=tabIncome(totI);
-  else if(S.tab==="recurring")h+=tabRecurring(opts);
-  else if(S.tab==="forecast")h+=tabForecast(cats,totI,totB);
-  else if(S.tab==="goals")h+=tabGoals();
-  else if(S.tab==="debt")h+=tabDebt();
+  else if(S.tab==="money")h+=tabMoney(totI,cats,totI,totB,opts);
   h+='</div>';
   if(S.emojiPicker)h+=modalEmoji();
   if(S.showAdvisor)h+=modalAdvisor();
@@ -426,7 +415,7 @@ function tabDashboard(cats,sp,totB,totS,totI,unalloc){
     } else {
       var moToSafe=unalloc>0&&bufferSaved<buffer1mo?Math.ceil((buffer1mo-bufferSaved)/unalloc):null;
       if(moToSafe)h+='<div style="font-size:11px;color:#ffffff40;text-align:center">Put <span style="color:'+bufferColor+';font-weight:600">'+fmt(unalloc)+'</span>/mo here → safe in ~'+moToSafe+' month'+(moToSafe===1?"":"s")+'</div>';
-      h+='<button onclick="patch({tab:\'goals\'})" style="width:100%;background:#ffffff08;border:1.5px solid #ffffff0f;border-radius:10px;padding:7px;color:#ffffff40;cursor:pointer;font-size:11px;margin-top:6px">Add to Buffer →</button>';
+      h+='<button onclick="patch({tab:\'money\',moneySection:\'progress\'})" style="width:100%;background:#ffffff08;border:1.5px solid #ffffff0f;border-radius:10px;padding:7px;color:#ffffff40;cursor:pointer;font-size:11px;margin-top:6px">Add to Buffer →</button>';
     }
     h+='</div>';
   } else {
@@ -434,7 +423,7 @@ function tabDashboard(cats,sp,totB,totS,totI,unalloc){
     h+='<div style="font-size:22px;margin-bottom:6px">🛡️</div>';
     h+='<div style="font-size:13px;font-weight:600;color:#f1f0eb;margin-bottom:4px">Bill Buffer</div>';
     h+='<div style="font-size:11px;color:#ffffff30;margin-bottom:10px">Add recurring bills to calculate your buffer target.</div>';
-    h+='<button onclick="patch({tab:\'recurring\'})" style="background:#ffffff08;border:1.5px solid #ffffff12;border-radius:10px;padding:8px 14px;color:#ffffff50;cursor:pointer;font-size:11px">Add Recurring Bills →</button>';
+    h+='<button onclick="patch({tab:\'money\',moneySection:\'bills\'})" style="background:#ffffff08;border:1.5px solid #ffffff12;border-radius:10px;padding:8px 14px;color:#ffffff50;cursor:pointer;font-size:11px">Add Recurring Bills →</button>';
     h+='</div>';
   }
 
@@ -539,88 +528,222 @@ function txRow(tx,opts){
 }
 
 // ── INCOME TAB ───────────────────────────────────────────
-function tabIncome(totI){
+// ── MONEY TAB (Income + Bills + Goals + Debt + Forecast) ─
+function tabMoney(totI,cats,totInc,totB,opts){
   var fl={monthly:"Monthly",biweekly:"Every 2 Wks",weekly:"Weekly",yearly:"Yearly"};
-  var h='<div style="background:#0d0d16;border:1px solid #4ade8033;border-radius:12px;padding:14px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center">';
-  h+='<div><div class="lbl">TOTAL MONTHLY INCOME</div><div style="font-size:22px;font-weight:bold;color:#4ade80;font-family:monospace">'+fmt(totI)+'</div></div>';
-  h+='<div style="text-align:right"><div class="lbl">SOURCES</div><div style="font-size:18px;font-weight:bold;color:#e2e8f0;font-family:monospace">'+D.incomeStreams.length+'</div></div></div>';
+  var section=S.moneySection||"income";
+  var sections=[["income","💵 Income","#4ade80"],["bills","🔁 Bills","#a78bfa"],["progress","🎯 Progress","#2dd4bf"],["forecast","📅 Forecast","#f472b6"]];
+  var h='<div style="display:flex;gap:6px;margin-bottom:14px;overflow-x:auto;padding-bottom:2px">';
+  sections.forEach(function(s){
+    var a=section===s[0];
+    h+='<button onclick="patch({moneySection:\''+s[0]+'\'})" style="flex-shrink:0;background:'+(a?s[2]+'20':'#ffffff08')+';border:1.5px solid '+(a?s[2]+'44':'#ffffff0a')+';border-radius:20px;padding:6px 13px;color:'+(a?s[2]:'#ffffff35')+';cursor:pointer;font-size:11px;font-weight:'+(a?'700':'500')+'">'+s[1]+'</button>';
+  });
+  h+='</div>';
 
-  // ── ONE-TIME INCOME ──────────────────────────────────────
-  var oneTimeTxs=(D.oneTimeIncome||[]).filter(function(t){return t.month===D.month;}).sort(function(a,b){return b.date.localeCompare(a.date);});
-  var oneTimeTotal=oneTimeTxs.reduce(function(a,t){return a+Number(t.amount);},0);
-  h+='<div style="background:#0d0d16;border:1.5px solid #4ade8033;border-radius:12px;padding:14px;margin-bottom:14px">';
-  h+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">';
-  h+='<div><div style="font-size:13px;font-weight:bold;color:#e2e8f0">💰 One-Time Income</div>';
-  h+='<div style="font-size:10px;color:#475569;font-family:monospace;margin-top:2px">Extra cash, gifts, freelance, etc.</div></div>';
-  if(oneTimeTotal>0)h+='<div style="font-size:13px;font-weight:700;color:#4ade80;font-family:monospace">+'+fmt(oneTimeTotal)+' this month</div>';
-  h+='</div>';
-  h+='<div style="display:flex;gap:7px;margin-bottom:'+(oneTimeTxs.length>0?"10px":"0")+'">';
-  h+='<input id="oti-n" class="inp" placeholder="Description (e.g. Freelance job)" style="flex:2;font-size:12px;padding:8px 10px"/>';
-  h+='<input id="oti-a" type="number" class="inp" placeholder="$" style="flex:1;font-size:12px;padding:8px 10px"/>';
-  h+='<button onclick="addOneTimeIncome()" style="background:#4ade80;color:#0a0a0f;border:none;border-radius:8px;padding:8px 12px;cursor:pointer;font-weight:700;font-size:13px;flex-shrink:0">+</button>';
-  h+='</div>';
-  if(oneTimeTxs.length>0){
+  if(section==="income"){
+    // ── INCOME SECTION ────────────────────────────────────
+    var oneTimeTxs=(D.oneTimeIncome||[]).filter(function(t){return t.month===D.month;});
+    var oneTimeTotal=oneTimeTxs.reduce(function(a,t){return a+Number(t.amount);},0);
+    h+='<div style="background:#0d0d16;border:1px solid #4ade8033;border-radius:14px;padding:12px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center">';
+    h+='<div><div class="lbl">THIS MONTH</div><div style="font-size:20px;font-weight:bold;color:#4ade80;font-family:monospace">'+fmt(totI)+'</div></div>';
+    h+='<div style="text-align:right"><div class="lbl">SOURCES</div><div style="font-size:16px;font-weight:bold;color:#e2e8f0;font-family:monospace">'+(D.incomeStreams.length+(oneTimeTotal>0?'+':''))+'</div></div></div>';
+    // Quick one-time add
+    h+='<div style="background:#0d0d16;border:1.5px solid #4ade8020;border-radius:12px;padding:11px;margin-bottom:10px">';
+    h+='<div style="font-size:11px;font-weight:600;color:#4ade80;margin-bottom:8px">💰 Quick Add Income</div>';
+    h+='<div style="display:flex;gap:6px">';
+    h+='<input id="oti-n" class="inp" placeholder="e.g. Freelance, gift..." style="flex:2;font-size:12px;padding:7px 10px"/>';
+    h+='<input id="oti-a" type="number" class="inp" placeholder="$" style="flex:1;font-size:12px;padding:7px 10px"/>';
+    h+='<button onclick="addOneTimeIncome()" style="background:#4ade80;color:#0a0a0f;border:none;border-radius:8px;padding:8px 11px;cursor:pointer;font-weight:700;font-size:13px;flex-shrink:0">+</button>';
+    h+='</div>';
     oneTimeTxs.forEach(function(t){
-      h+='<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-top:1px solid #ffffff06">';
-      h+='<div style="flex:1;min-width:0"><div style="font-size:12px;color:#e2e8f0">'+esc(t.name)+'</div>';
-      h+='<div style="font-size:10px;color:#475569;font-family:monospace">'+t.date+'</div></div>';
-      h+='<div style="font-size:12px;font-weight:700;color:#4ade80;font-family:monospace">+'+fmt(t.amount)+'</div>';
-      h+='<button onclick="delOneTimeIncome(\''+t.id+'\')" style="background:none;border:none;color:#475569;cursor:pointer;font-size:13px;padding:2px;flex-shrink:0">✕</button>';
+      h+='<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-top:1px solid #ffffff06;margin-top:6px">';
+      h+='<div style="flex:1;font-size:11px;color:#e2e8f0">'+esc(t.name)+'<span style="color:#ffffff25;margin-left:5px">'+t.date+'</span></div>';
+      h+='<div style="font-size:11px;font-weight:700;color:#4ade80">+'+fmt(t.amount)+'</div>';
+      h+='<button onclick="delOneTimeIncome(\''+t.id+'\')" style="background:none;border:none;color:#475569;cursor:pointer;font-size:12px">✕</button>';
       h+='</div>';
     });
-  }
-  h+='</div>';
-
-  // Base income
-  h+='<div style="background:#0d0d16;border:1px solid #1e1e2e;border-radius:12px;padding:14px;margin-bottom:14px">';
-  h+='<div class="lbl" style="margin-bottom:8px">BASE / FIXED INCOME ($)</div>';
-  h+='<div style="display:flex;align-items:center;gap:8px">';
-  h+='<input id="base-inc" type="number" class="inp" placeholder="0" value="'+(D.income||"")+'" style="font-size:16px"/>';
-  h+='<button onclick="saveBaseIncome()" style="background:#4ade8022;border:1px solid #4ade8044;border-radius:8px;color:#4ade80;cursor:pointer;padding:10px 14px;font-family:monospace;font-size:13px;white-space:nowrap;flex-shrink:0">Save</button>';
-  h+='</div><div style="font-size:11px;color:#3d3d5e;font-family:monospace;margin-top:6px">Your regular base income. Add recurring sources below.</div></div>';
-
-  // Add new recurring
-  h+='<div style="background:#0d0d16;border:1px solid #1e1e2e;border-radius:12px;padding:14px;margin-bottom:14px">';
-  h+='<div style="font-size:13px;font-weight:bold;color:#e2e8f0;margin-bottom:12px">+ Add Recurring Income Source</div>';
-  h+='<div style="display:flex;flex-direction:column;gap:10px">';
-  h+='<div class="fld"><div class="lbl">SOURCE NAME</div><input id="is-n" class="inp" placeholder="e.g. Job, Freelance, Benefits, Side Hustle"/></div>';
-  h+='<div class="fld"><div class="lbl">AMOUNT ($)</div><input id="is-a" type="number" class="inp" placeholder="0.00"/></div>';
-  h+='<div class="fld"><div class="lbl">FREQUENCY</div><select id="is-f" class="inp"><option value="monthly">Monthly</option><option value="biweekly">Every 2 Weeks</option><option value="weekly">Weekly</option><option value="yearly">Yearly</option></select></div>';
-  h+='<div class="fld"><div class="lbl">DAY RECEIVED</div><input id="is-d" type="number" class="inp" placeholder="1" min="1" max="31" value="1"/></div>';
-  h+='<button onclick="addStream()" style="background:#4ade80;color:#0a0a0f;border:none;border-radius:10px;padding:12px;cursor:pointer;font-family:monospace;font-weight:bold;font-size:14px;width:100%;margin-top:4px">Add Income Source</button>';
-  h+='</div></div>';
-
-  // List
-  if(D.incomeStreams.length===0){h+='<div style="text-align:center;color:#475569;font-family:monospace;padding:30px;border:1px dashed #1e1e2e;border-radius:12px">No recurring income sources yet.</div>';}
-  else{
+    h+='</div>';
+    // Base income
+    h+='<div style="background:#0d0d16;border:1px solid #1e1e2e;border-radius:12px;padding:11px;margin-bottom:10px">';
+    h+='<div class="lbl" style="margin-bottom:6px">BASE INCOME</div>';
+    h+='<div style="display:flex;gap:7px">';
+    h+='<input id="base-inc" type="number" class="inp" placeholder="0" value="'+(D.income||"")+'" style="font-size:15px;padding:8px 12px"/>';
+    h+='<button onclick="saveBaseIncome()" style="background:#4ade8022;border:1px solid #4ade8044;border-radius:8px;color:#4ade80;cursor:pointer;padding:8px 12px;font-size:12px;flex-shrink:0">Save</button>';
+    h+='</div></div>';
+    // Income streams
+    h+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">';
+    h+='<div style="font-size:11px;color:#ffffff40">Recurring Sources</div>';
+    h+='<button onclick="patch({showAddStream:!S.showAddStream})" style="background:#4ade8015;border:1px solid #4ade8030;border-radius:8px;padding:4px 10px;color:#4ade80;cursor:pointer;font-size:11px;font-weight:600">+ Add</button>';
+    h+='</div>';
+    if(S.showAddStream){
+      h+='<div style="background:#0d0d16;border:1px solid #4ade8020;border-radius:12px;padding:11px;margin-bottom:8px">';
+      h+='<div style="display:flex;flex-direction:column;gap:8px">';
+      h+='<input id="is-n" class="inp" placeholder="Source name" style="font-size:13px;padding:8px 11px"/>';
+      h+='<div style="display:flex;gap:6px">';
+      h+='<input id="is-a" type="number" class="inp" placeholder="Amount" style="flex:1;font-size:13px;padding:8px 11px"/>';
+      h+='<select id="is-f" class="inp" style="flex:1;font-size:12px;padding:8px 11px"><option value="monthly">Monthly</option><option value="biweekly">Every 2 Wks</option><option value="weekly">Weekly</option><option value="yearly">Yearly</option></select>';
+      h+='<input id="is-d" type="number" class="inp" placeholder="Day" min="1" max="31" value="1" style="width:60px;font-size:13px;padding:8px 8px"/>';
+      h+='</div>';
+      h+='<button onclick="addStream();patch({showAddStream:false})" style="background:#4ade80;color:#0a0a0f;border:none;border-radius:8px;padding:9px;cursor:pointer;font-weight:700;font-size:13px">Add Source</button>';
+      h+='</div></div>';
+    }
     h+='<div style="display:flex;flex-direction:column;gap:5px">';
     D.incomeStreams.forEach(function(s){
       var isEdit=S.editStreamId===s.id;
       if(isEdit){
         h+='<div class="edit-row">';
         h+='<div class="fld"><div class="lbl">NAME</div><input id="es-n" class="inp" value="'+esc(s.name)+'"/></div>';
-        h+='<div class="fld"><div class="lbl">AMOUNT ($)</div><input id="es-a" type="number" class="inp" value="'+s.amount+'"/></div>';
-        h+='<div class="fld"><div class="lbl">FREQUENCY</div><select id="es-f" class="inp"><option value="monthly"'+(s.freq==="monthly"?" selected":"")+'>Monthly</option><option value="biweekly"'+(s.freq==="biweekly"?" selected":"")+'>Every 2 Weeks</option><option value="weekly"'+(s.freq==="weekly"?" selected":"")+'>Weekly</option><option value="yearly"'+(s.freq==="yearly"?" selected":"")+'>Yearly</option></select></div>';
-        h+='<div class="fld"><div class="lbl">DAY RECEIVED</div><input id="es-d" type="number" class="inp" value="'+s.day+'"/></div>';
-        h+='<div style="display:flex;gap:8px"><button onclick="saveStream(\''+s.id+'\')" style="flex:1;background:#4ade80;color:#0a0a0f;border:none;border-radius:8px;padding:10px;cursor:pointer;font-family:monospace;font-weight:bold">Save</button><button onclick="removeStream(\''+s.id+'\')" style="background:#f8717122;color:#f87171;border:1px solid #f8717144;border-radius:8px;padding:10px 14px;cursor:pointer;font-family:monospace">Delete</button><button onclick="patch({editStreamId:null})" style="background:#1e1e2e;color:#64748b;border:1px solid #2d2d3e;border-radius:8px;padding:10px 14px;cursor:pointer;font-family:monospace">Cancel</button></div>';
+        h+='<div class="fld"><div class="lbl">AMOUNT</div><input id="es-a" type="number" class="inp" value="'+s.amount+'"/></div>';
+        h+='<div style="display:flex;gap:6px"><select id="es-f" class="inp" style="flex:1"><option value="monthly"'+(s.freq==="monthly"?" selected":"")+'>Monthly</option><option value="biweekly"'+(s.freq==="biweekly"?" selected":"")+'>Every 2 Wks</option><option value="weekly"'+(s.freq==="weekly"?" selected":"")+'>Weekly</option><option value="yearly"'+(s.freq==="yearly"?" selected":"")+'>Yearly</option></select><input id="es-d" type="number" class="inp" value="'+s.day+'" style="width:70px"/></div>';
+        h+='<div style="display:flex;gap:6px"><button onclick="saveStream(\''+s.id+'\')" style="flex:1;background:#4ade80;color:#0a0a0f;border:none;border-radius:8px;padding:9px;cursor:pointer;font-weight:bold;font-size:13px">Save</button><button onclick="removeStream(\''+s.id+'\')" style="background:#f8717115;color:#f87171;border:1px solid #f8717130;border-radius:8px;padding:9px 12px;cursor:pointer;font-size:12px">Del</button><button onclick="patch({editStreamId:null})" style="background:#1e1e2e;color:#64748b;border:1px solid #2d2d3e;border-radius:8px;padding:9px 12px;cursor:pointer;font-size:12px">✕</button></div>';
         h+='</div>';
       } else {
-        h+='<div style="background:#0a100a;border:1px solid #4ade8022;border-radius:10px;padding:7px 10px;display:flex;align-items:center;gap:8px">';
-        h+='<div style="width:24px;height:24px;border-radius:7px;background:#4ade8022;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0">&#x1F4B5;</div>';
-        h+='<div style="flex:1;min-width:0"><div style="font-size:12px;color:#e2e8f0;font-weight:bold">'+esc(s.name)+'</div>';
-        h+='<div style="font-size:10px;color:#475569;font-family:monospace;margin-top:1px">'+(fl[s.freq]||s.freq)+' · Day '+s.day+' · ~'+fmt(streamMonthly(s))+'/mo</div></div>';
-        h+='<div style="font-size:12px;font-weight:bold;color:#4ade80;font-family:monospace;flex-shrink:0">+'+fmt(s.amount)+'</div>';
-        h+='<button onclick="patch({editStreamId:\''+s.id+'\'})" style="background:none;border:1px solid #2d2d3e;border-radius:5px;color:#64748b;cursor:pointer;font-size:10px;padding:3px 6px;font-family:monospace;flex-shrink:0">Edit</button>';
+        h+='<div style="background:#0a100a;border:1px solid #4ade8018;border-radius:10px;padding:7px 10px;display:flex;align-items:center;gap:8px">';
+        h+='<div style="width:22px;height:22px;border-radius:6px;background:#4ade8022;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0">💵</div>';
+        h+='<div style="flex:1;min-width:0"><div style="font-size:12px;color:#e2e8f0;font-weight:600">'+esc(s.name)+'</div>';
+        h+='<div style="font-size:10px;color:#475569;font-family:monospace">'+(fl[s.freq]||s.freq)+' · Day '+s.day+'</div></div>';
+        h+='<div style="font-size:12px;font-weight:700;color:#4ade80;font-family:monospace">+'+fmt(s.amount)+'</div>';
+        h+='<button onclick="patch({editStreamId:\''+s.id+'\'})" style="background:none;border:1px solid #ffffff10;border-radius:5px;color:#ffffff30;cursor:pointer;font-size:10px;padding:2px 6px">Edit</button>';
         h+='</div>';
       }
     });
+    if(D.incomeStreams.length===0)h+='<div style="text-align:center;color:#ffffff20;padding:20px;border:1px dashed #ffffff08;border-radius:10px;font-size:12px">No recurring income yet</div>';
     h+='</div>';
+
+  } else if(section==="bills"){
+    // ── BILLS SECTION ────────────────────────────────────
+    var monthlyBillsTotal=D.recurring.reduce(function(a,r){
+      if(r.freq==="monthly")return a+Number(r.amount||0);
+      if(r.freq==="weekly")return a+Number(r.amount||0)*4.33;
+      if(r.freq==="biweekly")return a+Number(r.amount||0)*2.17;
+      if(r.freq==="yearly")return a+Number(r.amount||0)/12;
+      return a;
+    },0);
+    h+='<div style="background:#0d0d16;border:1px solid #a78bfa33;border-radius:14px;padding:12px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center">';
+    h+='<div><div class="lbl">MONTHLY BILLS</div><div style="font-size:20px;font-weight:bold;color:#a78bfa;font-family:monospace">'+fmt(monthlyBillsTotal)+'</div></div>';
+    h+='<button onclick="patch({showRec:true})" style="background:linear-gradient(135deg,#a78bfa,#7c6dfa);color:#fff;border:none;border-radius:12px;padding:9px 14px;cursor:pointer;font-weight:600;font-size:13px">+ Add Bill</button>';
+    h+='</div>';
+    if(D.recurring.length===0){
+      h+='<div style="text-align:center;color:#ffffff20;padding:30px;border:1px dashed #ffffff08;border-radius:12px;font-size:12px">No recurring bills yet.<br>Add rent, subscriptions, debt payments.</div>';
+    } else {
+      h+='<div style="display:flex;flex-direction:column;gap:5px">';
+      D.recurring.forEach(function(r){
+        var opt=null;for(var i=0;i<opts.length;i++){if(opts[i].id===r.category){opt=opts[i];break;}}if(!opt)opt={icon:"📦",name:r.category,color:"#94a3b8"};
+        var isEdit=S.editRecId===r.id;
+        if(isEdit){
+          var freqs=[["monthly","Monthly"],["weekly","Weekly"],["biweekly","Every 2 Wks"],["yearly","Yearly"]];
+          h+='<div class="edit-row" style="border-color:#a78bfa33">';
+          h+='<div class="fld"><div class="lbl">NAME</div><input id="er-n" class="inp" value="'+esc(r.name)+'"/></div>';
+          h+='<div class="fld"><div class="lbl">AMOUNT</div><input id="er-a" type="number" class="inp" value="'+r.amount+'"/></div>';
+          h+='<div class="fld"><div class="lbl">CATEGORY</div><select id="er-c" class="inp">'+catOptsHTML(D.categories||defCats(),r.category)+'</select></div>';
+          h+='<div style="display:flex;gap:6px"><select id="er-f" class="inp" style="flex:1">';
+          freqs.forEach(function(f){h+='<option value="'+f[0]+'"'+(r.freq===f[0]?" selected":"")+'>'+f[1]+'</option>';});
+          h+='</select><input id="er-d" type="number" class="inp" value="'+r.day+'" style="width:70px" min="1" max="31"/></div>';
+          h+='<div style="display:flex;gap:6px"><button onclick="saveRec(\''+r.id+'\')" style="flex:1;background:#a78bfa;color:#0a0a0f;border:none;border-radius:8px;padding:9px;cursor:pointer;font-weight:bold;font-size:13px">Save</button><button onclick="delRec(\''+r.id+'\')" style="background:#f8717115;color:#f87171;border:1px solid #f8717130;border-radius:8px;padding:9px 12px;cursor:pointer;font-size:12px">Del</button><button onclick="patch({editRecId:null})" style="background:#1e1e2e;color:#64748b;border:1px solid #2d2d3e;border-radius:8px;padding:9px 12px;cursor:pointer;font-size:12px">✕</button></div>';
+          h+='</div>';
+        } else {
+          h+='<div style="background:#0a080f;border:1px solid #a78bfa18;border-radius:10px;padding:7px 10px;display:flex;align-items:center;gap:8px">';
+          h+='<div style="width:22px;height:22px;border-radius:6px;background:'+opt.color+'18;display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0">'+opt.icon+'</div>';
+          h+='<div style="flex:1;min-width:0"><div style="font-size:12px;color:#e2e8f0;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc(r.name)+'</div>';
+          h+='<div style="font-size:10px;color:#ffffff25">Day '+r.day+' · '+(fl[r.freq]||r.freq)+'</div></div>';
+          h+='<div style="font-size:12px;font-weight:700;color:#a78bfa;font-family:monospace">'+fmt(r.amount)+'</div>';
+          h+='<button data-eid="'+r.id+'" onclick="patch({editRecId:this.dataset.eid})" style="background:none;border:1px solid #ffffff0f;border-radius:5px;color:#ffffff25;cursor:pointer;font-size:10px;padding:2px 6px">Edit</button>';
+          h+='</div>';
+        }
+      });
+      h+='</div>';
+    }
+
+  } else if(section==="progress"){
+    // ── PROGRESS SECTION (Goals + Debt combined) ──────────
+    var totDebtRem=D.debts.reduce(function(a,d){return a+(Number(d.total)-Number(d.paid||0));},0);
+    var totSaved=D.goals.reduce(function(a,g){return a+Number(g.saved||0);},0);
+    h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">';
+    h+='<div style="background:#0a100e;border:1.5px solid #2dd4bf22;border-radius:14px;padding:11px"><div class="lbl">SAVED</div><div style="font-size:18px;font-weight:700;color:#2dd4bf">'+fmt(totSaved)+'</div></div>';
+    h+='<div style="background:#100a0a;border:1.5px solid #f8717122;border-radius:14px;padding:11px"><div class="lbl">DEBT LEFT</div><div style="font-size:18px;font-weight:700;color:#f87171">'+fmt(totDebtRem)+'</div></div>';
+    h+='</div>';
+    // Goals
+    h+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:7px">';
+    h+='<div style="font-size:12px;font-weight:600;color:#2dd4bf">🎯 Savings Goals</div>';
+    h+='<button onclick="patch({showGoal:true})" style="background:#2dd4bf15;border:1px solid #2dd4bf30;border-radius:8px;padding:4px 10px;color:#2dd4bf;cursor:pointer;font-size:11px;font-weight:600">+ Add</button>';
+    h+='</div>';
+    if(D.goals.length===0){
+      h+='<div style="text-align:center;color:#ffffff20;padding:16px;border:1px dashed #ffffff08;border-radius:10px;font-size:12px;margin-bottom:12px">No goals yet</div>';
+    } else {
+      h+='<div style="display:flex;flex-direction:column;gap:6px;margin-bottom:12px">';
+      D.goals.forEach(function(g){
+        var target=Number(g.target)||0,saved=Number(g.saved||0),pct=target>0?Math.min((saved/target)*100,100):0;
+        var isEdit=S.editGoalId===g.id;
+        if(isEdit){
+          h+='<div class="edit-row">';
+          h+='<div class="fld"><div class="lbl">NAME</div><input id="eg-n" class="inp" value="'+esc(g.name)+'"/></div>';
+          h+='<div style="display:flex;gap:6px"><input id="eg-t" type="number" class="inp" placeholder="Target" value="'+g.target+'"/><input id="eg-s" type="number" class="inp" placeholder="Saved" value="'+g.saved+'"/></div>';
+          h+='<div style="display:flex;gap:6px"><button onclick="saveGoal(\''+g.id+'\')" style="flex:1;background:#2dd4bf;color:#0a0a0f;border:none;border-radius:8px;padding:9px;cursor:pointer;font-weight:bold;font-size:13px">Save</button><button onclick="removeGoal(\''+g.id+'\')" style="background:#f8717115;color:#f87171;border:1px solid #f8717130;border-radius:8px;padding:9px 12px;cursor:pointer;font-size:12px">Del</button><button onclick="patch({editGoalId:null})" style="background:#1e1e2e;color:#64748b;border:1px solid #2d2d3e;border-radius:8px;padding:9px 12px;cursor:pointer;font-size:12px">✕</button></div>';
+          h+='</div>';
+        } else {
+          h+='<div style="background:#0a100e;border:1px solid #2dd4bf18;border-radius:12px;padding:10px 12px">';
+          h+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">';
+          h+='<div style="display:flex;align-items:center;gap:6px"><span>'+g.icon+'</span><span style="font-size:12px;font-weight:600;color:#e2e8f0">'+esc(g.name)+(g.isBuffer?' 🛡️':'')+'</span></div>';
+          h+='<div style="display:flex;align-items:center;gap:6px"><span style="font-size:12px;font-weight:700;color:#2dd4bf">'+fmt(saved)+'</span><span style="font-size:10px;color:#ffffff25">/ '+fmt(target)+'</span><button onclick="patch({editGoalId:\''+g.id+'\'})" style="background:none;border:1px solid #ffffff0f;border-radius:5px;color:#ffffff25;cursor:pointer;font-size:10px;padding:2px 6px">Edit</button></div>';
+          h+='</div>';
+          h+='<div style="height:4px;background:#ffffff08;border-radius:100px;overflow:hidden;margin-bottom:5px"><div style="height:100%;width:'+pct+'%;background:'+(pct>=100?"#4ade80":"#2dd4bf")+';border-radius:100px"></div></div>';
+          h+='<div style="display:flex;justify-content:space-between;align-items:center">';
+          h+='<span style="font-size:10px;color:#ffffff25">'+Math.round(pct)+'% complete</span>';
+          h+='<div style="display:flex;gap:5px;align-items:center"><input type="number" placeholder="Add $" style="width:80px;background:#ffffff08;border:1px solid #ffffff10;border-radius:6px;padding:4px 7px;color:#f1f0eb;font-size:11px;outline:none" onkeydown="if(event.key===\'Enter\'&&this.value){addToGoal(\''+g.id+'\',this.value);this.value=\'\'}"/><button onclick="var i=this.previousElementSibling;if(i.value)addToGoal(\''+g.id+'\',i.value)" style="background:#2dd4bf20;border:1px solid #2dd4bf30;border-radius:6px;padding:4px 8px;color:#2dd4bf;cursor:pointer;font-size:11px;font-weight:600">+</button></div>';
+          h+='</div></div>';
+        }
+      });
+      h+='</div>';
+    }
+    // Debt
+    h+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:7px">';
+    h+='<div style="font-size:12px;font-weight:600;color:#f87171">💳 Debts</div>';
+    h+='<div style="display:flex;gap:6px;align-items:center">';
+    h+='<button onclick="patch({debtStrategy:S.debtStrategy===\'avalanche\'?\'snowball\':\'avalanche\'})" style="background:#ffffff08;border:1px solid #ffffff10;border-radius:8px;padding:3px 8px;color:#ffffff40;cursor:pointer;font-size:10px">'+(S.debtStrategy==="avalanche"?"🔥 Avalanche":"❄️ Snowball")+'</button>';
+    h+='<button onclick="patch({showDebt:true})" style="background:#f8717115;border:1px solid #f8717130;border-radius:8px;padding:4px 10px;color:#f87171;cursor:pointer;font-size:11px;font-weight:600">+ Add</button>';
+    h+='</div></div>';
+    if(D.debts.length===0){
+      h+='<div style="text-align:center;color:#ffffff20;padding:16px;border:1px dashed #ffffff08;border-radius:10px;font-size:12px">No debts tracked</div>';
+    } else {
+      var ordered=calcPayoffOrder(S.debtStrategy);
+      h+='<div style="display:flex;flex-direction:column;gap:6px">';
+      D.debts.forEach(function(debt){
+        var total=Number(debt.total)||0,paid=Number(debt.paid||0),remaining=total-paid,pct=total>0?Math.min((paid/total)*100,100):0;
+        var moLeft=calcPayoffMonths(remaining,Number(debt.rate)||0,Number(debt.monthly)||0);
+        var isFocus=ordered.length>0&&ordered[0].id===debt.id;
+        var isEdit=S.editDebtId===debt.id;
+        if(isEdit){
+          h+='<div class="edit-row" style="border-color:#f8717133">';
+          h+='<div class="fld"><div class="lbl">NAME</div><input id="ed-n" class="inp" value="'+esc(debt.name)+'"/></div>';
+          h+='<div style="display:flex;gap:6px"><input id="ed-t" type="number" class="inp" placeholder="Total" value="'+debt.total+'"/><input id="ed-p" type="number" class="inp" placeholder="Paid" value="'+debt.paid+'"/></div>';
+          h+='<div style="display:flex;gap:6px"><input id="ed-r" type="number" class="inp" placeholder="APR %" value="'+(debt.rate||"")+'" style="flex:1"/><input id="ed-m" type="number" class="inp" placeholder="Monthly $" value="'+(debt.monthly||"")+'" style="flex:1"/></div>';
+          h+='<div style="display:flex;gap:6px"><button onclick="saveDebt(\''+debt.id+'\')" style="flex:1;background:#f87171;color:#0a0a0f;border:none;border-radius:8px;padding:9px;cursor:pointer;font-weight:bold;font-size:13px">Save</button><button onclick="removeDebt(\''+debt.id+'\')" style="background:#f8717115;color:#f87171;border:1px solid #f8717130;border-radius:8px;padding:9px 12px;cursor:pointer;font-size:12px">Del</button><button onclick="patch({editDebtId:null})" style="background:#1e1e2e;color:#64748b;border:1px solid #2d2d3e;border-radius:8px;padding:9px 12px;cursor:pointer;font-size:12px">✕</button></div>';
+          h+='</div>';
+        } else {
+          h+='<div style="background:#100a0a;border:1.5px solid '+(isFocus?"#f8717140":"#f8717118")+';border-radius:12px;padding:10px 12px">';
+          h+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">';
+          h+='<div style="display:flex;align-items:center;gap:6px"><span style="font-size:12px;font-weight:600;color:#e2e8f0">'+esc(debt.name)+'</span>';
+          if(isFocus)h+='<span style="font-size:9px;background:#f8717120;color:#f87171;border-radius:100px;padding:1px 6px;font-weight:700;border:1px solid #f8717140">FOCUS</span>';
+          h+='</div>';
+          h+='<div style="display:flex;align-items:center;gap:6px"><span style="font-size:12px;font-weight:700;color:#f87171">'+fmt(remaining)+'</span>'+(moLeft?'<span style="font-size:10px;color:#ffffff25">~'+moLeft+'mo</span>':'')+'<button onclick="patch({editDebtId:\''+debt.id+'\'})" style="background:none;border:1px solid #ffffff0f;border-radius:5px;color:#ffffff25;cursor:pointer;font-size:10px;padding:2px 6px">Edit</button></div>';
+          h+='</div>';
+          h+='<div style="height:4px;background:#ffffff08;border-radius:100px;overflow:hidden;margin-bottom:5px"><div style="height:100%;width:'+pct+'%;background:'+(pct>=100?"#4ade80":"#f87171")+';border-radius:100px"></div></div>';
+          h+='<div style="display:flex;justify-content:space-between;align-items:center">';
+          h+='<span style="font-size:10px;color:#ffffff25">'+Math.round(pct)+'% paid · '+(debt.rate?debt.rate+'% APR':'no APR')+'</span>';
+          h+='<div style="display:flex;gap:5px;align-items:center"><input type="number" placeholder="Pay $" style="width:80px;background:#ffffff08;border:1px solid #ffffff10;border-radius:6px;padding:4px 7px;color:#f1f0eb;font-size:11px;outline:none" onkeydown="if(event.key===\'Enter\'&&this.value){quickPay(\''+debt.id+'\',this.value);this.value=\'\'}"/><button onclick="var i=this.previousElementSibling;if(i.value)quickPay(\''+debt.id+'\',i.value)" style="background:#f8717120;border:1px solid #f8717130;border-radius:6px;padding:4px 8px;color:#f87171;cursor:pointer;font-size:11px;font-weight:600">Pay</button></div>';
+          h+='</div></div>';
+        }
+      });
+      h+='</div>';
+    }
+
+  } else if(section==="forecast"){
+    // ── FORECAST SECTION ──────────────────────────────────
+    h+=tabForecast(cats,totInc,totB);
   }
+
   return h;
 }
-
-// ── RECURRING TAB ────────────────────────────────────────
-function tabRecurring(opts){
   var fl={monthly:"Monthly",weekly:"Weekly",biweekly:"Every 2 Wks",yearly:"Yearly"};
   var h='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">';
   h+='<div style="font-size:13px;color:#64748b;font-family:monospace">'+D.recurring.length+' recurring payments</div>';
@@ -656,9 +779,6 @@ function tabRecurring(opts){
     });
     h+='</div>';
   }
-  h+='<div style="margin-top:16px;background:#0d0d16;border:1px solid #a78bfa33;border-radius:12px;padding:13px"><div style="font-size:11px;color:#a78bfa;font-family:monospace;margin-bottom:5px">HOW IT WORKS</div><div style="font-size:12px;color:#475569;line-height:1.6">Recurring payments show in Forecast. Tap POST to add as a real transaction.</div></div>';
-  return h;
-}
 
 // ── FORECAST TAB ─────────────────────────────────────────
 function tabForecast(cats,totI,totB){
