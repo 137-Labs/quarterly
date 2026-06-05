@@ -11,9 +11,9 @@
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-body{font-family:'Inter',sans-serif;background:#0c0c14;color:#f1f0eb;height:100vh;height:100dvh;overflow:hidden;display:flex;flex-direction:column}
+body{font-family:'Inter',sans-serif;background:#0c0c14;color:#f1f0eb;height:100vh;height:100dvh;overflow:hidden;display:flex;flex-direction:column;position:fixed;width:100%;top:0;left:0}
 #app{display:flex;flex-direction:column;height:100%;overflow:hidden}
-.tab-content{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding:12px 14px 16px;max-width:900px;width:100%;margin:0 auto}
+.tab-content{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding:12px 14px 16px;max-width:900px;width:100%;margin:0 auto;min-height:0}
 input,select,button{font-family:'Inter',sans-serif;-webkit-appearance:none}
 input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
 
@@ -1678,6 +1678,11 @@ function importData(event){
 }
 
 render();
+// Chrome/Android viewport height fix
+function fixVH(){var h=window.innerHeight+'px';document.body.style.height=h;document.body.style.maxHeight=h;}
+fixVH();
+window.addEventListener('resize',fixVH);
+window.addEventListener('orientationchange',function(){setTimeout(fixVH,100);});
 </script>
 </body>
 </html>
