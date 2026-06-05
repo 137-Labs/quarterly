@@ -643,6 +643,7 @@ function segBills(){
       h+='<div style="flex:1;min-width:0"><div style="font-size:12px;font-weight:600;color:#e2e8f0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc(r.name)+'</div>';
       h+='<div style="font-size:10px;color:#ffffff25">Day '+r.day+' · '+(fl[r.freq]||r.freq)+'</div></div>';
       h+='<div style="font-size:12px;font-weight:700;color:#a78bfa;font-family:monospace">'+fmt(r.amount)+'</div>';
+      h+='<button onclick="postRec(\''+cl(r.id)+'\')" style="background:#a78bfa18;border:1px solid #a78bfa33;border-radius:6px;color:#a78bfa;cursor:pointer;font-size:10px;padding:3px 7px;flex-shrink:0;font-weight:600">Post</button>';
       h+='<button class="dbtn" onclick="patch({editRec:\''+cl(r.id)+'\'})">Edit</button>';
       h+='</div>';
     }
@@ -976,6 +977,12 @@ function saveRec(id){
   saveD();patch({editRec:null});
 }
 function delRec(id){D.recurring=D.recurring.filter(function(r){return r.id!==id;});saveD();patch({editRec:null});}
+function postRec(id){
+  var r=D.recurring.filter(function(r){return r.id===id;})[0];
+  if(!r)return;
+  D.transactions.push({id:uid(),name:r.name,amount:r.amount,category:r.category,date:tod(),month:D.month,fromRec:true});
+  saveD();render();showToast(r.name+" posted to Pay!");
+}
 function addStream(){
   var n=document.getElementById("is-n"),a=document.getElementById("is-a"),d=document.getElementById("is-d"),f=document.getElementById("is-f");
   if(!n)return;
