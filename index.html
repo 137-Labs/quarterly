@@ -89,6 +89,7 @@ function sanitize(d){
   if(!Array.isArray(d.recurring))d.recurring=[];
   if(!Array.isArray(d.incomeStreams))d.incomeStreams=[];
   if(!Array.isArray(d.oneTimeIncome))d.oneTimeIncome=[];
+  if(!Array.isArray(d.rerouteRules))d.rerouteRules=[];
   if(!d.monthOverrides||typeof d.monthOverrides!=="object")d.monthOverrides={};
   if(!d.budgets||typeof d.budgets!=="object")d.budgets={};
   if(!Array.isArray(d.categories)||d.categories.length===0)d.categories=defCats();
@@ -138,7 +139,8 @@ var S={
   showBackupMenu:false,showAdvisor:false,
   advisorMsgs:[],advisorLoading:false,advisorInput:"",
   debtStrat:"avalanche",showPayoff:false,showNetWorth:false,
-  showAddStream:false
+  showAddStream:false,collapsed:{},
+  movePanel:null,mvType:"cat"
 };
 
 // ── INCOME ─────────────────────────────────────────────────
@@ -230,7 +232,16 @@ function render(){
 }
 function bindEv(){
   var mp=document.getElementById("mpick");
-  if(mp)mp.addEventListener("change",function(e){D.month=e.target.value;saveD();render();});
+  if(mp)mp.addEventListener("change",function(e){
+    var oldMo=D.month;
+    D.month=e.target.value;
+    // Apply standing reroute rules when moving to a new month
+    if(D.month!==oldMo&&D.rerouteRules&&D.rerouteRules.length>0){
+      applyRerouteRules();
+      showToast(D.rerouteRules.length+" reroute rule(s) applied for "+D.month);
+    }
+    saveD();render();
+  });
   if(S.showBackupMenu){
     setTimeout(function(){
       function dismiss(e){
@@ -462,13 +473,36 @@ function catCard(cat,sp){
   var pct=totBgt>0?Math.min(totSpent/totBgt*100,100):0;
   var col=pct>=100?"#f87171":pct>=80?"#facc15":"#4ade80";
   var isOpen=!S.collapsed||!S.collapsed[cat.id];
+  var showMove=S.movePanel===cat.id;
+  // Check if there's an active reroute rule for this category
+  var rules=(D.rerouteRules||[]).filter(function(r){return r.fromId===cat.id;});
   var h='<div class="card" style="padding:10px 12px;margin-bottom:6px">';
-  h+='<div onclick="toggleCat(\''+cl(cat.id)+'\')" style="display:flex;align-items:center;gap:8px;cursor:pointer;margin-bottom:'+(isOpen&&cat.subs&&cat.subs.length>0?"8px":"0")+'">';
+  // Header row
+  h+='<div style="display:flex;align-items:center;gap:8px">';
+  h+='<div onclick="toggleCat(\''+cl(cat.id)+'\')" style="display:flex;align-items:center;gap:8px;flex:1;cursor:pointer;min-width:0">';
   h+='<span style="font-size:15px">'+esc(cat.icon)+'</span>';
   h+='<div style="flex:1;min-width:0"><div style="font-size:12px;font-weight:700;color:#e2e8f0">'+esc(cat.name)+'</div>';
   h+='<div class="pt" style="height:4px;margin-top:3px"><div class="pb" style="width:'+pct+'%;background:'+col+'"></div></div></div>';
-  h+='<span style="font-size:12px;color:#ffffff40;font-family:monospace">'+fmt(totSpent)+'/'+fmt(totBgt)+'</span>';
-  h+='<span style="color:#ffffff20;font-size:10px">'+(isOpen?"▲":"▼")+'</span></div>';
+  h+='<span style="font-size:12px;color:#ffffff40;font-family:monospace;flex-shrink:0">'+fmt(totSpent)+'/'+fmt(totBgt)+'</span>';
+  h+='<span style="color:#ffffff20;font-size:10px">'+(isOpen?"▲":"▼")+'</span>';
+  h+='</div>';
+  h+='<button onclick="patch({movePanel:S.movePanel===\''+cl(cat.id)+'\'?null:\''+cl(cat.id)+'\'})" title="Reroute budget" style="background:'+(showMove?"#facc1520":"#ffffff08")+';border:1px solid '+(showMove?"#facc1540":"#ffffff0f")+';border-radius:7px;color:'+(showMove?"#facc15":"#ffffff30")+';cursor:pointer;font-size:12px;padding:4px 7px;flex-shrink:0;font-weight:600">⇄</button>';
+  h+='</div>';
+  // Active reroute rules badge
+  if(rules.length>0){
+    h+='<div style="margin-top:6px;display:flex;flex-wrap:wrap;gap:4px">';
+    rules.forEach(function(rule){
+      var destName=rule.destType==="goal"?(D.goals.filter(function(g){return g.id===rule.destId;})[0]||{name:"?"}).name:(D.categories||[]).reduce(function(a,c){if(c.id===rule.destId)return c.name;(c.subs||[]).forEach(function(s){if(s.id===rule.destId)a=s.name;});return a;},"?");
+      h+='<div style="display:flex;align-items:center;gap:4px;background:#facc1510;border:1px solid #facc1525;border-radius:6px;padding:2px 7px">';
+      h+='<span style="font-size:10px;color:#facc15">↻ '+fmt(rule.amount)+'/mo → '+esc(destName)+'</span>';
+      h+='<button onclick="delReroute(\''+cl(rule.id)+'\')" style="background:none;border:none;color:#facc1560;cursor:pointer;font-size:11px;padding:0 2px;line-height:1">✕</button>';
+      h+='</div>';
+    });
+    h+='</div>';
+  }
+  // Move panel
+  if(showMove){h+=reroutePanel(cat.id);}
+  // Sub-categories
   if(isOpen){
     if(cat.subs&&cat.subs.length>0){
       cat.subs.forEach(function(sub){
@@ -476,15 +510,35 @@ function catCard(cat,sp){
         var sspent=sp[sub.id]||0;
         var sp2=sbgt>0?Math.min(sspent/sbgt*100,100):0;
         var sc=sp2>=100?"#f87171":sp2>=80?"#facc15":"#4ade80";
-        h+='<div style="display:flex;align-items:center;gap:6px;padding:5px 0 5px 8px;border-top:1px solid #ffffff05">';
+        var showSubMove=S.movePanel===sub.id;
+        var subRules=(D.rerouteRules||[]).filter(function(r){return r.fromId===sub.id;});
+        h+='<div style="border-top:1px solid #ffffff05">';
+        h+='<div style="display:flex;align-items:center;gap:6px;padding:5px 0 5px 8px">';
         h+='<span style="font-size:11px">'+esc(sub.icon)+'</span>';
         h+='<span style="flex:1;font-size:11px;color:#e2e8f0">'+esc(sub.name)+'</span>';
-        h+='<input type="number" value="'+sbgt+'" style="width:80px;background:#1a1a28;border:1px solid #ffffff0f;border-radius:7px;padding:4px 7px;color:#f1f0eb;font-size:11px;outline:none;text-align:right" onchange="setBudget(\''+cl(sub.id)+'\',this.value)" onblur="setBudget(\''+cl(sub.id)+'\',this.value)"/>';
+        h+='<input type="number" value="'+sbgt+'" style="width:70px;background:#1a1a28;border:1px solid #ffffff0f;border-radius:7px;padding:4px 7px;color:#f1f0eb;font-size:11px;outline:none;text-align:right" onchange="setBudget(\''+cl(sub.id)+'\',this.value)" onblur="setBudget(\''+cl(sub.id)+'\',this.value)"/>';
+        h+='<button onclick="patch({movePanel:S.movePanel===\''+cl(sub.id)+'\'?null:\''+cl(sub.id)+'\'})" style="background:'+(showSubMove?"#facc1520":"#ffffff08")+';border:1px solid '+(showSubMove?"#facc1540":"#ffffff0f")+';border-radius:6px;color:'+(showSubMove?"#facc15":"#ffffff25")+';cursor:pointer;font-size:11px;padding:3px 6px;flex-shrink:0">⇄</button>';
+        h+='</div>';
+        // Sub reroute rules badges
+        if(subRules.length>0){
+          h+='<div style="display:flex;flex-wrap:wrap;gap:4px;padding:0 0 5px 8px">';
+          subRules.forEach(function(rule){
+            var destName=rule.destType==="goal"?(D.goals.filter(function(g){return g.id===rule.destId;})[0]||{name:"?"}).name:(D.categories||[]).reduce(function(a,c){if(c.id===rule.destId)return c.name;(c.subs||[]).forEach(function(s){if(s.id===rule.destId)a=s.name;});return a;},"?");
+            h+='<div style="display:flex;align-items:center;gap:4px;background:#facc1510;border:1px solid #facc1525;border-radius:6px;padding:2px 7px">';
+            h+='<span style="font-size:10px;color:#facc15">↻ '+fmt(rule.amount)+'/mo → '+esc(destName)+'</span>';
+            h+='<button onclick="delReroute(\''+cl(rule.id)+'\')" style="background:none;border:none;color:#facc1560;cursor:pointer;font-size:11px;padding:0 2px">✕</button>';
+            h+='</div>';
+          });
+          h+='</div>';
+        }
+        // Sub reroute panel
+        if(showSubMove){
+          h+=reroutePanel(sub.id);
+        }
         h+='</div>';
       });
     } else {
       var bgt2=Number(D.budgets[cat.id]||0);
-      var spent2=sp[cat.id]||0;
       h+='<div style="display:flex;align-items:center;gap:6px;padding-top:6px;border-top:1px solid #ffffff05">';
       h+='<span style="flex:1;font-size:11px;color:#ffffff50">Budget</span>';
       h+='<input type="number" value="'+bgt2+'" style="width:80px;background:#1a1a28;border:1px solid #ffffff0f;border-radius:7px;padding:4px 7px;color:#f1f0eb;font-size:11px;outline:none;text-align:right" onchange="setBudget(\''+cl(cat.id)+'\',this.value)" onblur="setBudget(\''+cl(cat.id)+'\',this.value)"/>';
@@ -502,6 +556,83 @@ function toggleCat(id){
 function setBudget(id,val){
   D.budgets[id]=Number(val)||0;
   saveD();render();
+}
+function reroutePanel(fromId){
+  var mvType=S.mvType||"cat";
+  var h='<div style="background:#0a0a14;border:1.5px solid #facc1525;border-radius:12px;padding:12px;margin-top:6px;margin-bottom:4px">';
+  h+='<div style="font-size:11px;font-weight:600;color:#facc15;margin-bottom:10px">⇄ Reroute Budget</div>';
+  h+='<div class="row" style="margin-bottom:8px">';
+  h+='<div style="flex:1"><div class="lbl">AMOUNT $</div><input id="mv-amt" type="number" class="inp" placeholder="e.g. 50" style="font-size:13px;padding:7px 10px"/></div>';
+  h+='</div>';
+  h+='<div style="display:flex;gap:6px;margin-bottom:8px">';
+  h+='<button onclick="patch({mvType:\'cat\'})" style="flex:1;background:'+(mvType==="cat"?"#60a5fa20":"#ffffff08")+';border:1.5px solid '+(mvType==="cat"?"#60a5fa44":"#ffffff0f")+';border-radius:8px;padding:7px;color:'+(mvType==="cat"?"#60a5fa":"#ffffff30")+';cursor:pointer;font-size:11px;font-weight:600">→ Category</button>';
+  h+='<button onclick="patch({mvType:\'goal\'})" style="flex:1;background:'+(mvType==="goal"?"#2dd4bf20":"#ffffff08")+';border:1.5px solid '+(mvType==="goal"?"#2dd4bf44":"#ffffff0f")+';border-radius:8px;padding:7px;color:'+(mvType==="goal"?"#2dd4bf":"#ffffff30")+';cursor:pointer;font-size:11px;font-weight:600">→ Goal</button>';
+  h+='</div>';
+  h+='<div class="fld" style="margin-bottom:8px"><div class="lbl">SEND TO</div>';
+  h+='<select id="mv-dest" class="inp" style="font-size:12px">';
+  if(mvType==="goal"){
+    D.goals.forEach(function(g){h+='<option value="'+esc(g.id)+'">'+esc(g.icon)+' '+esc(g.name)+'</option>';});
+    if(D.goals.length===0)h+='<option value="">No goals yet — add one first</option>';
+  } else {
+    (D.categories||[]).forEach(function(c){
+      if(c.id!==fromId)h+='<option value="'+esc(c.id)+'">'+esc(c.icon)+' '+esc(c.name)+'</option>';
+      (c.subs||[]).forEach(function(s){if(s.id!==fromId)h+='<option value="'+esc(s.id)+'">  └ '+esc(s.icon)+' '+esc(s.name)+'</option>';});
+    });
+  }
+  h+='</select></div>';
+  h+='<div class="row" style="gap:6px">';
+  h+='<button onclick="doMoveNow(\''+cl(fromId)+'\')" style="flex:1;background:#facc1520;border:1.5px solid #facc1540;border-radius:9px;padding:9px;color:#facc15;cursor:pointer;font-size:12px;font-weight:600">Move Now</button>';
+  h+='<button onclick="doMakeRecurring(\''+cl(fromId)+'\')" style="flex:1;background:#a78bfa20;border:1.5px solid #a78bfa40;border-radius:9px;padding:9px;color:#a78bfa;cursor:pointer;font-size:12px;font-weight:600">↻ Every Month</button>';
+  h+='</div>';
+  h+='<div style="font-size:10px;color:#ffffff25;margin-top:6px;text-align:center">Move Now is one-time · Every Month auto-applies each month</div>';
+  h+='</div>';
+  return h;
+}
+function doMoveNow(fromId){
+  var amt=Number((document.getElementById("mv-amt")||{}).value)||0;
+  var dest=(document.getElementById("mv-dest")||{}).value||"";
+  if(!amt||!dest)return showToast("Enter amount and destination","#f87171");
+  var mvType=S.mvType||"cat";
+  // Deduct from source
+  if(D.budgets[fromId]!==undefined){
+    D.budgets[fromId]=Math.max(0,(D.budgets[fromId]||0)-amt);
+  }
+  if(mvType==="goal"){
+    // Add to goal saved amount
+    D.goals=D.goals.map(function(g){return g.id===dest?Object.assign({},g,{saved:g.saved+amt}):g;});
+    var gname=(D.goals.filter(function(g){return g.id===dest;})[0]||{name:"goal"}).name;
+    showToast(fmt(amt)+" moved to "+gname+"!");
+  } else {
+    // Add to dest budget
+    D.budgets[dest]=(D.budgets[dest]||0)+amt;
+    showToast(fmt(amt)+" moved!");
+  }
+  saveD();patch({movePanel:null});
+}
+function doMakeRecurring(fromId){
+  var amt=Number((document.getElementById("mv-amt")||{}).value)||0;
+  var dest=(document.getElementById("mv-dest")||{}).value||"";
+  if(!amt||!dest)return showToast("Enter amount and destination","#f87171");
+  if(!D.rerouteRules)D.rerouteRules=[];
+  D.rerouteRules.push({id:uid(),fromId:fromId,destId:dest,destType:S.mvType||"cat",amount:amt});
+  saveD();patch({movePanel:null});showToast("Auto-reroute set for every month!");
+}
+function delReroute(id){
+  D.rerouteRules=(D.rerouteRules||[]).filter(function(r){return r.id!==id;});
+  saveD();render();showToast("Reroute removed");
+}
+function applyRerouteRules(){
+  // Called when month changes — applies all standing reroute rules
+  (D.rerouteRules||[]).forEach(function(rule){
+    if(D.budgets[rule.fromId]!==undefined){
+      D.budgets[rule.fromId]=Math.max(0,(D.budgets[rule.fromId]||0)-rule.amount);
+    }
+    if(rule.destType==="goal"){
+      D.goals=D.goals.map(function(g){return g.id===rule.destId?Object.assign({},g,{saved:g.saved+rule.amount}):g;});
+    } else {
+      D.budgets[rule.destId]=(D.budgets[rule.destId]||0)+rule.amount;
+    }
+  });
 }
 
 // ── PAY TAB ────────────────────────────────────────────────
