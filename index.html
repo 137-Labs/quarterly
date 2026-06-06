@@ -670,10 +670,13 @@ function segProgress(){
   D.goals.forEach(function(g){
     var pct=g.target>0?Math.min(g.saved/g.target*100,100):0;
     if(S.editGoal===g.id){
+      var ovOpts='<option value="">None</option>';
+      D.goals.forEach(function(g2){if(g2.id!==g.id)ovOpts+='<option value="'+esc(g2.id)+'"'+(g.overflowTo===g2.id?" selected":"")+'>'+esc(g2.icon)+' '+esc(g2.name)+'</option>';});
       h+='<div class="er" style="margin-bottom:6px">';
       h+='<div class="fld"><div class="lbl">NAME</div><input id="eg-n" class="inp" value="'+esc(g.name)+'"/></div>';
       h+='<div class="row" style="margin-bottom:8px"><div style="flex:1"><div class="lbl">TARGET</div><input id="eg-t" type="number" class="inp" value="'+g.target+'"/></div>';
       h+='<div style="flex:1"><div class="lbl">SAVED</div><input id="eg-s" type="number" class="inp" value="'+g.saved+'"/></div></div>';
+      h+='<div class="fld" style="margin-bottom:8px"><div class="lbl">OVERFLOW TO</div><select id="eg-ov" class="inp">'+ovOpts+'</select></div>';
       h+='<div class="row"><button onclick="saveGoal(\''+cl(g.id)+'\')" style="flex:1;background:#2dd4bf;color:#0a0a0f;border:none;border-radius:8px;padding:9px;cursor:pointer;font-weight:700">Save</button>';
       h+='<button onclick="delGoal(\''+cl(g.id)+'\')" style="background:#f8717115;color:#f87171;border:1px solid #f8717130;border-radius:8px;padding:9px 12px;cursor:pointer">Del</button>';
       h+='<button onclick="patch({editGoal:null})" style="background:#1e1e2e;color:#64748b;border:1px solid #2d2d3e;border-radius:8px;padding:9px 12px;cursor:pointer">✕</button></div></div>';
@@ -685,7 +688,13 @@ function segProgress(){
       h+='<button class="dbtn" onclick="patch({editGoal:\''+cl(g.id)+'\'})">Edit</button></div></div>';
       h+='<div class="pt" style="height:4px;margin-bottom:5px"><div class="pb" style="width:'+pct+'%;background:'+(pct>=100?"#4ade80":"#2dd4bf")+'"></div></div>';
       h+='<div style="display:flex;justify-content:space-between;align-items:center">';
+      h+='<div>';
       h+='<span style="font-size:10px;color:#ffffff25">'+Math.round(pct)+'%</span>';
+      if(g.overflowTo){
+        var ovG=D.goals.filter(function(g2){return g2.id===g.overflowTo;})[0];
+        if(ovG)h+='<span style="font-size:10px;color:#facc15;margin-left:6px">→ overflow to '+esc(ovG.icon)+' '+esc(ovG.name)+'</span>';
+      }
+      h+='</div>';
       h+='<div class="row"><input type="number" placeholder="Add $" style="width:75px;background:#ffffff08;border:1px solid #ffffff10;border-radius:6px;padding:4px 7px;color:#f1f0eb;font-size:11px;outline:none" onkeydown="if(event.key===\'Enter\'&&this.value){addToGoal(\''+cl(g.id)+'\',this.value);this.value=\'\'}"/>';
       h+='<button onclick="var i=this.previousElementSibling;if(i.value){addToGoal(\''+cl(g.id)+'\',i.value);i.value=\'\'}" style="background:#2dd4bf18;border:1px solid #2dd4bf30;border-radius:6px;padding:4px 8px;color:#2dd4bf;cursor:pointer;font-size:11px;font-weight:600">+</button>';
       h+='</div></div></div>';
@@ -817,13 +826,18 @@ function modalTx(){
   return h;
 }
 function modalGoal(){
+  var overflowOpts='<option value="">None (keep extra here)</option>';
+  D.goals.forEach(function(g){overflowOpts+='<option value="'+esc(g.id)+'">'+esc(g.icon)+' '+esc(g.name)+'</option>';});
   var h='<div class="mbg" onclick="if(event.target===this)patch({showGoal:false})">';
   h+='<div class="modal"><div class="mh"><h3>🎯 New Goal</h3><button onclick="patch({showGoal:false})">✕</button></div>';
   h+='<div class="fld"><div class="lbl">GOAL NAME</div><input id="go-n" class="inp" placeholder="e.g. Emergency Fund"/></div>';
   h+='<div class="row" style="margin-bottom:12px"><div style="flex:1"><div class="lbl">TARGET $</div><input id="go-t" type="number" class="inp" placeholder="1000"/></div>';
   h+='<div style="flex:1"><div class="lbl">SAVED SO FAR $</div><input id="go-s" type="number" class="inp" placeholder="0"/></div></div>';
-  h+='<div class="fld"><div class="lbl">ICON</div><input id="go-i" class="inp" value="🎯" style="font-size:20px;text-align:center"/></div>';
-  h+='<button onclick="addGoal()" style="width:100%;background:#2dd4bf;color:#0a0a0f;border:none;border-radius:12px;padding:13px;cursor:pointer;font-weight:700;font-size:14px;margin-top:4px">Create Goal</button>';
+  h+='<div class="row" style="margin-bottom:12px"><div style="flex:1"><div class="lbl">ICON</div><input id="go-i" class="inp" value="🎯" style="font-size:20px;text-align:center"/></div></div>';
+  h+='<div class="fld"><div class="lbl">WHEN FULL, OVERFLOW TO</div>';
+  h+='<select id="go-ov" class="inp">'+overflowOpts+'</select>';
+  h+='<div style="font-size:10px;color:#ffffff30;margin-top:4px">Extra money added beyond the target goes here automatically.</div></div>';
+  h+='<button onclick="addGoal()" style="width:100%;background:#2dd4bf;color:#0a0a0f;border:none;border-radius:12px;padding:13px;cursor:pointer;font-weight:700;font-size:14px;margin-top:8px">Create Goal</button>';
   h+='</div></div>';
   return h;
 }
@@ -946,23 +960,40 @@ function delTx(id){
   saveD();render();
 }
 function addGoal(){
-  var n=document.getElementById("go-n"),t=document.getElementById("go-t"),s=document.getElementById("go-s"),i=document.getElementById("go-i");
+  var n=document.getElementById("go-n"),t=document.getElementById("go-t"),s=document.getElementById("go-s"),i=document.getElementById("go-i"),ov=document.getElementById("go-ov");
   if(!n)return;
   var name=n.value.trim();
   if(!name)return showToast("Enter goal name","#f87171");
-  D.goals.push({id:uid(),name:name,target:Number(t&&t.value)||0,saved:Number(s&&s.value)||0,icon:(i&&i.value)||"🎯"});
+  D.goals.push({id:uid(),name:name,target:Number(t&&t.value)||0,saved:Number(s&&s.value)||0,icon:(i&&i.value)||"🎯",overflowTo:(ov&&ov.value)||""});
   saveD();patch({showGoal:false});showToast("Goal created!");
 }
 function saveGoal(id){
-  var n=document.getElementById("eg-n"),t=document.getElementById("eg-t"),s=document.getElementById("eg-s");
+  var n=document.getElementById("eg-n"),t=document.getElementById("eg-t"),s=document.getElementById("eg-s"),ov=document.getElementById("eg-ov");
   if(!n)return;
-  D.goals=D.goals.map(function(g){return g.id===id?Object.assign({},g,{name:n.value.trim(),target:Number(t&&t.value)||0,saved:Number(s&&s.value)||0}):g;});
+  D.goals=D.goals.map(function(g){return g.id===id?Object.assign({},g,{name:n.value.trim(),target:Number(t&&t.value)||0,saved:Number(s&&s.value)||0,overflowTo:(ov&&ov.value)||g.overflowTo||""}):g;});
   saveD();patch({editGoal:null});
 }
 function delGoal(id){D.goals=D.goals.filter(function(g){return g.id!==id;});saveD();patch({editGoal:null});}
 function addToGoal(id,amount){
-  D.goals=D.goals.map(function(g){return g.id===id?Object.assign({},g,{saved:g.saved+Number(amount)}):g;});
-  saveD();render();showToast("Saved!");
+  amount=Number(amount)||0;
+  if(!amount)return;
+  D.goals=D.goals.map(function(g){
+    if(g.id!==id)return g;
+    var newSaved=g.saved+amount;
+    var overflow=g.target>0&&newSaved>g.target?newSaved-g.target:0;
+    if(overflow>0&&g.overflowTo){
+      // Route overflow to another goal
+      D.goals=D.goals.map(function(g2){
+        if(g2.id!==g.overflowTo)return g2;
+        showToast(fmt(overflow)+" overflow → "+g2.name+"!");
+        return Object.assign({},g2,{saved:g2.saved+overflow});
+      });
+      return Object.assign({},g,{saved:g.target});
+    }
+    if(overflow>0)showToast(g.name+" is full! Set an overflow goal to route the extra.");
+    return Object.assign({},g,{saved:newSaved});
+  });
+  saveD();render();
 }
 function addDebt(){
   var n=document.getElementById("dbt-n"),t=document.getElementById("dbt-t"),p=document.getElementById("dbt-p"),r=document.getElementById("dbt-r"),m=document.getElementById("dbt-m");
