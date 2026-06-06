@@ -810,7 +810,7 @@ function segForecast(cats,totI,totB){
           if(alreadyPosted){
             h+='<span style="font-size:10px;color:#4ade80;background:#4ade8012;border:1px solid #4ade8025;border-radius:5px;padding:2px 6px;flex-shrink:0">✓</span>';
           } else {
-            h+='<button onclick="postRec(\''+cl(r.id)+'\')" style="background:#a78bfa15;border:1px solid #a78bfa30;border-radius:5px;color:#a78bfa;cursor:pointer;font-size:10px;padding:2px 7px;flex-shrink:0;font-weight:600">Post</button>';
+            h+='<button onclick="postRec(\''+cl(r.id)+'\',\''+mo+'\')" style="background:#a78bfa15;border:1px solid #a78bfa30;border-radius:5px;color:#a78bfa;cursor:pointer;font-size:10px;padding:2px 7px;flex-shrink:0;font-weight:600">Post</button>';
           }
         }
         h+='</div>';
@@ -1049,11 +1049,14 @@ function saveRec(id){
   saveD();patch({editRec:null});
 }
 function delRec(id){D.recurring=D.recurring.filter(function(r){return r.id!==id;});saveD();patch({editRec:null});}
-function postRec(id){
+function postRec(id,month){
   var r=D.recurring.filter(function(r){return r.id===id;})[0];
   if(!r)return;
-  D.transactions.push({id:uid(),name:r.name,amount:r.amount,category:r.category,date:tod(),month:D.month,fromRec:true});
-  saveD();render();showToast(r.name+" posted to Pay!");
+  var mo=month||D.month;
+  var already=D.transactions.some(function(t){return t.fromRec&&t.name===r.name&&t.month===mo;});
+  if(already)return showToast(r.name+" already posted for "+mo,"#facc15");
+  D.transactions.push({id:uid(),name:r.name,amount:r.amount,category:r.category,date:tod(),month:mo,fromRec:true});
+  saveD();render();showToast(r.name+" posted!");
 }
 function addStream(){
   var n=document.getElementById("is-n"),a=document.getElementById("is-a"),d=document.getElementById("is-d"),f=document.getElementById("is-f");
