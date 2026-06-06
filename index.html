@@ -938,10 +938,14 @@ function segForecast(cats,totI,totB){
         h+='<div style="flex:1;min-width:0"><div style="font-size:11px;color:#e2e8f0;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc(r.name)+'</div></div>';
         h+='<div style="font-size:11px;font-weight:700;color:#a78bfa;font-family:monospace;flex-shrink:0">'+fmt(r.amount)+'</div>';
         if(isNow){
+          var alreadySkipped=D.transactions.some(function(t){return t.fromRecSkip&&t.name===r.name&&t.month===mo;});
           if(alreadyPosted){
-            h+='<span style="font-size:10px;color:#4ade80;background:#4ade8012;border:1px solid #4ade8025;border-radius:5px;padding:2px 6px;flex-shrink:0">✓</span>';
+            h+='<span style="font-size:10px;color:#4ade80;background:#4ade8012;border:1px solid #4ade8025;border-radius:5px;padding:2px 6px;flex-shrink:0">✓ Paid</span>';
+          } else if(alreadySkipped){
+            h+='<span style="font-size:10px;color:#2dd4bf;background:#2dd4bf12;border:1px solid #2dd4bf25;border-radius:5px;padding:2px 6px;flex-shrink:0">✓ Saved</span>';
           } else {
             h+='<button onclick="postRec(\''+cl(r.id)+'\',\''+mo+'\')" style="background:#a78bfa15;border:1px solid #a78bfa30;border-radius:5px;color:#a78bfa;cursor:pointer;font-size:10px;padding:2px 7px;flex-shrink:0;font-weight:600">Post</button>';
+            h+='<button onclick="skipRec(\''+cl(r.id)+'\',\''+mo+'\')" style="background:#2dd4bf12;border:1px solid #2dd4bf30;border-radius:5px;color:#2dd4bf;cursor:pointer;font-size:10px;padding:2px 7px;flex-shrink:0;font-weight:600">Skip→💰</button>';
           }
         }
         h+='</div>';
@@ -1188,6 +1192,44 @@ function postRec(id,month){
   if(already)return showToast(r.name+" already posted for "+mo,"#facc15");
   D.transactions.push({id:uid(),name:r.name,amount:r.amount,category:r.category,date:tod(),month:mo,fromRec:true});
   saveD();render();showToast(r.name+" posted!");
+}
+function skipRec(id,month){
+  var r=D.recurring.filter(function(r){return r.id===id;})[0];
+  if(!r)return;
+  var mo=month||D.month;
+  var already=D.transactions.some(function(t){return(t.fromRec||t.fromRecSkip)&&t.name===r.name&&t.month===mo;});
+  if(already)return showToast(r.name+" already handled for "+mo,"#facc15");
+  // Find reroute rule for this recurring payment's category
+  var rules=(D.rerouteRules||[]).filter(function(rule){return rule.fromId===r.category;});
+  if(rules.length>0){
+    // Auto-route to the configured destination
+    rules.forEach(function(rule){
+      if(rule.destType==="goal"){
+        var gname="";
+        D.goals=D.goals.map(function(g){
+          if(g.id!==rule.destId)return g;
+          gname=g.name;
+          return Object.assign({},g,{saved:g.saved+r.amount});
+        });
+        showToast(fmt(r.amount)+" skipped → 💰 "+gname+"!");
+      } else {
+        D.budgets[rule.destId]=(D.budgets[rule.destId]||0)+r.amount;
+        showToast(fmt(r.amount)+" skipped → budget!");
+      }
+    });
+  } else {
+    // No rule set — route to first available goal or just mark as saved
+    if(D.goals.length>0){
+      var g=D.goals[0];
+      D.goals=D.goals.map(function(g2){return g2.id===g.id?Object.assign({},g2,{saved:g2.saved+r.amount}):g2;});
+      showToast(fmt(r.amount)+" → "+g.name+"! (Set a reroute rule to choose where)");
+    } else {
+      showToast(fmt(r.amount)+" marked as saved — add a goal to track it!","#facc15");
+    }
+  }
+  // Mark as skipped so button shows ✓ Saved
+  D.transactions.push({id:uid(),name:r.name,amount:r.amount,category:r.category,date:tod(),month:mo,fromRecSkip:true});
+  saveD();render();
 }
 function addStream(){
   var n=document.getElementById("is-n"),a=document.getElementById("is-a"),d=document.getElementById("is-d"),f=document.getElementById("is-f");
