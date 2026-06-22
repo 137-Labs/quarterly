@@ -3,1080 +3,1407 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
-<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="theme-color" content="#0a1a0a"/>
 <meta name="mobile-web-app-capable" content="yes"/>
-<meta name="theme-color" content="#080810"/>
-<title>Quarterly</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"/>
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<title>AutoGrow</title>
 <style>
-:root{
-  --bg:#080810;
-  --bg2:#0e0e1c;
-  --bg3:#141428;
-  --bg4:#1a1a32;
-  --surface:#1e1e36;
-  --border:#ffffff06;
-  --border2:#ffffff0c;
-  --border3:#ffffff14;
-  --violet:#7c6dfa;
-  --violet2:#a78bfa;
-  --green:#4ade80;
-  --green2:#22c55e;
-  --blue:#60a5fa;
-  --amber:#facc15;
-  --orange:#fb923c;
-  --red:#f87171;
-  --teal:#2dd4bf;
-  --pink:#f472b6;
-  --text:#f0eeff;
-  --text2:#9490b8;
-  --text3:#4a4870;
-  --font:'DM Sans',system-ui,sans-serif;
-  --mono:'DM Mono',monospace;
-}
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap');
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:var(--font)}
-body{display:flex;flex-direction:column;position:fixed;width:100%;top:0;left:0}
-#app{display:flex;flex-direction:column;height:100vh;overflow:hidden}
-.tc{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding:12px 14px 24px;min-height:0}
-.tc::-webkit-scrollbar{width:2px}
-.tc::-webkit-scrollbar-thumb{background:var(--border3);border-radius:2px}
-input,select,button,textarea{font-family:var(--font);-webkit-appearance:none;appearance:none}
+:root{
+  --bg:#071007;--bg2:#0d1a0d;--bg3:#142014;
+  --green:#4ade80;--green2:#22c55e;--green3:#166534;
+  --yellow:#facc15;--orange:#fb923c;--red:#f87171;
+  --purple:#a78bfa;--blue:#60a5fa;--teal:#2dd4bf;
+  --text:#e8f5e8;--text2:#9cbf9c;--text3:#4a6b4a;
+  --border:#1a2e1a;--border2:#243824;
+}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+input,select,button,textarea{font-family:'DM Sans',sans-serif;-webkit-appearance:none}
 input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
-input[type=month]::-webkit-calendar-picker-indicator{filter:invert(0.3)}
+::-webkit-scrollbar{width:3px;height:3px}
+::-webkit-scrollbar-thumb{background:#1a2e1a;border-radius:2px}
+
+/* Tab bar */
+.tbar{display:flex;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;background:var(--bg2);border-bottom:1px solid var(--border2);padding:0 6px}
+.tbar::-webkit-scrollbar{display:none}
+.tbar button{flex-shrink:0;padding:11px 12px;background:none;border:none;border-bottom:2px solid transparent;color:var(--text3);font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;cursor:pointer;white-space:nowrap;transition:all .15s}
+.tbar button.active{color:var(--green);border-bottom-color:var(--green);font-weight:600}
 
 /* Inputs */
-.inp{background:var(--bg3);border:1.5px solid var(--border2);border-radius:11px;padding:10px 13px;color:var(--text);font-size:13px;outline:none;width:100%;transition:border-color .2s}
-.inp:focus{border-color:#7c6dfa44;background:var(--bg4)}
-select.inp{cursor:pointer}
+.inp{width:100%;background:var(--bg3);border:1.5px solid var(--border2);border-radius:12px;padding:11px 14px;color:var(--text);font-size:14px;outline:none;transition:border-color .2s}
+.inp:focus{border-color:#4ade8040}
+.inp-sm{background:var(--bg3);border:1.5px solid var(--border2);border-radius:8px;padding:6px 10px;color:var(--text);font-size:13px;outline:none}
+
+/* Buttons */
+.btn{border:none;border-radius:12px;padding:12px 18px;cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:600;font-size:14px;transition:all .15s}
+.btn:active{transform:scale(.97)}
+.btn-green{background:var(--green);color:#071007}
+.btn-outline{background:transparent;border:1.5px solid var(--border2);color:var(--text2)}
+.btn-red{background:#f8717120;color:#f87171;border:1.5px solid #f8717130}
 
 /* Labels */
-.lbl{font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.1em;margin-bottom:4px;font-weight:600;font-family:var(--mono)}
+.lbl{font-size:10px;color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:.07em;margin-bottom:5px;font-family:'DM Mono',monospace}
 
 /* Cards */
-.card{background:var(--bg2);border:1.5px solid var(--border);border-radius:18px;padding:14px 16px;margin-bottom:10px;box-shadow:0 1px 0 0 #ffffff04 inset}
-.card2{background:var(--bg3);border:1.5px solid var(--border2);border-radius:14px;padding:11px 13px;margin-bottom:8px}
-
-/* Pills */
-.pill{display:inline-flex;align-items:center;border-radius:100px;padding:2px 8px;font-size:9px;font-weight:700;border:1px solid;font-family:var(--mono);letter-spacing:.04em}
-
-/* Progress */
-.pt{background:var(--bg4);border-radius:100px;overflow:hidden}
-.pb{height:100%;border-radius:100px;transition:width .4s cubic-bezier(.4,0,.2,1)}
+.card{background:var(--bg2);border:1.5px solid var(--border);border-radius:16px;overflow:hidden}
+.card-pad{padding:14px 16px}
 
 /* Modal */
-.mbg{position:fixed;inset:0;background:#000000cc;z-index:500;display:flex;align-items:flex-end;justify-content:center;backdrop-filter:blur(6px)}
-.modal{background:var(--bg2);border:1.5px solid var(--border2);border-top:1.5px solid var(--border3);border-radius:22px 22px 0 0;padding:20px 18px 40px;width:100%;max-width:600px;max-height:87vh;overflow-y:auto}
-.modal-drag{width:36px;height:3px;background:var(--border3);border-radius:2px;margin:0 auto 18px}
-.mh{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
-.mh h3{font-size:16px;font-weight:700;color:var(--text)}
-.mh button{background:var(--bg3);border:1.5px solid var(--border2);color:var(--text3);cursor:pointer;font-size:11px;padding:5px 9px;border-radius:8px;line-height:1}
-
-/* Rows */
-.row{display:flex;align-items:center;gap:8px}
-.row2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.fld{margin-bottom:12px}
-
-/* Header */
-.hdr{background:var(--bg2);border-bottom:1px solid var(--border2);padding:10px 14px;flex-shrink:0;display:flex;align-items:center;justify-content:space-between}
-
-/* Stats bar */
-.sbar{background:var(--bg);border-bottom:1px solid var(--border2);padding:8px 12px;flex-shrink:0;display:flex;align-items:center;gap:6px;overflow-x:auto;-webkit-overflow-scrolling:touch}
-.sbar::-webkit-scrollbar{display:none}
-.sp{background:var(--bg2);border:1px solid var(--border2);border-radius:10px;padding:6px 10px;flex-shrink:0}
-.sp .sv{font-size:13px;font-weight:700;font-family:var(--mono)}
-
-/* Tabs */
-.tabs{background:var(--bg);border-bottom:1px solid var(--border2);display:flex;flex-shrink:0;padding:0 8px}
-.tab{flex:1;background:transparent;border:none;border-bottom:2px solid transparent;color:var(--text3);padding:9px 4px 7px;cursor:pointer;font-size:11px;font-weight:500;transition:all .15s;margin-bottom:-1px;white-space:nowrap;font-family:var(--font)}
-.tab.on{font-weight:700}
-
-/* Segments */
-.seg{display:flex;gap:5px;margin-bottom:14px;overflow-x:auto;padding-bottom:2px;background:var(--bg2);border:1px solid var(--border2);border-radius:13px;padding:3px}
-.seg::-webkit-scrollbar{display:none}
-.segb{flex-shrink:0;background:transparent;border:none;border-radius:10px;padding:6px 12px;color:var(--text3);cursor:pointer;font-size:11px;font-weight:500;font-family:var(--font);transition:all .15s}
-.segb.on{font-weight:700;box-shadow:0 1px 0 #ffffff08 inset}
+.mbg{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:1000;display:flex;align-items:flex-end;justify-content:center;backdrop-filter:blur(4px)}
+.modal{background:var(--bg2);border:1.5px solid var(--border2);border-radius:22px 22px 0 0;padding:20px 18px 36px;width:100%;max-width:480px;max-height:90vh;overflow-y:auto}
+.modal-handle{width:32px;height:3px;background:var(--border2);border-radius:2px;margin:0 auto 18px}
 
 /* Toast */
-.toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:var(--bg4);border:1.5px solid var(--border3);border-radius:100px;padding:10px 20px;font-size:12px;font-weight:600;color:var(--text);z-index:999;pointer-events:none;opacity:0;transition:opacity .2s;white-space:nowrap;box-shadow:0 4px 24px #00000060}
+.toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);background:var(--green);color:#071007;padding:10px 20px;border-radius:100px;font-size:13px;font-weight:600;z-index:9999;display:none;white-space:nowrap}
 
-/* Tx/rec rows */
-.txrow{background:var(--bg2);border:1.5px solid var(--border);border-radius:12px;padding:8px 11px;display:flex;align-items:center;gap:9px;margin-bottom:5px;transition:border-color .15s}
-.txrow:hover{border-color:var(--border3)}
-.recrow{background:var(--bg3);border:1px solid #7c6dfa14;border-radius:12px;padding:8px 11px;display:flex;align-items:center;gap:9px;margin-bottom:5px}
+/* Progress */
+.pt{background:var(--border);border-radius:100px;overflow:hidden}
+.pb{border-radius:100px;transition:width .5s cubic-bezier(.4,0,.2,1)}
 
-/* Misc */
-.dbtn{background:none;border:1px solid var(--border2);border-radius:7px;color:var(--text3);cursor:pointer;font-size:10px;padding:3px 8px;flex-shrink:0;font-family:var(--font)}
-.dbtn:hover{border-color:var(--border3);color:var(--text2)}
-.er{background:var(--bg3);border:1.5px solid var(--border2);border-radius:14px;padding:14px;margin-bottom:8px}
-.er .fld{margin-bottom:9px}
+/* Stage colors */
+.stage-seed{color:#facc15}
+.stage-seedling{color:#86efac}
+.stage-veg{color:#4ade80}
+.stage-preflower{color:#fb923c}
+.stage-flower{color:#a78bfa}
+.stage-flush{color:#60a5fa}
+.stage-harvest{color:#f87171}
 
-/* Icon badge */
-.ibadge{width:26px;height:26px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0}
+/* Grid */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+select option{background:var(--bg2);color:var(--text)}
 </style>
 </head>
 <body>
 <div id="app"></div>
-<div class="toast" id="toast"></div>
+<div id="toast" class="toast"></div>
 <script>
-var APP_VER="quarterly-v11";
-function uid(){return Math.random().toString(36).slice(2)+Date.now().toString(36)}
-function tod(){return new Date().toISOString().slice(0,10)}
-function thisMo(){return new Date().toISOString().slice(0,7)}
-function fmt(n){return"€"+Number(n||0).toFixed(2)}
-function esc(s){return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;")}
-function cl(s){return s?String(s).replace(/'/g,"\\'"):""}
+"use strict";
+var LS="autogrow-v1";
+function loadD(){
+  try{var r=localStorage.getItem(LS);if(!r)return null;return JSON.parse(r);}catch(e){return null;}
+}
+function saveD(d){try{localStorage.setItem(LS,JSON.stringify(d));}catch(e){}}
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2);}
+function tod(){return new Date().toISOString().slice(0,10);}
+function esc(s){return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
+function showToast(m,c){var t=document.getElementById("toast");t.textContent=m;t.style.background=c||"var(--green)";t.style.color=c?"#fff":"#071007";t.style.display="block";setTimeout(function(){t.style.display="none";},2500);}
+function daysSince(dateStr){if(!dateStr)return 0;var d=new Date(dateStr),n=new Date();return Math.floor((n-d)/(1000*60*60*24));}
+function addDays(dateStr,n){var d=new Date(dateStr);d.setDate(d.getDate()+n);return d.toISOString().slice(0,10);}
+function daysBetween(a,b){return Math.round((new Date(b)-new Date(a))/86400000);}
+function plantTotalDays(p){if(p.harvestDate)return daysBetween(p.startDate,p.harvestDate);return Number(p.totalDays)||77;}
 
-function showToast(msg,color){
-  var t=document.getElementById("toast");
-  t.textContent=msg;t.style.background=color?"#1e1e36":"var(--bg4)";
-  t.style.color=color||"var(--text)";
-  t.style.borderColor=color?color+"44":"var(--border3)";
-  t.style.opacity="1";
-  clearTimeout(t._tid);
-  t._tid=setTimeout(function(){t.style.opacity="0"},2400);
+// ── Stage calculator (cannabis - has a hard life cycle) ──
+function getStageCannabis(days,totalDays){
+  totalDays=totalDays||77;
+  if(days<=3)return{name:"Germination",key:"seed",icon:"🌰",color:"#facc15",tip:"Keep moist and warm 20-25°C. No nutrients. No direct light needed yet."};
+  if(days<=14)return{name:"Seedling",key:"seedling",icon:"🌱",color:"#86efac",tip:"Gentle light 18/6. Water sparingly. No nutrients yet. Watch for first true leaves."};
+  if(days<=28)return{name:"Vegetative",key:"veg",icon:"🌿",color:"#4ade80",tip:"18/6 light. Start light nutrients. Water when top inch of soil is dry."};
+  if(days<=35)return{name:"Pre-Flower",key:"preflower",icon:"🌸",color:"#fb923c",tip:"Auto-flower triggering. Increase P+K. Watch for white pistils. Stretch incoming."};
+  if(days<=(totalDays-10))return{name:"Flowering",key:"flower",icon:"🌺",color:"#a78bfa",tip:"Full bloom nutrients. Watch for amber trichomes near harvest. Maintain humidity below 50%."};
+  if(days<=(totalDays-3))return{name:"Flush",key:"flush",icon:"💧",color:"#60a5fa",tip:"Plain pH water only. Remove all nutrients. Flush 3-7 days before harvest."};
+  return{name:"Harvest Ready",key:"harvest",icon:"✂️",color:"#f87171",tip:"Check trichomes: mostly cloudy = peak THC. Amber trichomes = more body effect."};
 }
 
-function saveD(){try{localStorage.setItem("qly_data",JSON.stringify(D));}catch(e){}}
-function loadD(){try{var s=localStorage.getItem("qly_data");return s?JSON.parse(s):null;}catch(e){return null;}}
+// ── Basil: no hard life cycle. Grows to established, then harvest-as-needed forever ──
+function getStageBasil(days,isCutting){
+  if(!isCutting){
+    if(days<=7)return{name:"Germination",key:"seed",icon:"🌰",color:"#facc15",tip:"Keep moist and warm. No nutrients needed yet."};
+    if(days<=21)return{name:"Seedling",key:"seedling",icon:"🌱",color:"#86efac",tip:"Gentle light. Water sparingly. Light feed can start around week 3."};
+  }else{
+    if(days<=7)return{name:"Rooting (cutting)",key:"rooting",icon:"🌱",color:"#86efac",tip:"Keep humidity high while roots establish. No nutrients yet."};
+  }
+  return{name:"Established — harvest as needed",key:"established",icon:"🌿",color:"#4ade80",tip:"No further life-cycle stages. Pinch top leaves regularly to keep it bushy and producing. Harvest whenever you need it."};
+}
 
-function sanitize(d){
-  if(!d)return d;
-  d.income=Number(d.income)||0;
-  if(!Array.isArray(d.debts))d.debts=[];
-  if(!Array.isArray(d.goals))d.goals=[];
-  if(!Array.isArray(d.transactions))d.transactions=[];
-  if(!Array.isArray(d.recurring))d.recurring=[];
-  if(!Array.isArray(d.incomeStreams))d.incomeStreams=[];
-  if(!Array.isArray(d.oneTimeIncome))d.oneTimeIncome=[];
-  if(!Array.isArray(d.rerouteRules))d.rerouteRules=[];
-  if(!d.monthOverrides||typeof d.monthOverrides!=="object")d.monthOverrides={};
-  if(!d.budgets||typeof d.budgets!=="object")d.budgets={};
-  if(!Array.isArray(d.categories)||d.categories.length===0)d.categories=defCats();
-  if(!d.month)d.month=thisMo();
-  d.debts.forEach(function(x){x.total=Number(x.total)||0;x.paid=Number(x.paid)||0;x.rate=Number(x.rate)||0;x.monthly=Number(x.monthly)||0;});
-  d.goals.forEach(function(x){x.target=Number(x.target)||0;x.saved=Number(x.saved)||0;});
-  d.transactions.forEach(function(x){x.amount=Number(x.amount)||0;});
-  d.recurring.forEach(function(x){x.amount=Number(x.amount)||0;x.day=Number(x.day)||1;});
-  d.incomeStreams.forEach(function(x){x.amount=Number(x.amount)||0;x.day=Number(x.day)||1;});
-  d.oneTimeIncome.forEach(function(x){x.amount=Number(x.amount)||0;});
-  d.appVersion=APP_VER;
+// ── Tomato: matures once, then ongoing fruit cycles indefinitely ──
+function getStageTomato(days,isCutting,fruitingStartDate){
+  if(!isCutting){
+    if(days<=10)return{name:"Germination",key:"seed",icon:"🌰",color:"#facc15",tip:"Keep moist and warm. No nutrients yet."};
+    if(days<=21)return{name:"Seedling",key:"seedling",icon:"🌱",color:"#86efac",tip:"Gentle light. Light feed can start around week 3."};
+  }else{
+    if(days<=10)return{name:"Rooting (cutting)",key:"rooting",icon:"🌱",color:"#86efac",tip:"Keep humidity high while roots establish."};
+  }
+  if(days<=42)return{name:"Vegetative — vine training",key:"veg",icon:"🌿",color:"#4ade80",tip:"Top after 4-5 nodes. Weave vines horizontally under the net."};
+  if(fruitingStartDate){
+    var fDays=daysSince(fruitingStartDate);
+    return{name:"Producing (fruiting "+fDays+"d)",key:"producing",icon:"🍅",color:"#fb923c",tip:"No further life-cycle stages. Ongoing fruit sets — keep feeding steady, harvest tomatoes as they ripen."};
+  }
+  return{name:"Flowering — fruit set incoming",key:"flowerset",icon:"🌸",color:"#fb923c",tip:"First flowers forming. Once you see fruit, mark 'Fruiting Started' on this plant."};
+}
+
+// ── Dispatcher: routes to the right stage logic by plant type ──
+function getStageFor(plant,days,totalDays){
+  var type=plant.plantType||"cannabis";
+  if(type==="basil")return getStageBasil(days,plant.isCutting);
+  if(type==="tomato")return getStageTomato(days,plant.isCutting,plant.fruitingStartDate);
+  return getStageCannabis(days,totalDays);
+}
+
+// Back-compat: old call sites that only know cannabis logic
+function getStage(days,totalDays){return getStageCannabis(days,totalDays);}
+
+function getWeeklyTips(days,setup){
+  var week=Math.floor(days/7)+1;
+  var tips=[];
+  if(days<7)tips.push({icon:"💧",text:"Water gently - small amounts only. No runoff needed yet."});
+  if(days>=7&&days<14)tips.push({icon:"🌡️",text:"Keep temp 22-26°C day, 18-22°C night. Humidity 60-70%."});
+  if(days>=14&&days<21)tips.push({icon:"🧪",text:"Start TerraCanna Starter at 25% dose. pH 6.0-6.5 if possible."});
+  if(days>=21&&days<35)tips.push({icon:"🪴",text:"Plants in full veg. Increase TerraCanna Grow. Watering every 2-3 days."});
+  if(days>=35&&days<49)tips.push({icon:"🌸",text:"Pre-flower stretch. Switch to TerraCanna Bloom. Reduce nitrogen."});
+  if(days>=49)tips.push({icon:"🌺",text:"Full flower. Max PK boost. Check for deficiencies. Reduce humidity to 45%."});
+  if(days>=63)tips.push({icon:"🔍",text:"Start checking trichomes weekly with loupe or microscope."});
+  if(!setup.phing)tips.push({icon:"📱",text:"Getting a pH pen this week would really help — pH 6.0-6.5 for soil."});
+  return tips;
+}
+
+// ── Terra Canna feed chart ───────────────────────────────
+var TERRA_CANNA=[
+  {week:1,stage:"Seedling",starter:0,grow:0,bloom:0,pk:0,booster:0,note:"Water only"},
+  {week:2,stage:"Seedling",starter:1,grow:0,bloom:0,pk:0,booster:0,note:"25% dose"},
+  {week:3,stage:"Veg",starter:2,grow:1,bloom:0,pk:0,booster:0,note:"Introduce Grow"},
+  {week:4,stage:"Veg",starter:0,grow:2,bloom:0,pk:0,booster:0,note:"Full Grow"},
+  {week:5,stage:"Pre-flower",starter:0,grow:1,bloom:1,pk:0,booster:0,note:"Transition week"},
+  {week:6,stage:"Flower",starter:0,grow:0,bloom:2,pk:0,booster:1,note:"Full Bloom"},
+  {week:7,stage:"Flower",starter:0,grow:0,bloom:3,pk:1,booster:1,note:"Boost PK"},
+  {week:8,stage:"Flower",starter:0,grow:0,bloom:3,pk:2,booster:1,note:"Peak flower"},
+  {week:9,stage:"Flower",starter:0,grow:0,bloom:2,pk:2,booster:1,note:"Late flower"},
+  {week:10,stage:"Flush",starter:0,grow:0,bloom:0,pk:0,booster:0,note:"Plain water flush"},
+  {week:11,stage:"Harvest",starter:0,grow:0,bloom:0,pk:0,booster:0,note:"Harvest window"},
+];
+
+// ── Tomato feed chart (lighter N, steady through fruiting) ──
+var TOMATO_FEED=[
+  {week:1,stage:"Seedling",starter:0,grow:0,bloom:0,pk:0,booster:0,note:"Water only"},
+  {week:2,stage:"Seedling",starter:1,grow:0,bloom:0,pk:0,booster:0,note:"Light starter"},
+  {week:3,stage:"Veg",starter:0,grow:1,bloom:0,pk:0,booster:0,note:"Building roots"},
+  {week:4,stage:"Veg",starter:0,grow:2,bloom:0,pk:0,booster:0,note:"Vine growth"},
+  {week:5,stage:"Veg",starter:0,grow:2,bloom:0,pk:0,booster:0,note:"Keep weaving vines"},
+  {week:6,stage:"Flower",starter:0,grow:1,bloom:1,pk:0,booster:0,note:"First flowers forming"},
+  {week:7,stage:"Flower",starter:0,grow:0,bloom:2,pk:1,booster:0,note:"Fruit set"},
+  {week:8,stage:"Fruiting",starter:0,grow:0,bloom:2,pk:1,booster:1,note:"Fruit fill"},
+  {week:9,stage:"Fruiting",starter:0,grow:0,bloom:2,pk:1,booster:1,note:"Continue steady feed"},
+  {week:10,stage:"Fruiting",starter:0,grow:0,bloom:2,pk:1,booster:1,note:"Repeat — tomatoes feed long-term"},
+];
+function getTomatoWeek(days){
+  var wk=Math.floor(days/7)+1;
+  if(wk>TOMATO_FEED.length)wk=TOMATO_FEED.length; // plateau, keep feeding at fruiting rate
+  var row=TOMATO_FEED.find(function(r){return r.week===wk;});
+  return row||TOMATO_FEED[TOMATO_FEED.length-1];
+}
+
+// ── Basil feed chart (flat, minimal — leafy herb, not flowering for yield) ──
+var BASIL_FEED=[
+  {week:1,stage:"Seedling",starter:0,grow:0,bloom:0,pk:0,booster:0,note:"Water only"},
+  {week:2,stage:"Seedling",starter:0,grow:0,bloom:0,pk:0,booster:0,note:"Water only"},
+  {week:3,stage:"Growing",starter:0,grow:1,bloom:0,pk:0,booster:0,note:"Light feed — just needs to grow"},
+  {week:4,stage:"Growing",starter:0,grow:1,bloom:0,pk:0,booster:0,note:"Same light feed, keep harvesting leaves"},
+];
+function getBasilWeek(days){
+  var wk=Math.floor(days/7)+1;
+  if(wk>BASIL_FEED.length)wk=BASIL_FEED.length; // plateau — basil doesn't need escalating doses
+  var row=BASIL_FEED.find(function(r){return r.week===wk;});
+  return row||BASIL_FEED[BASIL_FEED.length-1];
+}
+
+// ── Generic feed plan dispatcher by plant type ───────────
+var PLANT_TYPES=[
+  {key:"cannabis",label:"🌿 Cannabis",icon:"🌿"},
+  {key:"tomato",label:"🍅 Tomato",icon:"🍅"},
+  {key:"basil",label:"🌱 Basil",icon:"🌱"},
+  {key:"other",label:"🪴 Other",icon:"🪴"}
+];
+function plantTypeLabel(key){var t=PLANT_TYPES.find(function(x){return x.key===key;});return t?t.label:"🌿 Cannabis";}
+function getFeedPlanFor(plant,days){
+  var type=plant.plantType||"cannabis";
+  if(type==="tomato")return getTomatoWeek(days);
+  if(type==="basil")return getBasilWeek(days);
+  return getTerraCannaWeek(days); // cannabis + other default to cannabis chart
+}
+
+// ── Learning layer: average past feed doses logged at this stage ──
+function getLearnedFeed(plant,days){
+  var logs=(D.logs[plant.id]||[]).filter(function(l){return l.fed&&l.nutrients&&l.nutrients.length;});
+  if(!logs.length)return null;
+  // group by week-of-grow so we compare same-stage history
+  var targetWeek=Math.floor(days/7)+1;
+  var sameStage=logs.filter(function(l){
+    var logDays=daysSince(l.date)>=0?Math.floor((new Date(l.date)-new Date(plant.startDate))/86400000):0;
+    var logWeek=Math.floor(logDays/7)+1;
+    return logWeek===targetWeek;
+  });
+  var pool=sameStage.length?sameStage:logs;
+  // flatten nutrient entries, average ml/L per nutrient name
+  var byName={};
+  pool.forEach(function(l){
+    l.nutrients.forEach(function(n){
+      if(!n.name)return;
+      var key=n.name.trim().toLowerCase();
+      if(!byName[key])byName[key]={name:n.name,total:0,count:0};
+      byName[key].total+=Number(n.mlPerL)||0;
+      byName[key].count++;
+    });
+  });
+  var avgList=Object.keys(byName).map(function(k){
+    var b=byName[k];
+    return{name:b.name,avgMlPerL:Math.round((b.total/b.count)*10)/10};
+  });
+  if(!avgList.length)return null;
+  return{matchedStage:sameStage.length>0,sampleSize:pool.length,nutrients:avgList};
+}
+var RQS_STRAINS=[
+  {name:"Quick One",days:60},
+  {name:"Easy Bud",days:60},
+  {name:"Royal CBDV Automatic",days:63},
+  {name:"Bubble Kush Automatic",days:63},
+  {name:"HulkBerry Automatic",days:63},
+  {name:"Purple Queen Automatic",days:63},
+  {name:"Sherbet Queen Automatic",days:63},
+  {name:"Watermelon Automatic",days:63},
+  {name:"Royal Bluematic",days:67},
+  {name:"Royal Kush Automatic",days:67},
+  {name:"Diesel Automatic",days:67},
+  {name:"Candy Kush Express",days:70},
+  {name:"Northern Light Automatic",days:70},
+  {name:"Titan F1",days:73},
+  {name:"Royal Jack Automatic",days:73},
+  {name:"Royal Gorilla Automatic",days:77},
+  {name:"Sour Diesel Automatic",days:77},
+  {name:"Royal Creamatic",days:84},
+  {name:"Royal Haze Automatic",days:87},
+  {name:"Custom / Other",days:77}
+];
+function strainDays(name){var s=RQS_STRAINS.find(function(x){return x.name===name;});return s?s.days:77;}
+
+// ── Tent zones (configurable layouts) ────────────────────
+var TENT_ZONES_PRESETS={
+  "5z_ushape":[
+    {key:"backLeft",label:"Back Left"},
+    {key:"backCenter",label:"Back Center"},
+    {key:"backRight",label:"Back Right"},
+    {key:"frontLeft",label:"Front Left"},
+    {key:"frontRight",label:"Front Right"}
+  ],
+  "4z_grid":[
+    {key:"backLeft",label:"Back Left"},
+    {key:"backRight",label:"Back Right"},
+    {key:"frontLeft",label:"Front Left"},
+    {key:"frontRight",label:"Front Right"}
+  ],
+  "7z_ushape":[
+    {key:"backLeft",label:"Back Left"},{key:"backCenter",label:"Back Center"},{key:"backRight",label:"Back Right"},
+    {key:"midLeft",label:"Mid Left"},{key:"midRight",label:"Mid Right"},
+    {key:"frontLeft",label:"Front Left"},{key:"frontRight",label:"Front Right"}
+  ],
+  "6z_grid":[
+    {key:"backLeft",label:"Back Left"},{key:"backCenter",label:"Back Center"},{key:"backRight",label:"Back Right"},
+    {key:"frontLeft",label:"Front Left"},{key:"frontCenter",label:"Front Center"},{key:"frontRight",label:"Front Right"}
+  ],
+  "9z_grid":[
+    {key:"r1c1",label:"Row1-Col1"},{key:"r1c2",label:"Row1-Col2"},{key:"r1c3",label:"Row1-Col3"},
+    {key:"r2c1",label:"Row2-Col1"},{key:"r2c2",label:"Row2-Col2"},{key:"r2c3",label:"Row2-Col3"},
+    {key:"r3c1",label:"Row3-Col1"},{key:"r3c2",label:"Row3-Col2"},{key:"r3c3",label:"Row3-Col3"}
+  ],
+  "1z_single":[{key:"center",label:"Center"}]
+};
+function getTentZones(){return TENT_ZONES_PRESETS[D.setup.zoneLayout]||TENT_ZONES_PRESETS["5z_ushape"];}
+function zoneLabel(key){var z=getTentZones().find(function(x){return x.key===key;});return z?z.label:"Unassigned";}
+function getTerraCannaWeek(days){
+  var wk=Math.floor(days/7)+1;
+  var row=TERRA_CANNA.find(function(r){return r.week===wk;});
+  return row||TERRA_CANNA[TERRA_CANNA.length-1];
+}
+
+// ── Light distance guide ─────────────────────────────────
+function getLightDistance(setup,stage){
+  var w=Number(setup.lightWatts)||150;
+  var distances={
+    seed:{min:60,max:80,note:"Very gentle — seedlings need soft light"},
+    seedling:{min:50,max:70,note:"Keep gentle to avoid light stress"},
+    veg:{min:40,max:60,note:"Move closer as plants strengthen"},
+    preflower:{min:35,max:50,note:"Maintain good coverage for stretch"},
+    flower:{min:30,max:45,note:"Closer for dense buds — watch for light burn"},
+    flush:{min:35,max:50,note:"Back off slightly during flush"},
+    harvest:{min:40,max:55,note:"Reduce for final ripening"}
+  };
+  var d=distances[stage.key]||distances.veg;
+  // Adjust for lower wattage
+  if(w<100){d={min:d.min+10,max:d.max+15,note:d.note+" (lower wattage = keep further)"}}
   return d;
 }
 
-function defCats(){
-  return[
-    {id:"housing",name:"Housing",icon:"🏠",color:"#60a5fa",subs:[{id:"hrent",name:"Rent",icon:"🏠"},{id:"hins",name:"Insurance",icon:"🛡️"}]},
-    {id:"food",name:"Food",icon:"🍽️",color:"#4ade80",subs:[{id:"fgroc",name:"Groceries",icon:"🛒"},{id:"frest",name:"Restaurants",icon:"🍕"}]},
-    {id:"transport",name:"Transport",icon:"🚗",color:"#facc15",subs:[{id:"tfuel",name:"Fuel",icon:"⛽"},{id:"tpub",name:"Public Transit",icon:"🚌"}]},
-    {id:"utilities",name:"Utilities",icon:"⚡",color:"#f87171",subs:[{id:"uelec",name:"Electric",icon:"💡"},{id:"unet",name:"Internet",icon:"📶"}]},
-    {id:"personal",name:"Personal",icon:"🧘",color:"#a78bfa",subs:[{id:"phair",name:"Haircut",icon:"💇"},{id:"ppkt",name:"Pocket Money",icon:"💵"}]},
-    {id:"savings",name:"Savings",icon:"💰",color:"#2dd4bf",subs:[{id:"sjar",name:"Money Jar",icon:"🏦"}]},
-    {id:"debt",name:"Debt Payments",icon:"💳",color:"#fb923c",subs:[]},
-    {id:"other",name:"Other",icon:"📦",color:"#94a3b8",subs:[]}
-  ];
-}
-function defBudgets(cats){
-  var b={};
-  (cats||[]).forEach(function(c){b[c.id]=0;(c.subs||[]).forEach(function(s){b[s.id]=0;});});
-  return b;
+// ── Water calculator ─────────────────────────────────────
+function getWaterSchedule(setup,stage,days){
+  var medium=setup.medium||"soil";
+  var potL=Number(setup.potSize)||11;
+  var schedules={
+    seed:"2-5ml around seedling only",
+    seedling:"50-100ml every 2-3 days",
+    veg:potL+"L pot: ~"+Math.round(potL*0.3)+"–"+Math.round(potL*0.4)+"L every 2-3 days",
+    preflower:potL+"L pot: ~"+Math.round(potL*0.4)+"–"+Math.round(potL*0.5)+"L every 2 days",
+    flower:potL+"L pot: ~"+Math.round(potL*0.5)+"–"+Math.round(potL*0.6)+"L every 1-2 days",
+    flush:potL+"L pot: "+Math.round(potL*3)+"L plain water total flush",
+    harvest:"No watering"
+  };
+  return schedules[stage.key]||schedules.veg;
 }
 
-var _loaded=loadD();
-var D=sanitize(_loaded)||sanitize({income:0,budgets:{},transactions:[],goals:[],debts:[],recurring:[],incomeStreams:[],oneTimeIncome:[],monthOverrides:{},month:thisMo(),categories:defCats()});
-if(!D.budgets||Object.keys(D.budgets).length===0)D.budgets=defBudgets(D.categories);
+// ── Perpetual harvest calculator (slot-based) ────────────
+function getPerpetual(plants,setup){
+  var numSlots=Number(setup.numSlots)||1;
+  var avgDays=Number(setup.avgFlowerDays)||77;
+  var active=(plants||[]).filter(function(p){return !p.harvested&&p.isPerpetual;});
+
+  // Slot occupancy: each plant occupies a slot until its harvestDate
+  var slots=[];
+  for(var i=0;i<numSlots;i++)slots.push(null);
+  // sort active plants by start date, assign to slots in order
+  var sorted=active.slice().sort(function(a,b){return new Date(a.startDate)-new Date(b.startDate);});
+  sorted.forEach(function(p,i){if(i<numSlots)slots[i]=p;});
+
+  var openSlots=slots.filter(function(s){return s===null;}).length;
+  var occupied=slots.map(function(p,idx){
+    if(!p)return{idx:idx,empty:true,plant:null,harvestDate:null,remaining:0};
+    var totalDays=plantTotalDays(p);
+    var harvestDate=p.harvestDate||addDays(p.startDate,totalDays);
+    var days=daysSince(p.startDate);
+    return{idx:idx,empty:false,plant:p,harvestDate:harvestDate,remaining:Math.max(0,totalDays-days)};
+  });
+
+  // next harvest across all occupied slots
+  var nextHarvest=null;
+  occupied.forEach(function(o){
+    if(!o.empty&&(!nextHarvest||o.remaining<nextHarvest.remaining)){
+      nextHarvest={name:o.plant.name,remaining:o.remaining,date:o.harvestDate};
+    }
+  });
+
+  // suggested next start date = earliest slot free date (today if already open)
+  var freeDates=occupied.map(function(o){return o.empty?tod():o.harvestDate;});
+  freeDates.sort();
+  var startNextOn=freeDates[0]||tod();
+
+  return{numSlots:numSlots,openSlots:openSlots,occupied:occupied,nextHarvest:nextHarvest,startNextOn:startNextOn};
+}
+
+// Position-based rotation across locked perpetual pots.
+// Only ONE empty locked pot is "Plant Now" at a time, staggered by harvestGap
+// from the most recently started plant among the locked pots.
+function getZoneRotation(){
+  var zones=(D.setup.perpetualZones||[]).slice();
+  var gap=Number(D.setup.harvestGap)||35;
+  if(!zones.length)return[];
+
+  var statuses=zones.map(function(key){
+    var p=D.plants.find(function(x){return !x.harvested&&x.position===key;});
+    if(p){
+      var totalDays=plantTotalDays(p);
+      var days=daysSince(p.startDate);
+      var harvestDate=p.harvestDate||addDays(p.startDate,totalDays);
+      return{key:key,label:zoneLabel(key),plant:p,status:"growing",remaining:Math.max(0,totalDays-days),harvestDate:harvestDate};
+    }
+    return{key:key,label:zoneLabel(key),plant:null,status:"empty"};
+  });
+
+  // Most recent start date among plants currently in locked pots (growing or harvested-from-this-set isn't tracked, so use growing only + last known)
+  var growing=statuses.filter(function(s){return s.status==="growing";});
+  var mostRecentStart=null;
+  growing.forEach(function(s){
+    var sd=new Date(s.plant.startDate);
+    if(!mostRecentStart||sd>mostRecentStart)mostRecentStart=sd;
+  });
+
+  var emptyOnes=statuses.filter(function(s){return s.status==="empty";});
+  if(emptyOnes.length){
+    if(!mostRecentStart){
+      // nothing planted yet anywhere in rotation - first empty pot is plant-now
+      emptyOnes[0].status="plant_now";
+      emptyOnes[0].waitDays=0;
+    }else{
+      var nextPlantDate=addDays(mostRecentStart.toISOString().slice(0,10),gap);
+      var daysUntil=Math.ceil((new Date(nextPlantDate)-new Date(tod()))/86400000);
+      if(daysUntil<=0){
+        emptyOnes[0].status="plant_now";
+        emptyOnes[0].waitDays=0;
+      }else{
+        emptyOnes[0].status="waiting";
+        emptyOnes[0].waitDays=daysUntil;
+        emptyOnes[0].plantOn=nextPlantDate;
+      }
+      // any additional empty pots beyond the first wait behind it too
+      for(var i=1;i<emptyOnes.length;i++){
+        emptyOnes[i].status="waiting";
+        emptyOnes[i].waitDays=emptyOnes[0].waitDays+(gap*i);
+      }
+    }
+  }
+  return statuses;
+}
+
+// ── Default data ─────────────────────────────────────────
+var D=loadD()||{
+  plants:[],
+  setup:{
+    tentSize:"70x70",lightModel:"Mars Hydro FC1500",lightWatts:"150",
+    lightSchedule:"18/6",medium:"soil",potSize:"11",phing:false,
+    avgFlowerDays:"77",harvestGap:"35",numSlots:"1",
+    lightHeight:"135",netHeight:"55",canopyMax:"90",
+    zoneLayout:"5z_ushape",perpetualZones:[]
+  },
+  logs:{},
+  showAdvisor:false,advisorLoading:false,advisorText:""
+};
+if(!D.logs)D.logs={};
+if(!D.setup.lightHeight)D.setup.lightHeight="135";
+if(!D.setup.netHeight)D.setup.netHeight="55";
+if(!D.setup.canopyMax)D.setup.canopyMax="90";
+if(!D.setup.zoneLayout)D.setup.zoneLayout="5z_ushape";
+if(!D.setup.numZones)D.setup.numZones=String(TENT_ZONES_PRESETS["5z_ushape"].length);
+if(!D.setup.perpetualZones)D.setup.perpetualZones=[];
 
 var S={
-  tab:"home",seg:"income",
-  showTx:false,showGoal:false,showDebt:false,showRec:false,
-  editTx:null,editStream:null,editRec:null,editDebt:null,editGoal:null,editCat:null,
-  showBackupMenu:false,showAdvisor:false,
-  advisorMsgs:[],advisorLoading:false,advisorInput:"",
-  debtStrat:"avalanche",showPayoff:false,showNetWorth:false,
-  showAddStream:false,collapsed:{},movePanel:null,mvType:"cat"
+  tab:"plants",
+  showAddPlant:false,
+  showEditPlant:false,
+  showSetup:false,
+  showLog:false,
+  activePlantId:null,
+  showNutrients:false,
+  editingPlantId:null,
+  newPlant:{name:"",strain:"",plantType:"cannabis",startDate:tod(),totalDays:"77",harvestDate:addDays(tod(),77),notes:"",position:"",isPerpetual:false,isCutting:false},
+  newLog:{date:tod(),height:"",notes:"",watered:false,fed:false},
+  newFeed:{date:tod(),nutrients:[{name:"",mlPerL:""}],waterAmount:"",notes:""},
+  newQuickNote:{date:tod(),notes:""},
+  showFeed:false,showQuickNote:false,showTentConfig:false,
+  advisorLoading:false,advisorText:"",showAdvisor:false,
+  selectedZone:"backCenter"
 };
 
-function streamMonthly(s){
-  var a=Number(s.amount)||0,f=s.freq;
-  if(f==="weekly")return a*4.33;
-  if(f==="biweekly")return a*2.17;
-  if(f==="yearly")return a/12;
-  return a;
-}
-function totalIncome(){
-  if(D.monthOverrides[D.month]&&D.monthOverrides[D.month].income!=null)return Number(D.monthOverrides[D.month].income);
-  var base=D.income||0;
-  var streams=D.incomeStreams.reduce(function(a,s){return a+streamMonthly(s);},0);
-  var oti=(D.oneTimeIncome||[]).filter(function(t){return t.month===D.month;}).reduce(function(a,t){return a+Number(t.amount);},0);
-  return base+streams+oti;
-}
-function totBudget(){return Object.values(D.budgets).reduce(function(a,v){return a+Number(v||0);},0);}
-function catSpent(cat,sp){
-  var ids=[cat.id].concat((cat.subs||[]).map(function(s){return s.id;}));
-  return ids.reduce(function(a,id){return a+(sp[id]||0);},0);
-}
-function spentBycat(){
-  var sp={};
-  D.transactions.filter(function(t){return t.month===D.month;}).forEach(function(t){
-    if(!t.category)return;
-    sp[t.category]=(sp[t.category]||0)+Number(t.amount||0);
-  });
-  return sp;
-}
-function txOpts(){
-  var opts=[];
-  (D.categories||[]).forEach(function(c){
-    opts.push({id:c.id,name:c.name,icon:c.icon||"📦",color:c.color||"#94a3b8",isParent:true});
-    (c.subs||[]).forEach(function(s){opts.push({id:s.id,name:s.name,icon:s.icon||"📦",color:c.color||"#94a3b8"});});
-  });
-  return opts;
-}
-function optById(id){
-  var opts=txOpts();
-  for(var i=0;i<opts.length;i++){if(opts[i].id===id)return opts[i];}
-  return{id:id,name:id,icon:"📦",color:"#94a3b8"};
-}
-function catOptsHTML(sel){
-  var h="";
-  (D.categories||[]).forEach(function(c){
-    h+='<option value="'+esc(c.id)+'"'+(sel===c.id?" selected":"")+'>'+esc(c.icon)+" "+esc(c.name)+'</option>';
-    (c.subs||[]).forEach(function(s){h+='<option value="'+esc(s.id)+'"'+(sel===s.id?" selected":"")+'>  └ '+esc(s.icon)+" "+esc(s.name)+'</option>';});
-  });
-  return h;
-}
-function calcPayoffOrder(strat){
-  var debts=D.debts.map(function(d){return{id:d.id,name:d.name,remaining:d.total-d.paid,rate:d.rate||0,monthly:d.monthly||0};}).filter(function(d){return d.remaining>0;});
-  if(strat==="avalanche")debts.sort(function(a,b){return b.rate-a.rate;});
-  else debts.sort(function(a,b){return a.remaining-b.remaining;});
-  return debts;
-}
-function calcPayoffMonths(remaining,rate,monthly){
-  if(!monthly||monthly<=0)return null;
-  if(!rate||rate<=0)return Math.ceil(remaining/monthly);
-  var r=rate/100/12;
-  if(monthly<=remaining*r)return null;
-  return Math.ceil(Math.log(monthly/(monthly-remaining*r))/Math.log(1+r));
-}
+function patch(o){Object.assign(S,o);render();}
+function upd(fn){fn(D);saveD(D);render();}
 
-function patch(obj){Object.assign(S,obj);render();}
-function render(){var el=document.getElementById("app");if(!el)return;el.innerHTML=buildApp();bindEv();}
-function bindEv(){
-  var mp=document.getElementById("mpick");
-  if(mp)mp.addEventListener("change",function(e){
-    var oldMo=D.month;D.month=e.target.value;
-    if(D.month!==oldMo&&D.rerouteRules&&D.rerouteRules.length>0){applyRerouteRules();showToast(D.rerouteRules.length+" reroute(s) applied");}
-    saveD();render();
-  });
-  if(S.showBackupMenu){
-    setTimeout(function(){
-      function dismiss(e){if(!e.target.closest||!e.target.closest("[data-bmenu]")){S.showBackupMenu=false;render();document.removeEventListener("click",dismiss);}}
-      document.addEventListener("click",dismiss);
-    },50);
-  }
-  if(S.showAdvisor){
-    setTimeout(function(){
-      var el=document.getElementById("adv-msgs");if(el)el.scrollTop=el.scrollHeight;
-      var inp=document.getElementById("adv-inp");
-      if(inp)inp.addEventListener("keydown",function(e){if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();var v=inp.value.trim();if(v)sendAdvisor(v);}});
-    },50);
-  }
+function render(){
+  document.getElementById("app").innerHTML=buildApp();
+  bindEv();
 }
 
 function buildApp(){
-  var cats=D.categories||defCats();
-  var sp=spentBycat();
-  var totB=totBudget();
-  var totS=cats.reduce(function(a,c){return a+catSpent(c,sp);},0);
-  var totI=totalIncome();
-  var free=totI-totB;
-
+  var h="";
   // Header
-  var h='<div class="hdr">';
-  h+='<div style="display:flex;align-items:center;gap:9px">';
-  h+='<div style="width:30px;height:30px;background:linear-gradient(135deg,#7c6dfa,#4ade80);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:15px">💸</div>';
-  h+='<div>';
-  h+='<div style="font-size:15px;font-weight:700;letter-spacing:-.02em"><span style="color:var(--violet2)">Quarter</span><span style="color:var(--text)">ly</span></div>';
-  h+='</div>';
-  h+='<div style="position:relative;margin-left:2px">';
-  h+='<input type="month" id="mpick" value="'+esc(D.month)+'" style="background:var(--bg3);border:1.5px solid var(--border2);border-radius:9px;padding:5px 8px;color:var(--text2);font-size:11px;font-weight:500;font-family:var(--mono);outline:none;width:108px"/>';
+  h+='<div style="padding:14px 16px 10px;background:var(--bg2);border-bottom:1px solid var(--border2);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100">';
+  h+='<div style="display:flex;align-items:center;gap:10px">';
+  h+='<div style="width:34px;height:34px;background:linear-gradient(135deg,#166534,#4ade80);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px">🌿</div>';
+  h+='<div><div style="font-size:18px;font-weight:700;color:var(--text)"><span style="color:var(--green)">Auto</span>Grow</div>';
+  h+='<div style="font-size:10px;color:var(--text3);font-family:\'DM Mono\',monospace">Seed to Harvest</div></div></div>';
+  h+='<div style="display:flex;gap:6px">';
+  h+='<button onclick="patch({showSetup:true})" style="background:var(--bg3);border:1.5px solid var(--border2);border-radius:10px;padding:6px 10px;color:var(--text2);cursor:pointer;font-size:13px">⚙️</button>';
+  h+='<button onclick="openAdvisor()" style="background:#a78bfa15;border:1.5px solid #a78bfa30;border-radius:10px;padding:6px 10px;color:#a78bfa;cursor:pointer;font-size:13px">🧠</button>';
   h+='</div></div>';
-  h+='<div style="display:flex;align-items:center;gap:5px">';
-
-  // Backup dropdown
-  h+='<div style="position:relative" data-bmenu="1">';
-  h+='<button onclick="patch({showBackupMenu:!S.showBackupMenu})" style="background:var(--bg3);border:1.5px solid var(--border2);border-radius:9px;padding:6px 9px;color:var(--amber);cursor:pointer;font-size:12px;display:flex;align-items:center;gap:2px;line-height:1">💾<span style="font-size:8px;color:var(--text3)">▾</span></button>';
-  if(S.showBackupMenu){
-    h+='<div data-bmenu="1" style="position:absolute;top:calc(100% + 5px);right:0;background:var(--bg4);border:1.5px solid var(--border3);border-radius:13px;overflow:hidden;z-index:300;min-width:148px;box-shadow:0 12px 40px #00000080">';
-    h+='<button onclick="doExport();patch({showBackupMenu:false})" style="width:100%;background:none;border:none;padding:11px 14px;text-align:left;color:var(--amber);cursor:pointer;font-size:12px;display:flex;align-items:center;gap:8px">💾 Save Backup</button>';
-    h+='<div style="height:1px;background:var(--border2)"></div>';
-    h+='<label data-bmenu="1" style="width:100%;display:flex;align-items:center;gap:8px;padding:11px 14px;color:var(--blue);cursor:pointer;font-size:12px">📂 Load Backup<input type="file" accept=".json" onchange="doImport(event)" style="display:none"/></label>';
-    h+='</div>';
-  }
-  h+='</div>';
-
-  h+='<label style="background:var(--bg3);border:1.5px solid #f8717120;border-radius:9px;padding:6px 9px;color:var(--red);cursor:pointer;font-size:12px;display:flex;align-items:center;line-height:1" title="Import Debt PDF">📋<input type="file" accept=".pdf" onchange="doImportPDF(event)" style="display:none"/></label>';
-  h+='<button onclick="openAdvisor()" style="background:var(--bg3);border:1.5px solid #a78bfa20;border-radius:9px;padding:6px 9px;color:var(--violet2);cursor:pointer;font-size:12px;line-height:1">🧠</button>';
-  h+='</div></div>';
-
-  // Stats bar
-  h+='<div class="sbar">';
-  h+=sp2("Income",fmt(totI),"var(--green)");
-  h+='<div style="width:1px;height:20px;background:var(--border2);flex-shrink:0"></div>';
-  h+=sp2("Budget",fmt(totB),"var(--blue)");
-  h+=sp2("Spent",fmt(totS),"var(--orange)");
-  h+=sp2("Free",fmt(free),free<0?"var(--red)":"var(--green)");
-  h+=sp2("Left",fmt(totB-totS),"var(--violet2)");
-  h+='</div>';
-
   // Tabs
-  var tabs=[["home","📊 Home"],["budget","💰 Budget"],["pay","💳 Pay"],["money","⚡ Money"]];
-  var tcols={home:"var(--violet2)",budget:"var(--green)",pay:"var(--blue)",money:"var(--amber)"};
-  h+='<div class="tabs">';
-  tabs.forEach(function(t){
-    var a=S.tab===t[0];
-    h+='<button class="tab'+(a?" on":"")+'" onclick="patch({tab:\''+t[0]+'\'})" style="color:'+(a?tcols[t[0]]:"var(--text3)")+';border-bottom-color:'+(a?tcols[t[0]]:"transparent")+'">'+t[1]+'</button>';
-  });
+  var tabs=[["plants","🌱 Plants"],["map","🗺️ Map"],["today","📋 Today"],["nutrients","🧪 Nutrients"],["perpetual","♻️ Perpetual"],["learn","📚 Learn"]];
+  h+='<div class="tbar">';
+  tabs.forEach(function(t){h+='<button onclick="patch({tab:\''+t[0]+'\'})" class="'+(S.tab===t[0]?"active":"")+'">'+t[1]+'</button>';});
   h+='</div>';
-
-  h+='<div class="tc">';
-  if(S.tab==="home")h+=tabHome(cats,sp,totB,totS,totI,free);
-  else if(S.tab==="budget")h+=tabBudget(cats,sp,free);
-  else if(S.tab==="pay")h+=tabPay();
-  else if(S.tab==="money")h+=tabMoney(totI,cats,totI,totB);
+  // Content
+  h+='<div style="padding:14px;max-width:600px;margin:0 auto;padding-bottom:80px">';
+  if(S.tab==="plants")h+=tabPlants();
+  else if(S.tab==="map")h+=tabMap();
+  else if(S.tab==="today")h+=tabToday();
+  else if(S.tab==="nutrients")h+=tabNutrients();
+  else if(S.tab==="perpetual")h+=tabPerpetual();
+  else if(S.tab==="learn")h+=tabLearn();
   h+='</div>';
-
-  if(S.showTx)h+=modalTx();
-  if(S.showGoal)h+=modalGoal();
-  if(S.showDebt)h+=modalDebt();
-  if(S.showRec)h+=modalRec();
+  // Modals
+  if(S.showAddPlant)h+=modalAddPlant();
+  if(S.showEditPlant)h+=modalEditPlant();
+  if(S.showSetup)h+=modalSetup();
+  if(S.showLog)h+=modalLog();
+  if(S.showFeed)h+=modalFeed();
+  if(S.showQuickNote)h+=modalQuickNote();
+  if(S.showTentConfig)h+=modalTentConfig();
   if(S.showAdvisor)h+=modalAdvisor();
   return h;
 }
 
-function sp2(l,v,c){
-  return'<div class="sp"><div class="lbl">'+l+'</div><div class="sv" style="color:'+c+'">'+v+'</div></div>';
-}
-
-// ── HOME TAB ──────────────────────────────────────────────
-function tabHome(cats,sp,totB,totS,totI,free){
-  var h="";
-  var score=100;
-  if(free<0)score-=30;else if(free<totI*0.1)score-=15;
-  var totDebtR=D.debts.reduce(function(a,d){return a+(d.total-d.paid);},0);
-  if(totDebtR>totI*6)score-=20;else if(totDebtR>totI*3)score-=10;
-  var pct=totB>0?totS/totB:0;
-  if(pct>1)score-=20;else if(pct>0.9)score-=10;
-  score=Math.max(0,Math.min(100,score));
-  var scol=score>=80?"var(--green)":score>=60?"var(--amber)":"var(--red)";
-  var slbl=score>=80?"On Track":score>=60?"Doing OK":"Needs Attention";
-  var txCount=D.transactions.filter(function(t){return t.month===D.month;}).length;
-
-  // Health card
-  h+='<div class="card" style="border-color:'+(score>=80?"#4ade8020":score>=60?"#facc1520":"#f8717120")+';">';
-  h+='<div style="display:flex;justify-content:space-between;align-items:flex-start">';
-  h+='<div>';
-  h+='<div class="lbl" style="margin-bottom:6px">Financial Health · '+D.month+'</div>';
-  h+='<div style="font-size:44px;font-weight:800;color:'+scol+';letter-spacing:-.04em;line-height:1;font-family:var(--mono)">'+score+'</div>';
-  h+='<div style="font-size:11px;color:'+scol+';margin-top:5px;font-weight:500">'+slbl+'</div>';
+// ── PLANTS TAB ───────────────────────────────────────────
+function tabPlants(){
+  var h='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">';
+  h+='<div style="font-size:13px;color:var(--text2)">'+D.plants.length+' plant'+(D.plants.length!==1?"s":"")+'</div>';
+  h+='<button onclick="patch({showAddPlant:true})" class="btn btn-green" style="padding:9px 16px;font-size:13px">+ Add Plant</button>';
   h+='</div>';
-  h+='<div style="text-align:right">';
-  h+='<div style="width:52px;height:52px;border-radius:14px;background:'+scol+';display:flex;align-items:center;justify-content:center;font-size:22px;box-shadow:0 0 24px '+(score>=80?"#4ade8040":score>=60?"#facc1540":"#f8717140")+';">'+(score>=80?"😊":score>=60?"😐":"😟")+'</div>';
-  h+='<div style="font-size:10px;color:var(--text3);margin-top:6px;font-family:var(--mono)">'+txCount+' payments</div>';
-  h+='</div></div></div>';
-
-  // Stat grid
-  h+='<div class="row2" style="margin-bottom:10px">';
-  h+=dashCard("💰","Free Money",fmt(free),free<0?"var(--red)":"var(--green)","Available this month");
-  h+=dashCard("📊","Budget Used",Math.round(pct*100)+"%","var(--blue)",fmt(totS)+" of "+fmt(totB));
-  h+=dashCard("💳","Total Debt",fmt(totDebtR),"var(--red)",D.debts.length+" tracked");
-  h+=dashCard("🏦","Saved",fmt(D.goals.reduce(function(a,g){return a+g.saved;},0)),"var(--teal)",D.goals.length+" goals");
-  h+='</div>';
-
-  // Category breakdown
-  if(cats.length>0){
-    h+='<div class="card" style="margin-bottom:10px">';
-    h+='<div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:12px">Categories</div>';
-    cats.forEach(function(cat){
-      var bgt=Number(D.budgets[cat.id]||0);
-      (cat.subs||[]).forEach(function(s){bgt+=Number(D.budgets[s.id]||0);});
-      var spent=catSpent(cat,sp);
-      var p=bgt>0?Math.min(spent/bgt*100,100):0;
-      var col=p>100?"var(--red)":p>80?"var(--amber)":"var(--green)";
-      if(bgt===0&&spent===0)return;
-      h+='<div style="margin-bottom:10px">';
-      h+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">';
-      h+='<div style="display:flex;align-items:center;gap:6px"><span style="font-size:13px">'+esc(cat.icon)+'</span><span style="font-size:12px;font-weight:600;color:var(--text)">'+esc(cat.name)+'</span></div>';
-      h+='<span style="font-size:11px;color:var(--text3);font-family:var(--mono)">'+fmt(spent)+' / '+fmt(bgt)+'</span>';
-      h+='</div>';
-      h+='<div class="pt" style="height:3px"><div class="pb" style="width:'+p+'%;background:'+col+'"></div></div>';
-      h+='</div>';
-    });
+  if(D.plants.length===0){
+    h+='<div style="text-align:center;padding:48px 20px;border:1.5px dashed var(--border2);border-radius:20px">';
+    h+='<div style="font-size:48px;margin-bottom:12px">🌱</div>';
+    h+='<div style="font-size:15px;font-weight:600;color:var(--text);margin-bottom:8px">No plants yet</div>';
+    h+='<div style="font-size:13px;color:var(--text3)">Add your first plant to start tracking from seed to harvest</div>';
     h+='</div>';
+    return h;
   }
-
-  // Bill buffer
-  var mbills=D.recurring.reduce(function(a,r){var amt=Number(r.amount||0);if(r.freq==="weekly")return a+amt*4.33;if(r.freq==="biweekly")return a+amt*2.17;if(r.freq==="yearly")return a+amt/12;return a+amt;},0);
-  var bufG=D.goals.filter(function(g){return g.isBuffer;})[0];
-  var bufSaved=bufG?bufG.saved:0;
-  var buf1=mbills,buf3=mbills*3;
-  var bp1=buf1>0?Math.min(bufSaved/buf1*100,100):0;
-  var bp3=buf3>0?Math.min(bufSaved/buf3*100,100):0;
-  var bcol=bufSaved>=buf3?"var(--green)":bufSaved>=buf1?"var(--amber)":"var(--blue)";
-  var bstat=bufSaved>=buf3?"Bulletproof":bufSaved>=buf1?"Safe":"Building";
-  if(mbills>0||bufG){
-    h+='<div class="card" style="border-color:'+(bufSaved>=buf3?"#4ade8018":bufSaved>=buf1?"#facc1518":"#60a5fa18")+';margin-bottom:10px">';
-    h+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">';
-    h+='<div style="display:flex;align-items:center;gap:7px"><span style="font-size:16px">🛡️</span><span style="font-size:13px;font-weight:700">Bill Buffer</span>';
-    h+='<span class="pill" style="color:'+bcol+';border-color:'+bcol+';background:'+bcol.replace("var(","").replace(")","")+'14">'+bstat+'</span></div>';
-    h+='<span style="font-size:14px;font-weight:700;color:'+bcol+';font-family:var(--mono)">'+fmt(bufSaved)+'</span></div>';
-    h+='<div class="lbl" style="margin-bottom:3px">1 month · '+fmt(buf1)+'</div>';
-    h+='<div class="pt" style="height:4px;margin-bottom:8px"><div class="pb" style="width:'+bp1+'%;background:'+bcol+'"></div></div>';
-    h+='<div class="lbl" style="margin-bottom:3px">3 months bulletproof · '+fmt(buf3)+'</div>';
-    h+='<div class="pt" style="height:3px;margin-bottom:8px"><div class="pb" style="width:'+bp3+'%;background:'+bcol+';opacity:.5"></div></div>';
-    h+='<div style="font-size:10px;color:var(--text3);font-family:var(--mono)">'+D.recurring.length+' bills · '+fmt(mbills)+'/mo</div>';
-    if(!bufG){h+='<button onclick="makeBufferGoal()" style="width:100%;background:'+bcol+'12;border:1.5px solid '+bcol+'25;border-radius:10px;padding:9px;color:'+bcol+';cursor:pointer;font-size:12px;font-weight:600;margin-top:10px">+ Start Building Buffer</button>';}
+  D.plants.filter(function(p){return !p.harvested;}).forEach(function(p){
+    var days=daysSince(p.startDate);
+    var totalDays=plantTotalDays(p);
+    var stage=getStageFor(p,days,totalDays);
+    var isOngoing=(p.plantType==="basil"&&stage.key==="established")||(p.plantType==="tomato"&&(stage.key==="producing"));
+    var remaining=isOngoing?null:Math.max(0,totalDays-days);
+    var pct=isOngoing?100:Math.min((days/totalDays)*100,100);
+    var dist=getLightDistance(D.setup,stage);
+    var water=getWaterSchedule(D.setup,stage,days);
+    var plantLogs=D.logs[p.id]||[];
+    var lastLog=plantLogs.length>0?plantLogs[plantLogs.length-1]:null;
+    h+='<div class="card" style="margin-bottom:12px">';
+    // Plant header
+    h+='<div style="padding:14px 16px 12px;background:linear-gradient(135deg,var(--bg2),var(--bg3))">';
+    h+='<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px">';
+    h+='<div>';
+    h+='<div style="font-size:16px;font-weight:700;color:var(--text)">'+stage.icon+' '+esc(p.name)+'</div>';
+    h+='<div style="font-size:12px;color:var(--text3);margin-top:2px;font-family:\'DM Mono\',monospace">'+esc(p.strain||"Unknown strain")+'</div>';
     h+='</div>';
-  }
-
-  // Net worth
-  var assets=D.goals.reduce(function(a,g){return a+g.saved;},0);
-  var liabs=D.debts.reduce(function(a,d){return a+(d.total-d.paid);},0);
-  var nw=assets-liabs;
-  h+='<div class="card" style="margin-bottom:10px">';
-  h+='<button onclick="patch({showNetWorth:!S.showNetWorth})" style="width:100%;background:none;border:none;display:flex;justify-content:space-between;align-items:center;cursor:pointer;padding:0">';
-  h+='<div style="display:flex;align-items:center;gap:6px"><span>📊</span><span style="font-size:13px;font-weight:700;color:var(--text)">Net Worth</span></div>';
-  h+='<div style="display:flex;align-items:center;gap:8px"><span style="font-size:14px;font-weight:700;color:'+(nw>=0?"var(--green)":"var(--red)")+';font-family:var(--mono)">'+fmt(nw)+'</span><span style="color:var(--text3);font-size:11px">'+(S.showNetWorth?"▲":"▼")+'</span></div>';
-  h+='</button>';
-  if(S.showNetWorth){
-    h+='<div style="border-top:1px solid var(--border2);margin-top:12px;padding-top:12px">';
-    h+='<div class="row2" style="margin-bottom:10px">';
-    h+='<div style="background:#4ade8010;border:1.5px solid #4ade8018;border-radius:11px;padding:10px"><div class="lbl">Assets</div><div style="font-size:15px;font-weight:700;color:var(--green)">'+fmt(assets)+'</div></div>';
-    h+='<div style="background:#f8717110;border:1.5px solid #f8717118;border-radius:11px;padding:10px"><div class="lbl">Liabilities</div><div style="font-size:15px;font-weight:700;color:var(--red)">'+fmt(liabs)+'</div></div>';
-    h+='</div>';
-    D.goals.forEach(function(g){h+='<div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--border)"><span style="font-size:11px;color:var(--text2)">'+g.icon+' '+esc(g.name)+'</span><span style="font-size:11px;color:var(--green);font-family:var(--mono)">'+fmt(g.saved)+'</span></div>';});
-    D.debts.forEach(function(d){h+='<div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--border)"><span style="font-size:11px;color:var(--text2)">💳 '+esc(d.name)+'</span><span style="font-size:11px;color:var(--red);font-family:var(--mono)">-'+fmt(d.total-d.paid)+'</span></div>';});
-    h+='<div style="display:flex;justify-content:space-between;padding-top:10px;margin-top:4px;border-top:1px solid var(--border2)"><span style="font-size:12px;font-weight:700;color:var(--text)">Net Worth</span><span style="font-size:14px;font-weight:700;color:'+(nw>=0?"var(--green)":"var(--red)")+';font-family:var(--mono)">'+fmt(nw)+'</span></div>';
-    h+='</div>';
-  }
-  h+='</div>';
-
-  // Upcoming bills
-  var today=new Date().getDate();
-  var upcoming=D.recurring.filter(function(r){return Number(r.day)>=today;}).sort(function(a,b){return Number(a.day)-Number(b.day);}).slice(0,4);
-  if(upcoming.length>0){
-    h+='<div class="card"><div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:10px">📅 Upcoming</div>';
-    upcoming.forEach(function(r){
-      var daysLeft=Number(r.day)-today;
-      h+='<div style="display:flex;align-items:center;gap:9px;padding:6px 0;border-bottom:1px solid var(--border)">';
-      h+='<div style="width:30px;height:30px;border-radius:9px;background:var(--bg3);border:1.5px solid var(--border2);display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0">';
-      h+='<span style="font-size:10px;font-weight:800;color:var(--violet2);font-family:var(--mono);line-height:1">'+r.day+'</span>';
-      h+='</div>';
-      h+='<div style="flex:1;min-width:0"><div style="font-size:12px;font-weight:600;color:var(--text)">'+esc(r.name)+'</div>';
-      h+='<div style="font-size:10px;color:var(--text3);font-family:var(--mono)">'+(daysLeft===0?"Today":daysLeft===1?"Tomorrow":daysLeft+" days")+'</div></div>';
-      h+='<div style="font-size:12px;font-weight:700;color:var(--violet2);font-family:var(--mono)">'+fmt(r.amount)+'</div></div>';
-    });
-    h+='</div>';
-  }
-  return h;
-}
-
-function dashCard(icon,label,val,col,sub){
-  return'<div style="background:var(--bg2);border:1.5px solid var(--border);border-radius:14px;padding:12px"><div style="font-size:18px;margin-bottom:6px">'+icon+'</div><div class="lbl">'+label+'</div><div style="font-size:16px;font-weight:700;color:'+col+';font-family:var(--mono)">'+val+'</div><div style="font-size:10px;color:var(--text3);margin-top:3px">'+sub+'</div></div>';
-}
-function makeBufferGoal(){
-  var mbills=D.recurring.reduce(function(a,r){var amt=Number(r.amount||0);if(r.freq==="weekly")return a+amt*4.33;if(r.freq==="biweekly")return a+amt*2.17;if(r.freq==="yearly")return a+amt/12;return a+amt;},0);
-  D.goals.push({id:uid(),name:"Bill Buffer",icon:"🛡️",target:Math.round(mbills*3),saved:0,isBuffer:true});
-  saveD();showToast("Buffer goal created!");patch({tab:"money",seg:"progress"});
-}
-
-// ── BUDGET TAB ────────────────────────────────────────────
-function tabBudget(cats,sp,free){
-  var h='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">';
-  h+='<div style="font-size:12px;color:'+(free<0?"var(--red)":"var(--green)")+';font-weight:600">'+(free<0?"⚠ Over by "+fmt(-free):"✓ "+fmt(free)+" free")+'</div>';
-  h+='<button onclick="patch({editCat:\'new\'})" style="background:var(--bg3);border:1.5px solid #4ade8030;border-radius:9px;padding:6px 12px;color:var(--green);cursor:pointer;font-size:11px;font-weight:600">+ Category</button>';
-  h+='</div>';
-  cats.forEach(function(cat){h+=catCard(cat,sp);});
-  if(S.editCat){h+=modalCat();}
-  return h;
-}
-
-function catCard(cat,sp){
-  var totBgt=Number(D.budgets[cat.id]||0);
-  (cat.subs||[]).forEach(function(s){totBgt+=Number(D.budgets[s.id]||0);});
-  var totSpent=catSpent(cat,sp);
-  var pct=totBgt>0?Math.min(totSpent/totBgt*100,100):0;
-  var col=pct>=100?"var(--red)":pct>=80?"var(--amber)":"var(--green)";
-  var isOpen=!S.collapsed||!S.collapsed[cat.id];
-  var showMove=S.movePanel===cat.id;
-  var rules=(D.rerouteRules||[]).filter(function(r){return r.fromId===cat.id;});
-  var h='<div class="card2">';
-  h+='<div style="display:flex;align-items:center;gap:8px">';
-  h+='<div onclick="toggleCat(\''+cl(cat.id)+'\')" style="display:flex;align-items:center;gap:8px;flex:1;cursor:pointer;min-width:0">';
-  h+='<div class="ibadge" style="background:'+(cat.color||"#94a3b8")+'18">'+esc(cat.icon)+'</div>';
-  h+='<div style="flex:1;min-width:0">';
-  h+='<div style="font-size:12px;font-weight:700;color:var(--text)">'+esc(cat.name)+'</div>';
-  h+='<div class="pt" style="height:3px;margin-top:3px"><div class="pb" style="width:'+pct+'%;background:'+col+'"></div></div>';
-  h+='</div>';
-  h+='<span style="font-size:11px;color:var(--text3);font-family:var(--mono);flex-shrink:0">'+fmt(totSpent)+'/'+fmt(totBgt)+'</span>';
-  h+='<span style="color:var(--text3);font-size:10px">'+(isOpen?"▲":"▼")+'</span>';
-  h+='</div>';
-  h+='<button onclick="patch({movePanel:S.movePanel===\''+cl(cat.id)+'\'?null:\''+cl(cat.id)+'\'})" style="background:'+(showMove?"var(--amber)20":"var(--bg4)")+';border:1px solid '+(showMove?"var(--amber)30":"var(--border2)")+';border-radius:7px;color:'+(showMove?"var(--amber)":"var(--text3)")+';cursor:pointer;font-size:11px;padding:4px 7px;flex-shrink:0;font-weight:600">⇄</button>';
-  h+='</div>';
-  if(rules.length>0){
-    h+='<div style="margin-top:6px;display:flex;flex-wrap:wrap;gap:4px">';
-    rules.forEach(function(rule){
-      var destName=rule.destType==="goal"?(D.goals.filter(function(g){return g.id===rule.destId;})[0]||{name:"?"}).name:(D.categories||[]).reduce(function(a,c){if(c.id===rule.destId)return c.name;(c.subs||[]).forEach(function(s){if(s.id===rule.destId)a=s.name;});return a;},"?");
-      h+='<div style="display:flex;align-items:center;gap:4px;background:var(--amber)10;border:1px solid var(--amber)20;border-radius:7px;padding:2px 7px">';
-      h+='<span style="font-size:10px;color:var(--amber)">↻ '+fmt(rule.amount)+'→ '+esc(destName)+'</span>';
-      h+='<button onclick="delReroute(\''+cl(rule.id)+'\')" style="background:none;border:none;color:var(--amber);opacity:.5;cursor:pointer;font-size:11px;padding:0 2px">✕</button>';
-      h+='</div>';
-    });
-    h+='</div>';
-  }
-  if(showMove){h+=reroutePanel(cat.id);}
-  if(isOpen){
-    if(cat.subs&&cat.subs.length>0){
-      cat.subs.forEach(function(sub){
-        var sbgt=Number(D.budgets[sub.id]||0);
-        var sspent=sp[sub.id]||0;
-        var sp2=sbgt>0?Math.min(sspent/sbgt*100,100):0;
-        var sc=sp2>=100?"var(--red)":sp2>=80?"var(--amber)":"var(--green)";
-        var showSubMove=S.movePanel===sub.id;
-        var subRules=(D.rerouteRules||[]).filter(function(r){return r.fromId===sub.id;});
-        h+='<div style="border-top:1px solid var(--border)">';
-        h+='<div style="display:flex;align-items:center;gap:6px;padding:6px 0 6px 10px">';
-        h+='<span style="font-size:11px">'+esc(sub.icon)+'</span>';
-        h+='<span style="flex:1;font-size:11px;color:var(--text2)">'+esc(sub.name)+'</span>';
-        h+='<input type="number" value="'+sbgt+'" style="width:72px;background:var(--bg4);border:1px solid var(--border2);border-radius:8px;padding:5px 8px;color:var(--text);font-size:11px;outline:none;text-align:right;font-family:var(--mono)" onchange="setBudget(\''+cl(sub.id)+'\',this.value)" onblur="setBudget(\''+cl(sub.id)+'\',this.value)"/>';
-        h+='<button onclick="patch({movePanel:S.movePanel===\''+cl(sub.id)+'\'?null:\''+cl(sub.id)+'\'})" style="background:'+(showSubMove?"var(--amber)20":"var(--bg4)")+';border:1px solid '+(showSubMove?"var(--amber)30":"var(--border2)")+';border-radius:6px;color:'+(showSubMove?"var(--amber)":"var(--text3)")+';cursor:pointer;font-size:10px;padding:3px 7px;flex-shrink:0">⇄</button>';
-        h+='</div>';
-        if(subRules.length>0){
-          h+='<div style="display:flex;flex-wrap:wrap;gap:4px;padding:0 0 5px 10px">';
-          subRules.forEach(function(rule){
-            var destName=rule.destType==="goal"?(D.goals.filter(function(g){return g.id===rule.destId;})[0]||{name:"?"}).name:(D.categories||[]).reduce(function(a,c){if(c.id===rule.destId)return c.name;(c.subs||[]).forEach(function(s){if(s.id===rule.destId)a=s.name;});return a;},"?");
-            h+='<div style="display:flex;align-items:center;gap:4px;background:var(--amber)10;border:1px solid var(--amber)20;border-radius:7px;padding:2px 7px">';
-            h+='<span style="font-size:10px;color:var(--amber)">↻ '+fmt(rule.amount)+'→'+esc(destName)+'</span>';
-            h+='<button onclick="delReroute(\''+cl(rule.id)+'\')" style="background:none;border:none;color:var(--amber);opacity:.5;cursor:pointer;font-size:11px;padding:0 2px">✕</button>';
-            h+='</div>';
-          });
-          h+='</div>';
-        }
-        if(showSubMove){h+=reroutePanel(sub.id);}
-        h+='</div>';
-      });
-    }else{
-      var bgt2=Number(D.budgets[cat.id]||0);
-      h+='<div style="display:flex;align-items:center;gap:6px;padding-top:8px;border-top:1px solid var(--border)">';
-      h+='<span style="flex:1;font-size:11px;color:var(--text3)">Budget</span>';
-      h+='<input type="number" value="'+bgt2+'" style="width:80px;background:var(--bg4);border:1px solid var(--border2);border-radius:8px;padding:5px 8px;color:var(--text);font-size:11px;outline:none;text-align:right;font-family:var(--mono)" onchange="setBudget(\''+cl(cat.id)+'\',this.value)" onblur="setBudget(\''+cl(cat.id)+'\',this.value)"/>';
-      h+='</div>';
+    h+='<div style="text-align:right">';
+    h+='<div style="font-size:22px;font-weight:800;color:'+stage.color+'">Day '+days+'</div>';
+    h+='<div style="font-size:10px;color:var(--text3);font-family:\'DM Mono\',monospace">'+(isOngoing?"ongoing growth":remaining+" days left")+'</div>';
+    h+='</div></div>';
+    // Stage badge
+    h+='<div style="display:inline-block;background:'+stage.color+'20;border:1px solid '+stage.color+'40;border-radius:100px;padding:3px 10px;font-size:11px;font-weight:600;color:'+stage.color+';margin-bottom:10px">'+stage.name+'</div>';
+    // Progress bar (skipped for ongoing-growth plants)
+    if(!isOngoing){
+      h+='<div class="pt" style="height:6px;margin-bottom:4px"><div class="pb" style="width:'+pct+'%;background:linear-gradient(90deg,'+stage.color+','+stage.color+'99);height:6px"></div></div>';
+      h+='<div style="display:flex;justify-content:space-between;font-size:10px;color:var(--text3);font-family:\'DM Mono\',monospace"><span>Seed</span><span>'+Math.round(pct)+'%</span><span>Harvest</span></div>';
     }
-  }
-  h+='</div>';
-  return h;
-}
-function toggleCat(id){if(!S.collapsed)S.collapsed={};S.collapsed[id]=!S.collapsed[id];render();}
-function setBudget(id,val){D.budgets[id]=Number(val)||0;saveD();render();}
-function reroutePanel(fromId){
-  var mvType=S.mvType||"cat";
-  var h='<div style="background:var(--bg);border:1.5px solid var(--amber)20;border-radius:11px;padding:12px;margin-top:7px;margin-bottom:4px">';
-  h+='<div style="font-size:11px;font-weight:700;color:var(--amber);margin-bottom:10px">⇄ Reroute Budget</div>';
-  h+='<div class="row" style="margin-bottom:8px"><div style="flex:1"><div class="lbl">Amount</div><input id="mv-amt" type="number" class="inp" placeholder="e.g. 50" style="font-size:13px;padding:8px 11px"/></div></div>';
-  h+='<div style="display:flex;gap:6px;margin-bottom:8px">';
-  h+='<button onclick="patch({mvType:\'cat\'})" style="flex:1;background:'+(mvType==="cat"?"var(--blue)15":"var(--bg3)")+';border:1.5px solid '+(mvType==="cat"?"var(--blue)30":"var(--border2)")+';border-radius:9px;padding:7px;color:'+(mvType==="cat"?"var(--blue)":"var(--text3)")+';cursor:pointer;font-size:11px;font-weight:600">→ Category</button>';
-  h+='<button onclick="patch({mvType:\'goal\'})" style="flex:1;background:'+(mvType==="goal"?"var(--teal)15":"var(--bg3)")+';border:1.5px solid '+(mvType==="goal"?"var(--teal)30":"var(--border2)")+';border-radius:9px;padding:7px;color:'+(mvType==="goal"?"var(--teal)":"var(--text3)")+';cursor:pointer;font-size:11px;font-weight:600">→ Goal</button>';
-  h+='</div>';
-  h+='<div class="fld"><div class="lbl">Send To</div><select id="mv-dest" class="inp" style="font-size:12px">';
-  if(mvType==="goal"){D.goals.forEach(function(g){h+='<option value="'+esc(g.id)+'">'+esc(g.icon)+' '+esc(g.name)+'</option>';});if(D.goals.length===0)h+='<option value="">No goals yet</option>';}
-  else{(D.categories||[]).forEach(function(c){if(c.id!==fromId)h+='<option value="'+esc(c.id)+'">'+esc(c.icon)+' '+esc(c.name)+'</option>';(c.subs||[]).forEach(function(s){if(s.id!==fromId)h+='<option value="'+esc(s.id)+'">  └ '+esc(s.icon)+' '+esc(s.name)+'</option>';});});}
-  h+='</select></div>';
-  h+='<div class="row" style="gap:6px">';
-  h+='<button onclick="doMoveNow(\''+cl(fromId)+'\')" style="flex:1;background:var(--amber)15;border:1.5px solid var(--amber)30;border-radius:9px;padding:9px;color:var(--amber);cursor:pointer;font-size:12px;font-weight:600">Move Now</button>';
-  h+='<button onclick="doMakeRecurring(\''+cl(fromId)+'\')" style="flex:1;background:var(--violet2)15;border:1.5px solid var(--violet2)30;border-radius:9px;padding:9px;color:var(--violet2);cursor:pointer;font-size:12px;font-weight:600">↻ Every Month</button>';
-  h+='</div>';
-  h+='<div style="font-size:10px;color:var(--text3);margin-top:7px;text-align:center">Move Now is one-time · Every Month auto-applies each month</div>';
-  h+='</div>';
-  return h;
-}
-function doMoveNow(fromId){
-  var amt=Number((document.getElementById("mv-amt")||{}).value)||0;
-  var dest=(document.getElementById("mv-dest")||{}).value||"";
-  if(!amt||!dest)return showToast("Enter amount and destination","var(--red)");
-  var mvType=S.mvType||"cat";
-  if(D.budgets[fromId]!==undefined)D.budgets[fromId]=Math.max(0,(D.budgets[fromId]||0)-amt);
-  if(mvType==="goal"){
-    D.goals=D.goals.map(function(g){return g.id===dest?Object.assign({},g,{saved:g.saved+amt}):g;});
-    showToast(fmt(amt)+" moved to goal!");
-  }else{D.budgets[dest]=(D.budgets[dest]||0)+amt;showToast(fmt(amt)+" moved!");}
-  saveD();patch({movePanel:null});
-}
-function doMakeRecurring(fromId){
-  var amt=Number((document.getElementById("mv-amt")||{}).value)||0;
-  var dest=(document.getElementById("mv-dest")||{}).value||"";
-  if(!amt||!dest)return showToast("Enter amount and destination","var(--red)");
-  if(!D.rerouteRules)D.rerouteRules=[];
-  D.rerouteRules.push({id:uid(),fromId:fromId,destId:dest,destType:S.mvType||"cat",amount:amt});
-  saveD();patch({movePanel:null});showToast("Auto-reroute set!");
-}
-function delReroute(id){D.rerouteRules=(D.rerouteRules||[]).filter(function(r){return r.id!==id;});saveD();render();showToast("Reroute removed");}
-function applyRerouteRules(){
-  (D.rerouteRules||[]).forEach(function(rule){
-    if(D.budgets[rule.fromId]!==undefined)D.budgets[rule.fromId]=Math.max(0,(D.budgets[rule.fromId]||0)-rule.amount);
-    if(rule.destType==="goal"){D.goals=D.goals.map(function(g){return g.id===rule.destId?Object.assign({},g,{saved:g.saved+rule.amount}):g;});}
-    else{D.budgets[rule.destId]=(D.budgets[rule.destId]||0)+rule.amount;}
+    h+='</div>';
+    // Info grid
+    h+='<div style="padding:12px 16px;display:grid;grid-template-columns:1fr 1fr;gap:8px;border-bottom:1px solid var(--border)">';
+    h+=infoCell("💡","Light Distance",dist.min+"–"+dist.max+" cm");
+    h+=infoCell("💧","Water",water);
+    if(lastLog)h+=infoCell("📏","Last Height",lastLog.height?lastLog.height+"cm":"Not logged");
+    h+=infoCell("📅","Start Date",p.startDate);
+    h+=infoCell("✂️","Harvest Date",p.harvestDate||addDays(p.startDate,totalDays));
+    h+='</div>';
+    // Stage tip
+    h+='<div style="padding:10px 16px;background:'+stage.color+'08;border-bottom:1px solid var(--border)">';
+    h+='<div style="font-size:11px;font-weight:600;color:'+stage.color+';margin-bottom:3px">💡 '+stage.name+' Tip</div>';
+    h+='<div style="font-size:12px;color:var(--text2);line-height:1.5">'+stage.tip+'</div>';
+    h+='</div>';
+    // Actions
+    h+='<div style="padding:10px 16px;display:flex;gap:8px">';
+    h+='<button data-pid="'+p.id+'" onclick="openLog(this.dataset.pid)" style="flex:1;background:var(--green);color:#071007;border:none;border-radius:10px;padding:9px;font-weight:600;font-size:13px;cursor:pointer">+ Log Week</button>';
+    h+='<button data-pid="'+p.id+'" onclick="openEditPlant(this.dataset.pid)" style="background:var(--bg3);border:1.5px solid var(--border2);border-radius:10px;padding:9px 12px;color:var(--text2);cursor:pointer;font-size:13px">✏️</button>';
+    h+='<button data-pid="'+p.id+'" onclick="markHarvested(this.dataset.pid)" style="background:#fb923c15;border:1.5px solid #fb923c30;border-radius:10px;padding:9px 12px;color:#fb923c;cursor:pointer;font-size:13px">✂️</button>';
+    h+='<button data-pid="'+p.id+'" onclick="deletePlant(this.dataset.pid)" style="background:var(--bg3);border:1.5px solid var(--border2);border-radius:10px;padding:9px 12px;color:var(--text3);cursor:pointer;font-size:13px">🗑️</button>';
+    h+='</div>';
+    h+='</div>';
   });
+  return h;
 }
 
-// ── PAY TAB ───────────────────────────────────────────────
-function tabPay(){
-  var txs=D.transactions.filter(function(t){return t.month===D.month;}).sort(function(a,b){return b.date.localeCompare(a.date);});
+function infoCell(icon,label,val){
+  return '<div style="background:var(--bg3);border-radius:10px;padding:8px 10px"><div style="font-size:10px;color:var(--text3);font-family:\'DM Mono\',monospace;margin-bottom:2px">'+label+'</div><div style="font-size:12px;color:var(--text);font-weight:500">'+icon+' '+esc(val)+'</div></div>';
+}
+
+// ── MAP TAB ──────────────────────────────────────────────
+function tabMap(){
   var h='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">';
-  h+='<div style="font-size:12px;color:var(--text3);font-family:var(--mono)">'+txs.length+' payments this month</div>';
-  h+='<button onclick="patch({showTx:true})" style="background:var(--bg3);border:1.5px solid #60a5fa25;border-radius:9px;padding:6px 14px;color:var(--blue);cursor:pointer;font-size:12px;font-weight:600">+ Add Payment</button>';
+  h+='<div style="font-size:11px;color:var(--text3);font-family:\'DM Mono\',monospace">'+esc(D.setup.tentSize)+'cm · '+esc(D.setup.lightModel)+'</div>';
+  h+='<button onclick="patch({showTentConfig:true})" style="background:none;border:1px solid var(--border2);border-radius:8px;padding:4px 9px;font-size:11px;color:var(--text3);cursor:pointer">⚙️ Configure</button>';
   h+='</div>';
-  if(txs.length===0){
-    return h+'<div style="text-align:center;padding:48px 20px;color:var(--text3);border:1.5px dashed var(--border2);border-radius:16px"><div style="font-size:40px;margin-bottom:12px">💳</div><div style="font-size:13px">No payments this month</div></div>';
+
+  // Perpetual rotation status strip
+  var rotation=getZoneRotation().slice().sort(function(a,b){
+    var order={growing:0,plant_now:1,waiting:2,empty:3};
+    if(order[a.status]!==order[b.status])return order[a.status]-order[b.status];
+    if(a.status==="growing")return a.remaining-b.remaining;
+    if(a.status==="waiting")return a.waitDays-b.waitDays;
+    return 0;
+  });
+  if(rotation.length){
+    h+='<div style="display:flex;gap:6px;overflow-x:auto;margin-bottom:14px;padding-bottom:2px">';
+    rotation.forEach(function(r){
+      var c="var(--text3)",bg="var(--bg3)",txt="";
+      if(r.status==="plant_now"){c="var(--green)";bg="#4ade8020";txt="🌱 Plant Now";}
+      else if(r.status==="waiting"){c="#fbbf24";bg="#fbbf2420";txt="Wait "+r.waitDays+"d";}
+      else if(r.status==="growing"){c="#60a5fa";bg="#60a5fa20";txt=r.remaining+"d to harvest";}
+      h+='<div onclick="patch({selectedZone:\''+r.key+'\'})" style="flex-shrink:0;border:1px solid '+c+'40;background:'+bg+';border-radius:10px;padding:6px 10px;cursor:pointer">';
+      h+='<div style="font-size:9px;color:var(--text3);font-family:\'DM Mono\',monospace">'+esc(r.label.replace(" 🔒",""))+'</div>';
+      h+='<div style="font-size:11px;font-weight:600;color:'+c+'">'+txt+'</div></div>';
+    });
+    h+='</div>';
   }
-  txs.forEach(function(tx){
-    var opt=optById(tx.category);
-    h+='<div class="txrow">';
-    h+='<div class="ibadge" style="background:'+(opt.color||"#94a3b8")+'18">'+esc(opt.icon)+'</div>';
-    h+='<div style="flex:1;min-width:0">';
-    h+='<div style="font-size:12px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc(tx.name)+'</div>';
-    h+='<div style="font-size:10px;color:var(--text3);font-family:var(--mono)">'+esc(opt.name)+' · '+tx.date+'</div></div>';
-    h+='<div style="font-size:12px;font-weight:700;color:var(--red);font-family:var(--mono);flex-shrink:0">-'+fmt(tx.amount)+'</div>';
-    h+='<button onclick="delTx(\''+cl(tx.id)+'\')" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:13px;flex-shrink:0;padding:2px">✕</button>';
+
+  var lightH=Number(D.setup.lightHeight)||135;
+  var canopyMax=Number(D.setup.canopyMax)||90;
+  var netH=Number(D.setup.netHeight)||55;
+  h+='<div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">';
+  h+='<div style="position:relative;flex:1;height:4px;background:var(--border2);border-radius:4px">';
+  [0,netH,canopyMax,lightH].forEach(function(cm){
+    h+='<div style="position:absolute;top:-4px;left:'+((cm/lightH)*100)+'%;width:2px;height:12px;background:var(--text3)"></div>';
+  });
+  h+='</div></div>';
+  h+='<div style="display:flex;justify-content:space-between;font-size:9px;color:var(--text3);font-family:\'DM Mono\',monospace;margin-bottom:16px">';
+  h+='<span>0 floor</span><span>'+netH+' net</span><span>'+canopyMax+' canopy</span><span>'+lightH+' light</span></div>';
+
+  // Configurable zone grid
+  var rotMap={};
+  getZoneRotation().forEach(function(r){rotMap[r.key]=r;});
+  function cellFor(key){
+    if(!key)return '<div></div>';
+    var p=D.plants.find(function(x){return !x.harvested&&x.position===key;});
+    var active=S.selectedZone===key;
+    var locked=(D.setup.perpetualZones||[]).indexOf(key)>-1;
+    var label=zoneLabel(key)+(locked?' 🔒':"");
+    var border=active?"var(--green)":"var(--border)";
+    var bg=active?"#4ade8015":"var(--bg2)";
+    var name=p?(PLANT_TYPES.find(function(t){return t.key===(p.plantType||"cannabis");}).icon+" "+esc(p.name)+(p.isPerpetual?' ♻️':"")):(locked?"— perpetual, empty —":"— empty —");
+    var sub=p?esc(p.strain||""):"Tap to assign";
+    var feedTag="";
+    if(p){
+      var d=daysSince(p.startDate);
+      var t=getFeedPlanFor(p,d);
+      var mix=[["S",t.starter],["G",t.grow],["B",t.bloom],["PK",t.pk],["Bo",t.booster]].filter(function(m){return m[1]>0;}).map(function(m){return m[0]+m[1];}).join(" ");
+      feedTag='<div style="font-size:9px;color:var(--green);font-family:\'DM Mono\',monospace;margin-top:2px">'+(mix||"water only")+'</div>';
+    }
+    if(!p&&locked&&rotMap[key]){
+      var r=rotMap[key];
+      if(r.status==="plant_now")feedTag='<div style="font-size:9px;color:var(--green);font-family:\'DM Mono\',monospace;margin-top:2px">🌱 Plant Now</div>';
+      else if(r.status==="waiting")feedTag='<div style="font-size:9px;color:#fbbf24;font-family:\'DM Mono\',monospace;margin-top:2px">Wait '+r.waitDays+'d</div>';
+    }
+    return '<button onclick="patch({selectedZone:\''+key+'\'})" style="text-align:left;border:1.5px solid '+border+';background:'+bg+';border-radius:14px;padding:10px;min-height:88px;display:flex;flex-direction:column;justify-content:flex-end;cursor:pointer">'
+      +'<div style="font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;font-family:\'DM Mono\',monospace">'+label+'</div>'
+      +'<div style="font-size:13px;font-weight:600;color:'+(p?"var(--text)":"var(--text3)")+';margin-top:3px">'+name+'</div>'
+      +'<div style="font-size:10px;color:var(--text3)">'+sub+'</div>'+feedTag+'</button>';
+  }
+  // Layout-specific grid arrangement
+  var layout=D.setup.zoneLayout;
+  var rows=[];
+  if(layout==="5z_ushape")rows=[["backLeft","backCenter","backRight"],["frontLeft",null,"frontRight"]];
+  else if(layout==="7z_ushape")rows=[["backLeft","backCenter","backRight"],["midLeft",null,"midRight"],["frontLeft",null,"frontRight"]];
+  else if(layout==="4z_grid")rows=[["backLeft","backRight"],["frontLeft","frontRight"]];
+  else if(layout==="6z_grid")rows=[["backLeft","backCenter","backRight"],["frontLeft","frontCenter","frontRight"]];
+  else if(layout==="9z_grid")rows=[["r1c1","r1c2","r1c3"],["r2c1","r2c2","r2c3"],["r3c1","r3c2","r3c3"]];
+  else rows=[["center"]];
+  rows.forEach(function(row,i){
+    h+='<div style="display:grid;grid-template-columns:repeat('+row.length+',1fr);gap:8px;margin-bottom:'+(i===rows.length-1?"18px":"8px")+'">';
+    h+=row.map(cellFor).join("");
     h+='</div>';
   });
-  return h;
-}
 
-// ── MONEY TAB ─────────────────────────────────────────────
-function tabMoney(totI,cats,totInc,totB){
-  var segs=[["income","💵 Income","var(--green)"],["bills","🔁 Bills","var(--violet2)"],["progress","🎯 Progress","var(--teal)"],["forecast","📅 Forecast","var(--pink)"]];
-  var seg=S.seg||"income";
-  var h='<div class="seg">';
-  segs.forEach(function(s){
-    var a=seg===s[0];
-    h+='<button class="segb'+(a?" on":"")+'" onclick="patch({seg:\''+s[0]+'\'})" style="background:'+(a?s[2]+'15':'transparent')+';color:'+(a?s[2]:'var(--text3)')+'">'+s[1]+'</button>';
-  });
-  h+='</div>';
-  if(seg==="income")h+=segIncome(totI);
-  else if(seg==="bills")h+=segBills();
-  else if(seg==="progress")h+=segProgress();
-  else if(seg==="forecast")h+=segForecast(cats,totInc,totB);
-  return h;
-}
-
-function segIncome(totI){
-  var oti=(D.oneTimeIncome||[]).filter(function(t){return t.month===D.month;});
-  var otiTotal=oti.reduce(function(a,t){return a+t.amount;},0);
-  var h='<div class="card" style="margin-bottom:10px;display:flex;justify-content:space-between;align-items:center">';
-  h+='<div><div class="lbl">This Month</div><div style="font-size:22px;font-weight:800;color:var(--green);font-family:var(--mono)">'+fmt(totI)+'</div></div>';
-  h+='<div style="text-align:right"><div class="lbl">Sources</div><div style="font-size:18px;font-weight:700;color:var(--text);font-family:var(--mono)">'+D.incomeStreams.length+'</div></div></div>';
-  h+='<div class="card" style="margin-bottom:10px"><div class="lbl" style="margin-bottom:8px">Quick Add One-Time Income</div>';
-  h+='<div class="row" style="margin-bottom:'+(oti.length>0?"10px":"0")+'">';
-  h+='<input id="oti-n" class="inp" placeholder="Description..." style="flex:2;font-size:12px;padding:8px 11px"/>';
-  h+='<input id="oti-a" type="number" class="inp" placeholder="€" style="flex:1;font-size:12px;padding:8px 11px"/>';
-  h+='<button onclick="addOneTimeIncome()" style="background:var(--green);color:var(--bg);border:none;border-radius:9px;padding:9px 13px;cursor:pointer;font-weight:700;font-size:14px;flex-shrink:0">+</button>';
-  h+='</div>';
-  oti.forEach(function(t){
-    h+='<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-top:1px solid var(--border)">';
-    h+='<div style="flex:1;font-size:11px;color:var(--text2)">'+esc(t.name)+'<span style="color:var(--text3);margin-left:6px;font-family:var(--mono)">'+t.date+'</span></div>';
-    h+='<div style="font-size:11px;font-weight:700;color:var(--green);font-family:var(--mono)">+'+fmt(t.amount)+'</div>';
-    h+='<button onclick="delOneTimeIncome(\''+cl(t.id)+'\')" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:12px">✕</button>';
-    h+='</div>';
-  });
-  h+='</div>';
-  h+='<div class="card" style="margin-bottom:10px"><div class="lbl" style="margin-bottom:8px">Base Income</div>';
-  h+='<div class="row"><input id="base-inc" type="number" class="inp" value="'+(D.income||0)+'" style="font-size:15px;font-family:var(--mono)"/>';
-  h+='<button onclick="saveBaseIncome()" style="background:var(--green)15;border:1.5px solid var(--green)25;border-radius:9px;color:var(--green);cursor:pointer;padding:10px 13px;font-size:12px;font-weight:600;flex-shrink:0;white-space:nowrap">Save</button></div></div>';
+  // Detail panel for selected zone
+  var sel=D.plants.find(function(x){return !x.harvested&&x.position===S.selectedZone;});
+  var zoneLocked=(D.setup.perpetualZones||[]).indexOf(S.selectedZone)>-1;
+  h+='<div class="card card-pad">';
   h+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">';
-  h+='<div class="lbl">Recurring Sources</div>';
-  h+='<button onclick="patch({showAddStream:!S.showAddStream})" style="background:var(--bg3);border:1px solid var(--green)25;border-radius:8px;padding:3px 10px;color:var(--green);cursor:pointer;font-size:11px;font-weight:600">+ Add</button>';
+  h+='<div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;font-family:\'DM Mono\',monospace">'+zoneLabel(S.selectedZone)+'</div>';
+  h+='<button onclick="togglePerpetualZone(\''+S.selectedZone+'\')" style="background:'+(zoneLocked?"#a78bfa20":"var(--bg3)")+';border:1px solid '+(zoneLocked?"#a78bfa40":"var(--border2)")+';border-radius:100px;padding:4px 10px;font-size:11px;font-weight:600;color:'+(zoneLocked?"#a78bfa":"var(--text3)")+';cursor:pointer">'+(zoneLocked?"🔒 Perpetual Pot":"🔓 Make Perpetual")+'</button>';
   h+='</div>';
-  if(S.showAddStream){
-    h+='<div class="er" style="margin-bottom:10px">';
-    h+='<div class="fld"><div class="lbl">Source Name</div><input id="is-n" class="inp" placeholder="e.g. Salary, Freelance"/></div>';
-    h+='<div class="row" style="margin-bottom:10px"><div style="flex:2"><div class="lbl">Amount</div><input id="is-a" type="number" class="inp" placeholder="0.00"/></div>';
-    h+='<div style="flex:1"><div class="lbl">Day</div><input id="is-d" type="number" class="inp" placeholder="1" min="1" max="31" value="1"/></div></div>';
-    h+='<div class="fld"><div class="lbl">Frequency</div><select id="is-f" class="inp"><option value="monthly">Monthly</option><option value="biweekly">Every 2 Weeks</option><option value="weekly">Weekly</option><option value="yearly">Yearly</option></select></div>';
-    h+='<button onclick="addStream()" style="width:100%;background:var(--green);color:var(--bg);border:none;border-radius:10px;padding:11px;cursor:pointer;font-weight:700;font-size:13px">Add Source</button>';
-    h+='</div>';
-  }
-  var fl={monthly:"Monthly",biweekly:"Every 2 Wks",weekly:"Weekly",yearly:"Yearly"};
-  if(D.incomeStreams.length===0&&!S.showAddStream){
-    h+='<div style="text-align:center;padding:20px;color:var(--text3);font-size:12px;border:1.5px dashed var(--border2);border-radius:12px">No recurring income sources yet</div>';
-  }
-  D.incomeStreams.forEach(function(s){
-    if(S.editStream===s.id){
-      h+='<div class="er">';
-      h+='<div class="fld"><div class="lbl">Name</div><input id="es-n" class="inp" value="'+esc(s.name)+'"/></div>';
-      h+='<div class="row" style="margin-bottom:10px"><div style="flex:2"><div class="lbl">Amount</div><input id="es-a" type="number" class="inp" value="'+s.amount+'"/></div>';
-      h+='<div style="flex:1"><div class="lbl">Day</div><input id="es-d" type="number" class="inp" value="'+s.day+'"/></div></div>';
-      h+='<div class="fld"><div class="lbl">Frequency</div><select id="es-f" class="inp"><option value="monthly"'+(s.freq==="monthly"?" selected":"")+'>Monthly</option><option value="biweekly"'+(s.freq==="biweekly"?" selected":"")+'>Every 2 Wks</option><option value="weekly"'+(s.freq==="weekly"?" selected":"")+'>Weekly</option><option value="yearly"'+(s.freq==="yearly"?" selected":"")+'>Yearly</option></select></div>';
-      h+='<div class="row"><button onclick="saveStream(\''+cl(s.id)+'\')" style="flex:1;background:var(--green);color:var(--bg);border:none;border-radius:9px;padding:9px;cursor:pointer;font-weight:700">Save</button>';
-      h+='<button onclick="delStream(\''+cl(s.id)+'\')" class="btn-red" style="background:#f8717118;color:var(--red);border:1px solid #f8717130;border-radius:9px;padding:9px 12px;cursor:pointer;font-size:13px">Del</button>';
-      h+='<button onclick="patch({editStream:null})" style="background:var(--bg3);color:var(--text3);border:1px solid var(--border2);border-radius:9px;padding:9px 12px;cursor:pointer;font-size:13px">✕</button></div></div>';
-    }else{
-      h+='<div style="background:var(--bg3);border:1px solid var(--green)12;border-radius:11px;padding:8px 11px;display:flex;align-items:center;gap:9px;margin-bottom:5px">';
-      h+='<div class="ibadge" style="background:var(--green)15">💵</div>';
-      h+='<div style="flex:1;min-width:0"><div style="font-size:12px;font-weight:600">'+esc(s.name)+'</div>';
-      h+='<div style="font-size:10px;color:var(--text3);font-family:var(--mono)">'+(fl[s.freq]||s.freq)+' · Day '+s.day+'</div></div>';
-      h+='<div style="font-size:12px;font-weight:700;color:var(--green);font-family:var(--mono)">+'+fmt(s.amount)+'</div>';
-      h+='<button class="dbtn" onclick="patch({editStream:\''+cl(s.id)+'\'})">Edit</button></div>';
+  if(!sel){
+    h+='<div style="font-size:13px;color:var(--text3)">'+(zoneLocked?"This pot is locked as Perpetual — the next plant you add here will auto-join the rotation.":"No plant assigned to this position.")+'</div>';
+    h+='<button onclick="patch({showAddPlant:true,newPlant:Object.assign({},S.newPlant,{position:\''+S.selectedZone+'\',isPerpetual:'+(zoneLocked)+'})})" class="btn btn-green" style="width:100%;margin-top:12px">+ Add Plant Here</button>';
+  }else{
+    var days=daysSince(sel.startDate);
+    var totalDays=plantTotalDays(sel);
+    var stage=getStageFor(sel,days,totalDays);
+    var water=getWaterSchedule(D.setup,stage,days);
+    var tc=getFeedPlanFor(sel,days);
+    var typeLbl=plantTypeLabel(sel.plantType);
+    var learned=getLearnedFeed(sel,days);
+    h+='<div style="font-size:16px;font-weight:700;color:var(--text)">'+stage.icon+' '+esc(sel.name)+'</div>';
+    h+='<div style="font-size:12px;color:var(--text3);margin-bottom:10px;font-family:\'DM Mono\',monospace">'+typeLbl+' · '+esc(sel.strain||"Unknown variety")+' · Day '+days+'</div>';
+    h+='<div style="display:inline-block;background:'+stage.color+'20;border:1px solid '+stage.color+'40;border-radius:100px;padding:3px 10px;font-size:11px;font-weight:600;color:'+stage.color+';margin-bottom:12px">'+stage.name+'</div>';
+    if(sel.plantType==="tomato"&&stage.key==="flowerset"){
+      h+='<button data-pid="'+sel.id+'" onclick="markFruitingStarted(this.dataset.pid)" style="display:block;margin-bottom:12px;background:#fb923c15;border:1px solid #fb923c30;border-radius:10px;padding:8px;font-size:12px;font-weight:600;color:#fb923c;cursor:pointer;width:100%">🍅 Mark Fruiting Started</button>';
     }
-  });
-  return h;
-}
-
-function segBills(){
-  var mbills=D.recurring.reduce(function(a,r){var amt=Number(r.amount||0);if(r.freq==="weekly")return a+amt*4.33;if(r.freq==="biweekly")return a+amt*2.17;if(r.freq==="yearly")return a+amt/12;return a+amt;},0);
-  var h='<div class="card" style="margin-bottom:10px;display:flex;justify-content:space-between;align-items:center">';
-  h+='<div><div class="lbl">Monthly Bills</div><div style="font-size:22px;font-weight:800;color:var(--violet2);font-family:var(--mono)">'+fmt(mbills)+'</div></div>';
-  h+='<button onclick="patch({showRec:true})" style="background:var(--violet2)15;border:1.5px solid var(--violet2)25;border-radius:10px;padding:9px 14px;color:var(--violet2);cursor:pointer;font-weight:600;font-size:12px">+ Add Bill</button>';
-  h+='</div>';
-  var fl={monthly:"Monthly",biweekly:"Every 2 Wks",weekly:"Weekly",yearly:"Yearly"};
-  if(D.recurring.length===0)return h+'<div style="text-align:center;padding:30px;color:var(--text3);font-size:12px;border:1.5px dashed var(--border2);border-radius:12px">No recurring bills yet</div>';
-  D.recurring.forEach(function(r){
-    var opt=optById(r.category);
-    if(S.editRec===r.id){
-      h+='<div class="er" style="border-color:var(--violet2)20">';
-      h+='<div class="fld"><div class="lbl">Name</div><input id="er-n" class="inp" value="'+esc(r.name)+'"/></div>';
-      h+='<div class="row" style="margin-bottom:10px"><div style="flex:2"><div class="lbl">Amount</div><input id="er-a" type="number" class="inp" value="'+r.amount+'"/></div>';
-      h+='<div style="flex:1"><div class="lbl">Day</div><input id="er-d" type="number" class="inp" value="'+r.day+'" min="1" max="31"/></div></div>';
-      h+='<div class="row" style="margin-bottom:10px"><div style="flex:2"><div class="lbl">Category</div><select id="er-c" class="inp">'+catOptsHTML(r.category)+'</select></div>';
-      h+='<div style="flex:1"><div class="lbl">Freq</div><select id="er-f" class="inp"><option value="monthly"'+(r.freq==="monthly"?" selected":"")+'>Monthly</option><option value="weekly"'+(r.freq==="weekly"?" selected":"")+'>Weekly</option><option value="biweekly"'+(r.freq==="biweekly"?" selected":"")+'>Bi-Weekly</option><option value="yearly"'+(r.freq==="yearly"?" selected":"")+'>Yearly</option></select></div></div>';
-      h+='<div class="row"><button onclick="saveRec(\''+cl(r.id)+'\')" style="flex:1;background:var(--violet2);color:var(--bg);border:none;border-radius:9px;padding:9px;cursor:pointer;font-weight:700">Save</button>';
-      h+='<button onclick="delRec(\''+cl(r.id)+'\')" style="background:#f8717118;color:var(--red);border:1px solid #f8717130;border-radius:9px;padding:9px 12px;cursor:pointer;font-size:13px">Del</button>';
-      h+='<button onclick="patch({editRec:null})" style="background:var(--bg3);color:var(--text3);border:1px solid var(--border2);border-radius:9px;padding:9px 12px;cursor:pointer;font-size:13px">✕</button></div></div>';
-    }else{
-      h+='<div class="recrow">';
-      h+='<div class="ibadge" style="background:'+(opt.color||"var(--violet2)")+'18">'+esc(opt.icon)+'</div>';
-      h+='<div style="flex:1;min-width:0"><div style="font-size:12px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc(r.name)+'</div>';
-      h+='<div style="font-size:10px;color:var(--text3);font-family:var(--mono)">Day '+r.day+' · '+(fl[r.freq]||r.freq)+'</div></div>';
-      h+='<div style="font-size:12px;font-weight:700;color:var(--violet2);font-family:var(--mono)">'+fmt(r.amount)+'</div>';
-      h+='<button onclick="postRec(\''+cl(r.id)+'\')" style="background:var(--violet2)12;border:1px solid var(--violet2)25;border-radius:7px;color:var(--violet2);cursor:pointer;font-size:10px;padding:3px 8px;flex-shrink:0;font-weight:600">Post</button>';
-      h+='<button class="dbtn" onclick="patch({editRec:\''+cl(r.id)+'\'})">Edit</button>';
+    h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">';
+    h+=infoCell("💧","Water",water);
+    h+=infoCell("🧪","Suggested","Wk"+tc.week+" "+tc.note);
+    h+='</div>';
+    h+='<div style="background:var(--bg3);border-radius:10px;padding:10px;margin-bottom:8px">';
+    h+='<div style="font-size:10px;color:var(--text3);font-family:\'DM Mono\',monospace;margin-bottom:4px">SUGGESTED MIX (per L, this week)</div>';
+    h+='<div style="font-size:12px;color:var(--text2)">Starter '+tc.starter+' · Grow '+tc.grow+' · Bloom '+tc.bloom+' · PK '+tc.pk+' · Booster '+tc.booster+'</div>';
+    h+='</div>';
+    if(learned){
+      h+='<div style="background:#a78bfa15;border:1px solid #a78bfa30;border-radius:10px;padding:10px;margin-bottom:12px">';
+      h+='<div style="font-size:10px;color:#a78bfa;font-family:\'DM Mono\',monospace;margin-bottom:4px">🧠 LEARNED FROM YOUR HISTORY ('+learned.sampleSize+' feed'+(learned.sampleSize>1?"s":"")+(learned.matchedStage?" at this stage":" — overall avg")+')</div>';
+      h+='<div style="font-size:12px;color:var(--text2)">'+learned.nutrients.map(function(n){return esc(n.name)+" "+n.avgMlPerL+"ml/L";}).join(" · ")+'</div>';
       h+='</div>';
+    }else{
+      h+='<div style="margin-bottom:12px"></div>';
     }
-  });
+    var plog=D.logs[sel.id]||[];
+    var last=plog.length?plog[plog.length-1]:null;
+    if(last){
+      h+='<div style="font-size:11px;color:var(--text3);margin-bottom:10px">Last entry '+last.date+': '+(last.nutrient?"🧪 "+esc(last.nutrient)+(last.mlPerL?" @"+esc(last.mlPerL)+"ml/L":""):esc(last.notes||""))+'</div>';
+    }
+    h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">';
+    h+='<button data-pid="'+sel.id+'" onclick="openFeed(this.dataset.pid)" style="background:#4ade8015;border:1.5px solid #4ade8030;border-radius:10px;padding:10px;color:var(--green);cursor:pointer;font-size:13px;font-weight:600">🧪 Feed / Water</button>';
+    h+='<button data-pid="'+sel.id+'" onclick="openQuickNote(this.dataset.pid)" style="background:#60a5fa15;border:1.5px solid #60a5fa30;border-radius:10px;padding:10px;color:#60a5fa;cursor:pointer;font-size:13px;font-weight:600">✂️ Trim / Action</button>';
+    h+='</div>';
+    h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">';
+    h+='<button data-pid="'+sel.id+'" onclick="openLog(this.dataset.pid)" style="background:var(--bg3);border:1.5px solid var(--border2);border-radius:10px;padding:10px;color:var(--text2);cursor:pointer;font-size:13px;font-weight:600">📋 Full Log</button>';
+    h+='<button data-pid="'+sel.id+'" onclick="if(confirm(\''+esc(sel.name).replace(/'/g,"\\'")+' — mark as harvested?\'))markHarvested(this.dataset.pid)" style="background:#fb923c15;border:1.5px solid #fb923c30;border-radius:10px;padding:10px;color:#fb923c;cursor:pointer;font-size:13px;font-weight:600">🌾 Harvest</button>';
+    h+='</div>';
+    h+='<button data-pid="'+sel.id+'" onclick="openEditPlant(this.dataset.pid)" class="btn btn-outline" style="width:100%">✏️ Edit / Reassign Position</button>';
+  }
+  h+='</div>';
   return h;
 }
 
-function segProgress(){
-  var totSaved=D.goals.reduce(function(a,g){return a+g.saved;},0);
-  var totDebt=D.debts.reduce(function(a,d){return a+(d.total-d.paid);},0);
-  var h='<div class="row2" style="margin-bottom:12px">';
-  h+='<div style="background:var(--bg2);border:1.5px solid var(--teal)18;border-radius:13px;padding:12px"><div class="lbl">Saved</div><div style="font-size:18px;font-weight:700;color:var(--teal);font-family:var(--mono)">'+fmt(totSaved)+'</div></div>';
-  h+='<div style="background:var(--bg2);border:1.5px solid var(--red)18;border-radius:13px;padding:12px"><div class="lbl">Debt Left</div><div style="font-size:18px;font-weight:700;color:var(--red);font-family:var(--mono)">'+fmt(totDebt)+'</div></div>';
-  h+='</div>';
-  h+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:9px">';
-  h+='<div style="font-size:12px;font-weight:700;color:var(--teal)">🎯 Savings Goals</div>';
-  h+='<button onclick="patch({showGoal:true})" style="background:var(--bg3);border:1px solid var(--teal)25;border-radius:8px;padding:3px 10px;color:var(--teal);cursor:pointer;font-size:11px;font-weight:600">+ Add</button>';
-  h+='</div>';
-  if(D.goals.length===0)h+='<div style="text-align:center;padding:16px;color:var(--text3);font-size:12px;border:1.5px dashed var(--border2);border-radius:11px;margin-bottom:12px">No goals yet</div>';
-  D.goals.forEach(function(g){
-    var pct=g.target>0?Math.min(g.saved/g.target*100,100):0;
-    if(S.editGoal===g.id){
-      var ovOpts='<option value="">None</option>';
-      D.goals.forEach(function(g2){if(g2.id!==g.id)ovOpts+='<option value="'+esc(g2.id)+'"'+(g.overflowTo===g2.id?" selected":"")+'>'+esc(g2.icon)+' '+esc(g2.name)+'</option>';});
-      h+='<div class="er" style="margin-bottom:8px">';
-      h+='<div class="fld"><div class="lbl">Name</div><input id="eg-n" class="inp" value="'+esc(g.name)+'"/></div>';
-      h+='<div class="row" style="margin-bottom:10px"><div style="flex:1"><div class="lbl">Target</div><input id="eg-t" type="number" class="inp" value="'+g.target+'"/></div>';
-      h+='<div style="flex:1"><div class="lbl">Saved</div><input id="eg-s" type="number" class="inp" value="'+g.saved+'"/></div></div>';
-      h+='<div class="fld"><div class="lbl">Overflow To</div><select id="eg-ov" class="inp">'+ovOpts+'</select></div>';
-      h+='<div class="row"><button onclick="saveGoal(\''+cl(g.id)+'\')" style="flex:1;background:var(--teal);color:var(--bg);border:none;border-radius:9px;padding:9px;cursor:pointer;font-weight:700">Save</button>';
-      h+='<button onclick="delGoal(\''+cl(g.id)+'\')" style="background:#f8717118;color:var(--red);border:1px solid #f8717130;border-radius:9px;padding:9px 12px;cursor:pointer;font-size:13px">Del</button>';
-      h+='<button onclick="patch({editGoal:null})" style="background:var(--bg3);color:var(--text3);border:1px solid var(--border2);border-radius:9px;padding:9px 12px;cursor:pointer;font-size:13px">✕</button></div></div>';
-    }else{
-      h+='<div style="background:var(--bg2);border:1.5px solid var(--teal)12;border-radius:13px;padding:11px 13px;margin-bottom:7px">';
-      h+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">';
-      h+='<span style="font-size:12px;font-weight:600">'+esc(g.icon)+' '+esc(g.name)+(g.isBuffer?" 🛡️":"")+'</span>';
-      h+='<div class="row"><span style="font-size:12px;font-weight:700;color:var(--teal);font-family:var(--mono)">'+fmt(g.saved)+'</span><span style="font-size:10px;color:var(--text3);font-family:var(--mono)">/'+fmt(g.target)+'</span>';
-      h+='<button class="dbtn" onclick="patch({editGoal:\''+cl(g.id)+'\'})">Edit</button></div></div>';
-      h+='<div class="pt" style="height:4px;margin-bottom:6px"><div class="pb" style="width:'+pct+'%;background:'+(pct>=100?"var(--green)":"var(--teal)")+'"></div></div>';
-      h+='<div style="display:flex;justify-content:space-between;align-items:center">';
-      h+='<span style="font-size:10px;color:var(--text3);font-family:var(--mono)">'+Math.round(pct)+'%</span>';
-      h+='<div class="row"><input type="number" placeholder="Add €" style="width:75px;background:var(--bg3);border:1px solid var(--border2);border-radius:7px;padding:5px 8px;color:var(--text);font-size:11px;outline:none;font-family:var(--mono)" onkeydown="if(event.key===\'Enter\'&&this.value){addToGoal(\''+cl(g.id)+'\',this.value);this.value=\'\'}"/>';
-      h+='<button onclick="var i=this.previousElementSibling;if(i.value){addToGoal(\''+cl(g.id)+'\',i.value);i.value=\'\'}" style="background:var(--teal)15;border:1px solid var(--teal)25;border-radius:7px;padding:5px 9px;color:var(--teal);cursor:pointer;font-size:11px;font-weight:600">+</button>';
-      h+='</div></div></div>';
+// ── TODAY TAB ────────────────────────────────────────────
+function tabToday(){
+  if(D.plants.length===0)return'<div style="text-align:center;padding:48px 20px;color:var(--text3)">Add a plant first to see today\'s tasks</div>';
+  var h='<div style="font-size:13px;color:var(--text2);margin-bottom:14px">'+new Date().toDateString()+'</div>';
+  D.plants.filter(function(p){return !p.harvested;}).forEach(function(p){
+    var days=daysSince(p.startDate);
+    var totalDays=plantTotalDays(p);
+    var stage=getStageFor(p,days,totalDays);
+    var tips=getWeeklyTips(days,D.setup);
+    var water=getWaterSchedule(D.setup,stage,days);
+    var dist=getLightDistance(D.setup,stage);
+    var week=Math.floor(days/7)+1;
+    var nutriRow=TERRA_CANNA[Math.min(week-1,TERRA_CANNA.length-1)];
+    h+='<div class="card" style="margin-bottom:12px">';
+    h+='<div style="padding:12px 14px;background:'+stage.color+'10;border-bottom:1px solid var(--border)">';
+    h+='<div style="font-size:14px;font-weight:700;color:var(--text)">'+stage.icon+' '+esc(p.name)+'</div>';
+    h+='<div style="font-size:11px;color:'+stage.color+';font-family:\'DM Mono\',monospace">Day '+days+' | Week '+week+' | '+stage.name+'</div>';
+    h+='</div>';
+    h+='<div style="padding:12px 14px">';
+    // Checklist items
+    var tasks=[
+      {icon:"💧",title:"Water",detail:water},
+      {icon:"💡",title:"Light Distance",detail:dist.min+"–"+dist.max+"cm — "+dist.note},
+      {icon:"🌡️",title:"Environment",detail:"Temp: 22-26°C | Humidity: "+(stage.key==="flower"?"40-50%":"55-70%")},
+    ];
+    if(nutriRow&&(nutriRow.grow>0||nutriRow.bloom>0||nutriRow.starter>0)){
+      var nutriStr="";
+      if(nutriRow.starter>0)nutriStr+="Starter "+nutriRow.starter+"ml/L ";
+      if(nutriRow.grow>0)nutriStr+="Grow "+nutriRow.grow+"ml/L ";
+      if(nutriRow.bloom>0)nutriStr+="Bloom "+nutriRow.bloom+"ml/L ";
+      if(nutriRow.pk>0)nutriStr+="PK "+nutriRow.pk+"ml/L ";
+      tasks.push({icon:"🧪",title:"Nutrients",detail:nutriStr.trim()+" ("+nutriRow.note+")"});
     }
-  });
-  h+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:9px;margin-top:6px">';
-  h+='<div style="font-size:12px;font-weight:700;color:var(--red)">💳 Debts</div>';
-  h+='<div class="row">';
-  h+='<button onclick="patch({debtStrat:S.debtStrat===\'avalanche\'?\'snowball\':\'avalanche\'})" style="background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:3px 9px;color:var(--text3);cursor:pointer;font-size:10px;font-family:var(--mono)">'+(S.debtStrat==="avalanche"?"🔥 Avalanche":"❄️ Snowball")+'</button>';
-  h+='<button onclick="patch({showDebt:true})" style="background:var(--bg3);border:1px solid var(--red)20;border-radius:8px;padding:3px 10px;color:var(--red);cursor:pointer;font-size:11px;font-weight:600">+ Add</button>';
-  h+='</div></div>';
-  if(D.debts.length===0)h+='<div style="text-align:center;padding:16px;color:var(--text3);font-size:12px;border:1.5px dashed var(--border2);border-radius:11px">No debts tracked</div>';
-  var ordered=calcPayoffOrder(S.debtStrat);
-  D.debts.forEach(function(debt){
-    var rem=debt.total-debt.paid;
-    var pct=debt.total>0?Math.min(debt.paid/debt.total*100,100):0;
-    var mo=calcPayoffMonths(rem,debt.rate,debt.monthly);
-    var isFocus=ordered.length>0&&ordered[0].id===debt.id;
-    if(S.editDebt===debt.id){
-      h+='<div class="er" style="border-color:var(--red)20;margin-bottom:7px">';
-      h+='<div class="fld"><div class="lbl">Name</div><input id="ed-n" class="inp" value="'+esc(debt.name)+'"/></div>';
-      h+='<div class="row" style="margin-bottom:10px"><div style="flex:1"><div class="lbl">Total</div><input id="ed-t" type="number" class="inp" value="'+debt.total+'"/></div>';
-      h+='<div style="flex:1"><div class="lbl">Paid</div><input id="ed-p" type="number" class="inp" value="'+debt.paid+'"/></div></div>';
-      h+='<div class="row" style="margin-bottom:10px"><div style="flex:1"><div class="lbl">APR %</div><input id="ed-r" type="number" class="inp" value="'+debt.rate+'"/></div>';
-      h+='<div style="flex:1"><div class="lbl">Monthly €</div><input id="ed-m" type="number" class="inp" value="'+debt.monthly+'"/></div></div>';
-      h+='<div class="row"><button onclick="saveDebt(\''+cl(debt.id)+'\')" style="flex:1;background:var(--red);color:var(--bg);border:none;border-radius:9px;padding:9px;cursor:pointer;font-weight:700">Save</button>';
-      h+='<button onclick="delDebt(\''+cl(debt.id)+'\')" style="background:#f8717118;color:var(--red);border:1px solid #f8717130;border-radius:9px;padding:9px 12px;cursor:pointer;font-size:13px">Del</button>';
-      h+='<button onclick="patch({editDebt:null})" style="background:var(--bg3);color:var(--text3);border:1px solid var(--border2);border-radius:9px;padding:9px 12px;cursor:pointer;font-size:13px">✕</button></div></div>';
-    }else{
-      h+='<div style="background:var(--bg2);border:1.5px solid '+(isFocus?"var(--red)30":"var(--red)12")+';border-radius:13px;padding:11px 13px;margin-bottom:7px">';
-      h+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">';
-      h+='<div class="row"><span style="font-size:12px;font-weight:600">'+esc(debt.name)+'</span>';
-      if(isFocus)h+='<span class="pill" style="color:var(--red);border-color:var(--red);background:#f8717112;font-size:8px">FOCUS</span>';
+    tasks.forEach(function(task){
+      h+='<div style="display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)">';
+      h+='<span style="font-size:18px;flex-shrink:0">'+task.icon+'</span>';
+      h+='<div><div style="font-size:13px;font-weight:600;color:var(--text)">'+task.title+'</div>';
+      h+='<div style="font-size:12px;color:var(--text2);margin-top:2px;line-height:1.4">'+esc(task.detail)+'</div></div>';
       h+='</div>';
-      h+='<div class="row"><span style="font-size:12px;font-weight:700;color:var(--red);font-family:var(--mono)">'+fmt(rem)+'</span>';
-      if(mo)h+='<span style="font-size:10px;color:var(--text3);font-family:var(--mono)">~'+mo+'mo</span>';
-      h+='<button class="dbtn" onclick="patch({editDebt:\''+cl(debt.id)+'\'})">Edit</button></div></div>';
-      h+='<div class="pt" style="height:3px;margin-bottom:6px"><div class="pb" style="width:'+pct+'%;background:'+(pct>=100?"var(--green)":"var(--red)")+'"></div></div>';
-      h+='<div style="display:flex;justify-content:space-between;align-items:center">';
-      h+='<span style="font-size:10px;color:var(--text3);font-family:var(--mono)">'+Math.round(pct)+'% paid'+(debt.rate?" · "+debt.rate+"% APR":"")+'</span>';
-      h+='<div class="row"><input type="number" placeholder="Pay €" style="width:75px;background:var(--bg3);border:1px solid var(--border2);border-radius:7px;padding:5px 8px;color:var(--text);font-size:11px;outline:none;font-family:var(--mono)" onkeydown="if(event.key===\'Enter\'&&this.value){quickPay(\''+cl(debt.id)+'\',this.value);this.value=\'\'}"/>';
-      h+='<button onclick="var i=this.previousElementSibling;if(i.value){quickPay(\''+cl(debt.id)+'\',i.value);i.value=\'\'}" style="background:#f8717115;border:1px solid var(--red)25;border-radius:7px;padding:5px 9px;color:var(--red);cursor:pointer;font-size:11px;font-weight:600">Pay</button>';
-      h+='</div></div></div>';
-    }
-  });
-  return h;
-}
-
-function segForecast(cats,totI,totB){
-  var today=new Date();
-  var months=[];
-  for(var i=0;i<4;i++){
-    var mo=new Date(today.getFullYear(),today.getMonth()+i,1).toISOString().slice(0,7);
-    months.push(mo);
-  }
-  var isArchive=D.month<months[0];
-  var h='';
-  if(isArchive){
-    h+='<div style="background:var(--amber)10;border:1.5px solid var(--amber)25;border-radius:12px;padding:11px 14px;margin-bottom:12px;display:flex;align-items:center;gap:8px">';
-    h+='<span>📁</span><div style="flex:1"><div style="font-size:12px;font-weight:600;color:var(--amber)">Viewing archive: '+D.month+'</div>';
-    h+='<div style="font-size:10px;color:var(--amber);opacity:.6">Forecast shows your current quarter</div></div>';
-    h+='<button onclick="D.month=\''+months[0]+'\';saveD();render()" style="background:var(--amber)15;border:1px solid var(--amber)30;border-radius:8px;padding:5px 10px;color:var(--amber);cursor:pointer;font-size:11px;font-weight:600;flex-shrink:0">Go to Now</button></div>';
-  }
-  months.forEach(function(mo){
-    var mI=D.monthOverrides[mo]&&D.monthOverrides[mo].income!=null?Number(D.monthOverrides[mo].income):totI;
-    var recTotal=D.recurring.reduce(function(a,r){var amt=Number(r.amount||0);if(r.freq==="weekly")return a+amt*4.33;if(r.freq==="biweekly")return a+amt*2.17;if(r.freq==="yearly")return a+amt/12;return a+amt;},0);
-    var free=mI-totB;
-    var isNow=mo===months[0];
-    var isSelected=mo===D.month;
-    h+='<div class="card" style="margin-bottom:10px;border-color:'+(isNow?"var(--violet2)25":isSelected?"var(--amber)20":"var(--border)")+'">';
-    h+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">';
-    h+='<div style="display:flex;align-items:center;gap:7px"><div style="font-size:13px;font-weight:700;font-family:var(--mono)">'+mo+'</div>';
-    if(isNow)h+='<span class="pill" style="color:var(--violet2);border-color:var(--violet2);background:var(--violet2)12">NOW</span>';
-    h+='</div>';
-    h+='<div style="font-size:13px;font-weight:700;color:'+(free<0?"var(--red)":"var(--green)")+';font-family:var(--mono)">'+fmt(free)+' free</div></div>';
-    h+='<div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:6px;margin-bottom:'+(D.recurring.length>0?"10px":"0")+'">';
-    h+='<div style="background:var(--bg3);border-radius:9px;padding:7px;text-align:center"><div class="lbl">Income</div><div style="font-size:11px;font-weight:600;color:var(--green);font-family:var(--mono)">'+fmt(mI)+'</div></div>';
-    h+='<div style="background:var(--bg3);border-radius:9px;padding:7px;text-align:center"><div class="lbl">Bills</div><div style="font-size:11px;font-weight:600;color:var(--violet2);font-family:var(--mono)">'+fmt(recTotal)+'</div></div>';
-    h+='<div style="background:var(--bg3);border-radius:9px;padding:7px;text-align:center"><div class="lbl">Budget</div><div style="font-size:11px;font-weight:600;color:var(--blue);font-family:var(--mono)">'+fmt(totB)+'</div></div>';
-    h+='<div style="background:var(--bg3);border-radius:9px;padding:7px;text-align:center"><div class="lbl">Free</div><div style="font-size:11px;font-weight:600;color:'+(free<0?"var(--red)":"var(--green)")+';font-family:var(--mono)">'+fmt(free)+'</div></div>';
-    h+='</div>';
-    if(D.recurring.length>0){
-      h+='<div style="border-top:1px solid var(--border);padding-top:10px">';
-      h+='<div class="lbl" style="margin-bottom:6px">Recurring Payments</div>';
-      var sorted=D.recurring.slice().sort(function(a,b){return Number(a.day)-Number(b.day);});
-      sorted.forEach(function(r){
-        var opt=optById(r.category);
-        var alreadyPosted=D.transactions.some(function(t){return t.fromRec&&t.name===r.name&&t.month===mo;});
-        h+='<div style="display:flex;align-items:center;gap:7px;padding:5px 0;border-bottom:1px solid var(--border)">';
-        h+='<div style="width:24px;height:24px;background:var(--violet2)12;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:var(--violet2);flex-shrink:0;font-family:var(--mono)">'+r.day+'</div>';
-        h+='<div style="flex:1;min-width:0"><div style="font-size:11px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc(r.name)+'</div></div>';
-        h+='<div style="font-size:11px;font-weight:700;color:var(--violet2);font-family:var(--mono);flex-shrink:0">'+fmt(r.amount)+'</div>';
-        if(isNow){
-          var alreadySkipped=D.transactions.some(function(t){return t.fromRecSkip&&t.name===r.name&&t.month===mo;});
-          if(alreadyPosted){h+='<span style="font-size:10px;color:var(--green);background:var(--green)10;border:1px solid var(--green)20;border-radius:6px;padding:2px 7px;flex-shrink:0">✓ Paid</span>';}
-          else if(alreadySkipped){h+='<span style="font-size:10px;color:var(--teal);background:var(--teal)10;border:1px solid var(--teal)20;border-radius:6px;padding:2px 7px;flex-shrink:0">✓ Saved</span>';}
-          else{
-            h+='<button onclick="postRec(\''+cl(r.id)+'\',\''+mo+'\')" style="background:var(--violet2)12;border:1px solid var(--violet2)25;border-radius:6px;color:var(--violet2);cursor:pointer;font-size:10px;padding:2px 8px;flex-shrink:0;font-weight:600">Post</button>';
-            h+='<button onclick="skipRec(\''+cl(r.id)+'\',\''+mo+'\')" style="background:var(--teal)10;border:1px solid var(--teal)25;border-radius:6px;color:var(--teal);cursor:pointer;font-size:10px;padding:2px 8px;flex-shrink:0;font-weight:600">Skip→💰</button>';
-          }
-        }
-        h+='</div>';
+    });
+    // Weekly tips
+    if(tips.length>0){
+      h+='<div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border)">';
+      h+='<div style="font-size:11px;font-weight:600;color:var(--green);margin-bottom:8px">THIS WEEK</div>';
+      tips.forEach(function(tip){
+        h+='<div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:6px">';
+        h+='<span style="font-size:14px;flex-shrink:0">'+tip.icon+'</span>';
+        h+='<div style="font-size:12px;color:var(--text2);line-height:1.4">'+esc(tip.text)+'</div></div>';
       });
       h+='</div>';
     }
+    h+='</div></div>';
+  });
+  return h;
+}
+
+// ── NUTRIENTS TAB ────────────────────────────────────────
+function tabNutrients(){
+  var h='<div style="margin-bottom:14px">';
+  h+='<div style="font-size:15px;font-weight:700;color:var(--text);margin-bottom:4px">Terra Canna Feed Chart</div>';
+  h+='<div style="font-size:12px;color:var(--text3)">ml per litre of water. Adjust down 25% for first feeds.</div></div>';
+  // Current week highlight
+  if(D.plants.length>0){
+    var p=D.plants[0];
+    var week=Math.floor(daysSince(p.startDate)/7)+1;
+    h+='<div style="background:var(--green)15;border:1.5px solid var(--green)30;border-radius:12px;padding:10px 14px;margin-bottom:14px;font-size:12px;color:var(--green)">📍 '+esc(p.name)+' is on Week '+week+' — highlighted below</div>';
+  }
+  var currentWeek=D.plants.length>0?Math.floor(daysSince(D.plants[0].startDate)/7)+1:0;
+  h+='<div style="display:flex;flex-direction:column;gap:6px">';
+  TERRA_CANNA.forEach(function(row){
+    var isNow=row.week===currentWeek;
+    h+='<div style="background:'+(isNow?'var(--green)15':'var(--bg2)')+';border:1.5px solid '+(isNow?'var(--green)40':'var(--border)')+';border-radius:12px;padding:11px 14px">';
+    h+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">';
+    h+='<div style="font-size:13px;font-weight:700;color:'+(isNow?'var(--green)':'var(--text)')+'">Week '+row.week+' — '+row.stage+'</div>';
+    if(isNow)h+='<div style="font-size:10px;background:var(--green);color:#071007;border-radius:100px;padding:2px 8px;font-weight:700">NOW</div>';
+    h+='</div>';
+    if(row.starter>0||row.grow>0||row.bloom>0||row.pk>0||row.booster>0){
+      h+='<div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:6px">';
+      if(row.starter>0)h+=nutriBadge("Starter",row.starter,"#facc15");
+      if(row.grow>0)h+=nutriBadge("Grow",row.grow,"#4ade80");
+      if(row.bloom>0)h+=nutriBadge("Bloom",row.bloom,"#a78bfa");
+      if(row.pk>0)h+=nutriBadge("PK Boost",row.pk,"#f87171");
+      if(row.booster>0)h+=nutriBadge("Booster",row.booster,"#fb923c");
+      h+='</div>';
+    }else{
+      h+='<div style="font-size:12px;color:var(--text3)">💧 Plain water only</div>';
+    }
+    h+='<div style="font-size:11px;color:var(--text3);font-family:\'DM Mono\',monospace">'+row.note+'</div>';
     h+='</div>';
   });
-  if(D.debts.length>0){
-    h+='<div class="card"><div style="font-size:12px;font-weight:700;margin-bottom:10px">💳 Debt Payoff Projection</div>';
-    D.debts.forEach(function(d2){
-      var rem=d2.total-d2.paid;
-      var mo=calcPayoffMonths(rem,d2.rate,d2.monthly);
-      h+='<div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--border)">';
-      h+='<span style="font-size:11px;color:var(--text2)">'+esc(d2.name)+'</span>';
-      h+='<span style="font-size:11px;color:var(--red);font-family:var(--mono)">'+(mo?"~"+mo+" months":"add monthly payment")+'</span></div>';
+  h+='</div>';
+  h+='<div style="margin-top:16px;background:var(--bg2);border:1.5px solid var(--border);border-radius:12px;padding:14px">';
+  h+='<div style="font-size:12px;font-weight:600;color:var(--yellow);margin-bottom:8px">💡 Beginner Tips</div>';
+  var btips=["Always start at 25-50% of recommended dose","Add nutrients to water, not water to nutrients","If leaves yellow = more nutrients. Brown tips = less","pH 6.0-6.5 for soil — a pH pen costs €10-20 and makes a big difference","Less is more — overfeeding kills more plants than underfeeding"];
+  btips.forEach(function(t){h+='<div style="font-size:12px;color:var(--text2);margin-bottom:6px;line-height:1.4">• '+t+'</div>';});
+  h+='</div>';
+  return h;
+}
+
+function nutriBadge(name,ml,col){
+  return '<div style="background:'+col+'18;border:1px solid '+col+'30;border-radius:8px;padding:3px 8px;font-size:11px;font-weight:600;color:'+col+'">'+name+' '+ml+'ml/L</div>';
+}
+
+// ── PERPETUAL TAB ────────────────────────────────────────
+function tabPerpetual(){
+  var perp=getPerpetual(D.plants,D.setup);
+  var h='<div style="margin-bottom:14px">';
+  h+='<div style="font-size:15px;font-weight:700;color:var(--text);margin-bottom:4px">Perpetual Harvest Planner</div>';
+  h+='<div style="font-size:12px;color:var(--text3)">Slot-based rotation — fill your tent, never leave space idle</div></div>';
+  h+='<div style="font-size:11px;color:var(--text3);background:var(--bg3);border-radius:8px;padding:8px 10px;margin-bottom:12px">Only plants marked <span style="color:#a78bfa">♻️ Perpetual</span> (toggle on the Map tab) count toward slots below.</div>';
+  // Target settings
+  h+='<div class="card card-pad" style="margin-bottom:12px">';
+  h+='<div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:12px">⚙️ Tent Slots</div>';
+  h+='<div style="display:flex;flex-direction:column;gap:10px">';
+  h+='<div><div class="lbl">Number of plant slots in tent</div>';
+  h+='<input id="p-slots" type="number" min="1" class="inp" value="'+(D.setup.numSlots||1)+'" placeholder="1"/></div>';
+  h+='<div><div class="lbl">Default total days (used when no strain set)</div>';
+  h+='<input id="p-days" type="number" class="inp" value="'+(D.setup.avgFlowerDays||77)+'" placeholder="77"/></div>';
+  h+='<button onclick="savePerp()" class="btn btn-green" style="width:100%">Update Settings</button>';
+  h+='</div></div>';
+
+  // Slot status grid
+  h+='<div class="card card-pad" style="margin-bottom:12px">';
+  h+='<div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:12px">🪴 Slot Status ('+perp.openSlots+' open / '+perp.numSlots+')</div>';
+  perp.occupied.forEach(function(o){
+    if(o.empty){
+      h+='<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border)">';
+      h+='<span style="font-size:13px;color:var(--text3)">Slot '+(o.idx+1)+' — empty</span>';
+      h+='<span style="font-size:11px;color:var(--green);font-weight:600">Plant now 🌱</span></div>';
+    }else{
+      var stage=getStageFor(o.plant,daysSince(o.plant.startDate),plantTotalDays(o.plant));
+      h+='<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border)">';
+      h+='<span style="font-size:13px;color:var(--text)">Slot '+(o.idx+1)+' — '+stage.icon+' '+esc(o.plant.name)+'</span>';
+      h+='<span style="font-size:11px;color:'+stage.color+';font-family:\'DM Mono\',monospace">'+o.remaining+'d left</span></div>';
+    }
+  });
+  h+='</div>';
+
+  // Next harvest
+  if(perp.nextHarvest){
+    h+='<div style="background:var(--green)10;border:1.5px solid var(--green)25;border-radius:14px;padding:14px;margin-bottom:12px">';
+    h+='<div style="font-size:11px;color:var(--green);font-weight:600;margin-bottom:4px">🌺 NEXT HARVEST</div>';
+    h+='<div style="font-size:16px;font-weight:700;color:var(--text)">'+esc(perp.nextHarvest.name)+'</div>';
+    h+='<div style="font-size:13px;color:var(--green);margin-top:4px">~'+perp.nextHarvest.remaining+' days away ('+perp.nextHarvest.date+')</div>';
+    h+='</div>';
+  }
+  // When to start next
+  h+='<div style="background:#fb923c10;border:1.5px solid #fb923c25;border-radius:14px;padding:14px;margin-bottom:12px">';
+  h+='<div style="font-size:11px;color:#fb923c;font-weight:600;margin-bottom:4px">🌱 NEXT FREE SLOT</div>';
+  h+='<div style="font-size:14px;font-weight:700;color:var(--text)">'+perp.startNextOn+(perp.openSlots>0?" (now)":"")+'</div>';
+  h+='<div style="font-size:12px;color:var(--text2);margin-top:4px">'+(perp.openSlots>0?"You have "+perp.openSlots+" open slot(s) — plant today.":"Earliest slot frees up on this date.")+'</div>';
+  h+='</div>';
+
+  // Visual timeline of active plants
+  if(D.plants.filter(function(p){return !p.harvested;}).length>0){
+    h+='<div class="card card-pad">';
+    h+='<div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:12px">📅 Active Plant Timeline</div>';
+    D.plants.filter(function(p){return !p.harvested;}).forEach(function(p){
+      var days=daysSince(p.startDate);
+      var totalDays=plantTotalDays(p);
+      var stage=getStageFor(p,days,totalDays);
+      var isOngoing=(p.plantType==="basil"&&stage.key==="established")||(p.plantType==="tomato"&&stage.key==="producing");
+      var pct=isOngoing?100:Math.min((days/totalDays)*100,100);
+      h+='<div style="margin-bottom:10px">';
+      h+='<div style="display:flex;justify-content:space-between;margin-bottom:4px">';
+      h+='<span style="font-size:12px;color:var(--text);font-weight:500">'+stage.icon+' '+esc(p.name)+'</span>';
+      h+='<span style="font-size:11px;color:'+stage.color+';font-family:\'DM Mono\',monospace">'+(isOngoing?"Day "+days:"Day "+days+'/'+totalDays)+'</span>';
+      h+='</div>';
+      if(!isOngoing){
+        h+='<div class="pt" style="height:8px"><div class="pb" style="width:'+pct+'%;background:linear-gradient(90deg,'+stage.color+','+stage.color+'66);height:8px"></div></div>';
+      }
+      h+='<div style="font-size:10px;color:var(--text3);margin-top:2px">'+stage.name+(isOngoing?"":' — harvest '+(p.harvestDate||addDays(p.startDate,totalDays)))+'</div>';
+      h+='</div>';
     });
     h+='</div>';
+  }else{
+    h+='<div style="text-align:center;padding:32px 20px;color:var(--text3)">Add plants to see your perpetual harvest plan</div>';
   }
   return h;
 }
 
-// ── MODALS ────────────────────────────────────────────────
-function modalTx(){
-  var newTx=S.newTx||{name:"",amount:"",category:"",date:tod()};
-  var h='<div class="mbg" onclick="if(event.target===this)patch({showTx:false})">';
-  h+='<div class="modal"><div class="modal-drag"></div><div class="mh"><h3>💳 Add Payment</h3><button onclick="patch({showTx:false})">✕ Close</button></div>';
-  h+='<div class="fld"><div class="lbl">Description</div><input id="tx-n" class="inp" placeholder="e.g. Rent, Netflix..." value="'+esc(newTx.name)+'"/></div>';
-  h+='<div class="row" style="margin-bottom:12px"><div style="flex:1" class="fld"><div class="lbl">Amount</div><input id="tx-a" type="number" class="inp" placeholder="0.00" value="'+esc(newTx.amount)+'"/></div>';
-  h+='<div style="flex:1" class="fld"><div class="lbl">Date</div><input id="tx-d" type="date" class="inp" value="'+esc(newTx.date||tod())+'"/></div></div>';
-  h+='<div class="fld"><div class="lbl">Category</div><select id="tx-c" class="inp">'+catOptsHTML(newTx.category)+'</select></div>';
-  h+='<button onclick="addTx()" style="width:100%;background:var(--blue);color:var(--bg);border:none;border-radius:13px;padding:14px;cursor:pointer;font-weight:700;font-size:14px;margin-top:4px">Add Payment</button>';
-  h+='</div></div>';
-  return h;
-}
-function modalGoal(){
-  var overflowOpts='<option value="">None (keep extra here)</option>';
-  D.goals.forEach(function(g){overflowOpts+='<option value="'+esc(g.id)+'">'+esc(g.icon)+' '+esc(g.name)+'</option>';});
-  var h='<div class="mbg" onclick="if(event.target===this)patch({showGoal:false})">';
-  h+='<div class="modal"><div class="modal-drag"></div><div class="mh"><h3>🎯 New Goal</h3><button onclick="patch({showGoal:false})">✕ Close</button></div>';
-  h+='<div class="fld"><div class="lbl">Goal Name</div><input id="go-n" class="inp" placeholder="e.g. Emergency Fund"/></div>';
-  h+='<div class="row" style="margin-bottom:12px"><div style="flex:1" class="fld"><div class="lbl">Target €</div><input id="go-t" type="number" class="inp" placeholder="1000"/></div>';
-  h+='<div style="flex:1" class="fld"><div class="lbl">Saved So Far €</div><input id="go-s" type="number" class="inp" placeholder="0"/></div></div>';
-  h+='<div class="fld" style="max-width:80px"><div class="lbl">Icon</div><input id="go-i" class="inp" value="🎯" style="font-size:20px;text-align:center"/></div>';
-  h+='<div class="fld"><div class="lbl">When Full, Overflow To</div><select id="go-ov" class="inp">'+overflowOpts+'</select></div>';
-  h+='<button onclick="addGoal()" style="width:100%;background:var(--teal);color:var(--bg);border:none;border-radius:13px;padding:14px;cursor:pointer;font-weight:700;font-size:14px;margin-top:8px">Create Goal</button>';
-  h+='</div></div>';
-  return h;
-}
-function modalDebt(){
-  var h='<div class="mbg" onclick="if(event.target===this)patch({showDebt:false})">';
-  h+='<div class="modal"><div class="modal-drag"></div><div class="mh"><h3>💳 Track Debt</h3><button onclick="patch({showDebt:false})">✕ Close</button></div>';
-  h+='<div class="fld"><div class="lbl">Debt Name</div><input id="dbt-n" class="inp" placeholder="e.g. SWA Energy Debt"/></div>';
-  h+='<div class="row" style="margin-bottom:12px"><div style="flex:1" class="fld"><div class="lbl">Total Owed €</div><input id="dbt-t" type="number" class="inp" placeholder="0"/></div>';
-  h+='<div style="flex:1" class="fld"><div class="lbl">Already Paid €</div><input id="dbt-p" type="number" class="inp" placeholder="0"/></div></div>';
-  h+='<div class="row" style="margin-bottom:12px"><div style="flex:1" class="fld"><div class="lbl">Interest % APR</div><input id="dbt-r" type="number" class="inp" placeholder="0"/></div>';
-  h+='<div style="flex:1" class="fld"><div class="lbl">Monthly Payment €</div><input id="dbt-m" type="number" class="inp" placeholder="0"/></div></div>';
-  h+='<button onclick="addDebt()" style="width:100%;background:var(--red);color:var(--bg);border:none;border-radius:13px;padding:14px;cursor:pointer;font-weight:700;font-size:14px">Track Debt</button>';
-  h+='</div></div>';
-  return h;
-}
-function modalRec(){
-  var h='<div class="mbg" onclick="if(event.target===this)patch({showRec:false})">';
-  h+='<div class="modal"><div class="modal-drag"></div><div class="mh"><h3>🔁 Add Recurring Bill</h3><button onclick="patch({showRec:false})">✕ Close</button></div>';
-  h+='<div class="fld"><div class="lbl">Bill Name</div><input id="rc-n" class="inp" placeholder="e.g. Rent, Netflix, Gym"/></div>';
-  h+='<div class="row" style="margin-bottom:12px"><div style="flex:2" class="fld"><div class="lbl">Amount €</div><input id="rc-a" type="number" class="inp" placeholder="0.00"/></div>';
-  h+='<div style="flex:1" class="fld"><div class="lbl">Day</div><input id="rc-d" type="number" class="inp" value="1" min="1" max="31"/></div></div>';
-  h+='<div class="row" style="margin-bottom:12px"><div style="flex:2" class="fld"><div class="lbl">Category</div><select id="rc-c" class="inp">'+catOptsHTML("")+'</select></div>';
-  h+='<div style="flex:1" class="fld"><div class="lbl">Freq</div><select id="rc-f" class="inp"><option value="monthly">Monthly</option><option value="weekly">Weekly</option><option value="biweekly">Bi-Weekly</option><option value="yearly">Yearly</option></select></div></div>';
-  h+='<button onclick="addRec()" style="width:100%;background:var(--violet2);color:var(--bg);border:none;border-radius:13px;padding:14px;cursor:pointer;font-weight:700;font-size:14px">Add Bill</button>';
-  h+='</div></div>';
-  return h;
-}
-function modalCat(){
-  var h='<div class="mbg" onclick="if(event.target===this)patch({editCat:null})">';
-  h+='<div class="modal"><div class="modal-drag"></div><div class="mh"><h3>+ New Category</h3><button onclick="patch({editCat:null})">✕ Close</button></div>';
-  h+='<div class="fld"><div class="lbl">Category Name</div><input id="cat-n" class="inp" placeholder="e.g. Healthcare"/></div>';
-  h+='<div class="row" style="margin-bottom:12px"><div style="flex:1" class="fld"><div class="lbl">Icon</div><input id="cat-i" class="inp" value="📦" style="font-size:18px;text-align:center"/></div>';
-  h+='<div style="flex:1"><div class="lbl">Color</div><input id="cat-c" type="color" value="#94a3b8" style="width:100%;height:44px;border:1.5px solid var(--border2);border-radius:11px;background:var(--bg3);cursor:pointer"/></div></div>';
-  h+='<button onclick="addCat()" style="width:100%;background:var(--green);color:var(--bg);border:none;border-radius:13px;padding:14px;cursor:pointer;font-weight:700;font-size:14px">Add Category</button>';
-  h+='</div></div>';
+// ── LEARN TAB ────────────────────────────────────────────
+function tabLearn(){
+  var h='<div style="font-size:15px;font-weight:700;color:var(--text);margin-bottom:14px">📚 Autoflower Guide</div>';
+  var sections=[
+    {title:"What is an Autoflower?",icon:"🌱",color:"#4ade80",
+     content:"Autoflowers flower automatically based on age, not light cycle. This means they go from seed to harvest in 60-90 days regardless of how many hours of light they get. Perfect for beginners and small tents."},
+    {title:"Light Schedule",icon:"💡",color:"#facc15",
+     content:"Autos work great on 18/6 (18 hours light, 6 dark) for the whole grow. Some growers use 20/4 or even 24/0 but 18/6 is the sweet spot — gives plants rest time and saves electricity."},
+    {title:"Watering Basics",icon:"💧",color:"#60a5fa",
+     content:"The finger test: stick your finger 2cm into soil. Dry = water now. Moist = wait. Wet = definitely wait. Overwatering is the #1 beginner mistake. Yellow droopy leaves = too much water."},
+    {title:"Nutrient Deficiencies",icon:"🔍",color:"#fb923c",
+     content:"Yellow lower leaves = Nitrogen deficiency (add Grow). Purple stems = Phosphorus issue. Brown leaf tips = nutrient burn (too much, flush with plain water). When in doubt, less is more."},
+    {title:"Harvest Timing",icon:"✂️",color:"#f87171",
+     content:"Best way: get a 30x loupe or microscope. Look at trichomes (tiny crystals). Clear = too early. Cloudy white = peak THC. Amber = more body effect, THC degrading. Harvest when 70% cloudy, 10-30% amber for balanced effect."},
+    {title:"pH — Why It Matters",icon:"⚗️",color:"#a78bfa",
+     content:"Soil pH 6.0-6.5 lets roots absorb all nutrients. Wrong pH = locked out nutrients = deficiencies even if you feed correctly. A €15 pH pen and pH up/down solution fixes most feeding problems immediately."},
+    {title:"Your Setup: Mars Hydro FC1500",icon:"🔦",color:"#fb923c",
+     content:"In a 70x70cm tent, the FC1500 is ideal. During seedling: 60-80cm distance at 30-40% power. Veg: 45-60cm at 60-70% power. Flower: 35-45cm at 80-100% power. Always watch for light bleaching (white tips on top leaves)."},
+  ];
+  sections.forEach(function(s){
+    h+='<div class="card card-pad" style="margin-bottom:10px">';
+    h+='<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">';
+    h+='<span style="font-size:20px">'+s.icon+'</span>';
+    h+='<div style="font-size:13px;font-weight:700;color:'+s.color+'">'+s.title+'</div>';
+    h+='</div>';
+    h+='<div style="font-size:12px;color:var(--text2);line-height:1.6">'+s.content+'</div>';
+    h+='</div>';
+  });
   return h;
 }
 
-// ── AI ADVISOR ────────────────────────────────────────────
-function openAdvisor(){patch({showAdvisor:true});}
+// ── MODALS ───────────────────────────────────────────────
+function modalAddPlant(){
+  var h='<div class="mbg" onclick="if(event.target===this)patch({showAddPlant:false})"><div class="modal">';
+  h+='<div class="modal-handle"></div>';
+  h+='<div style="font-size:16px;font-weight:700;color:var(--text);margin-bottom:18px">🌱 Add New Plant</div>';
+  h+='<div style="display:flex;flex-direction:column;gap:12px">';
+  h+='<div><div class="lbl">Plant Name (nickname)</div><input id="ap-name" class="inp" placeholder="e.g. Girl #1, Big Berta" value="'+esc(S.newPlant.name)+'"/></div>';
+  h+='<div><div class="lbl">Plant Type</div><select id="ap-plantType" class="inp" onchange="patch({newPlant:Object.assign({},S.newPlant,{plantType:this.value})})">'+
+    PLANT_TYPES.map(function(t){return '<option value="'+t.key+'" '+((S.newPlant.plantType||"cannabis")===t.key?"selected":"")+'>'+t.label+'</option>';}).join("")+
+    '</select></div>';
+  h+=(S.newPlant.plantType==="cannabis"||!S.newPlant.plantType)?('<div><div class="lbl">Strain</div><select id="ap-strain" class="inp" onchange="onStrainPick()"><option value="">— Select RQS strain —</option>'+RQS_STRAINS.map(function(s){return '<option value="'+esc(s.name)+'" '+(S.newPlant.strain===s.name?"selected":"")+'>'+esc(s.name)+' ('+s.days+'d)</option>';}).join("")+'</select></div>'):'';
+  h+='<div><div class="lbl">'+(S.newPlant.plantType==="cannabis"||!S.newPlant.plantType?"Strain name (editable / custom)":"Variety (e.g. Purple Basil, Yellow Cherry Tomato)")+'</div><input id="ap-strain-name" class="inp" placeholder="e.g. Royal Dwarf" value="'+esc(S.newPlant.strain)+'"/></div>';
+  h+='<div><div class="lbl">Start Date (seed in ground)</div><input id="ap-date" type="date" class="inp" value="'+S.newPlant.startDate+'" onchange="onDateOrDaysChange()"/></div>';
+  h+='<div><div class="lbl">Expected Total Days (editable)</div><input id="ap-days" type="number" class="inp" placeholder="77" value="'+S.newPlant.totalDays+'" onchange="onDateOrDaysChange()"/></div>';
+  h+='<div><div class="lbl">Expected Harvest Date (auto, editable)</div><input id="ap-harvest" type="date" class="inp" value="'+(S.newPlant.harvestDate||addDays(S.newPlant.startDate,Number(S.newPlant.totalDays)||77))+'"/></div>';
+  h+='<div><div class="lbl">Tent Position</div><select id="ap-position" class="inp">'+
+    '<option value="">— Unassigned —</option>'+
+    getTentZones().map(function(z){return '<option value="'+z.key+'" '+(S.newPlant.position===z.key?"selected":"")+'>'+z.label+'</option>';}).join("")+
+    '</select></div>';
+  h+='<label onclick="event.stopPropagation();var el=document.getElementById(\'ap-perpetual\');el.checked=!el.checked;patch({newPlant:Object.assign({},S.newPlant,{isPerpetual:el.checked})});" style="display:flex;align-items:center;gap:10px;font-size:13px;color:var(--text2);background:var(--bg3);border:1.5px solid var(--border2);border-radius:10px;padding:10px 12px;cursor:pointer;user-select:none"><input id="ap-perpetual" type="checkbox" '+(S.newPlant.isPerpetual?"checked":"")+' style="width:20px;height:20px;flex-shrink:0;accent-color:var(--green);pointer-events:none"/> Part of Perpetual Harvest rotation</label>';
+  h+='<label onclick="event.stopPropagation();var el=document.getElementById(\'ap-cutting\');el.checked=!el.checked;patch({newPlant:Object.assign({},S.newPlant,{isCutting:el.checked})});" style="display:flex;align-items:center;gap:10px;font-size:13px;color:var(--text2);background:var(--bg3);border:1.5px solid var(--border2);border-radius:10px;padding:10px 12px;cursor:pointer;user-select:none"><input id="ap-cutting" type="checkbox" '+(S.newPlant.isCutting?"checked":"")+' style="width:20px;height:20px;flex-shrink:0;accent-color:var(--green);pointer-events:none"/> This is a cutting/clone (not grown from seed)</label>';
+  h+='<div><div class="lbl">Notes (optional)</div><textarea id="ap-notes" class="inp" rows="2" placeholder="Anything you want to remember..." style="resize:none">'+esc(S.newPlant.notes)+'</textarea></div>';
+  h+='<button onclick="submitAddPlant()" class="btn btn-green" style="width:100%">Start Growing 🌱</button>';
+  h+='<button onclick="patch({showAddPlant:false})" class="btn btn-outline" style="width:100%">Cancel</button>';
+  h+='</div></div></div>';
+  return h;
+}
+
+function modalEditPlant(){
+  var p=D.plants.find(function(x){return x.id===S.editingPlantId;});
+  if(!p)return"";
+  var h='<div class="mbg" onclick="if(event.target===this)patch({showEditPlant:false})"><div class="modal">';
+  h+='<div class="modal-handle"></div>';
+  h+='<div style="font-size:16px;font-weight:700;color:var(--text);margin-bottom:18px">✏️ Edit Plant</div>';
+  h+='<div style="display:flex;flex-direction:column;gap:12px">';
+  h+='<div><div class="lbl">Plant Name</div><input id="ep-name" class="inp" value="'+esc(p.name)+'"/></div>';
+  h+='<div><div class="lbl">Plant Type</div><select id="ep-plantType" class="inp">'+
+    PLANT_TYPES.map(function(t){return '<option value="'+t.key+'" '+((p.plantType||"cannabis")===t.key?"selected":"")+'>'+t.label+'</option>';}).join("")+
+    '</select></div>';
+  h+='<div><div class="lbl">Strain / Variety</div><input id="ep-strain" class="inp" value="'+esc(p.strain)+'"/></div>';
+  h+='<div><div class="lbl">Start Date</div><input id="ep-date" type="date" class="inp" value="'+p.startDate+'" onchange="onEpDateOrDays()"/></div>';
+  h+='<div><div class="lbl">Total Days</div><input id="ep-days" type="number" class="inp" value="'+(p.totalDays||plantTotalDays(p))+'" onchange="onEpDateOrDays()"/></div>';
+  h+='<div><div class="lbl">Harvest Date (editable)</div><input id="ep-harvest" type="date" class="inp" value="'+(p.harvestDate||addDays(p.startDate,plantTotalDays(p)))+'"/></div>';
+  h+='<div><div class="lbl">Tent Position</div><select id="ep-position" class="inp">'+
+    '<option value="">— Unassigned —</option>'+
+    getTentZones().map(function(z){return '<option value="'+z.key+'" '+((p.position||"")===z.key?"selected":"")+'>'+z.label+'</option>';}).join("")+
+    '</select></div>';
+  h+='<label onclick="event.stopPropagation();var el=document.getElementById(\'ep-perpetual\');el.checked=!el.checked;" style="display:flex;align-items:center;gap:10px;font-size:13px;color:var(--text2);background:var(--bg3);border:1.5px solid var(--border2);border-radius:10px;padding:10px 12px;cursor:pointer;user-select:none"><input id="ep-perpetual" type="checkbox" '+(p.isPerpetual?"checked":"")+' style="width:20px;height:20px;flex-shrink:0;accent-color:var(--green);pointer-events:none"/> Part of Perpetual Harvest rotation</label>';
+  h+='<label onclick="event.stopPropagation();var el=document.getElementById(\'ep-cutting\');el.checked=!el.checked;" style="display:flex;align-items:center;gap:10px;font-size:13px;color:var(--text2);background:var(--bg3);border:1.5px solid var(--border2);border-radius:10px;padding:10px 12px;cursor:pointer;user-select:none"><input id="ep-cutting" type="checkbox" '+(p.isCutting?"checked":"")+' style="width:20px;height:20px;flex-shrink:0;accent-color:var(--green);pointer-events:none"/> This is a cutting/clone (not grown from seed)</label>';
+  h+='<button onclick="submitEditPlant()" class="btn btn-green" style="width:100%">Save Changes</button>';
+  h+='<button onclick="patch({showEditPlant:false})" class="btn btn-outline" style="width:100%">Cancel</button>';
+  h+='</div></div></div>';
+  return h;
+}
+function onEpDateOrDays(){
+  var start=(document.getElementById("ep-date")||{}).value||tod();
+  var days=Number((document.getElementById("ep-days")||{}).value)||77;
+  document.getElementById("ep-harvest").value=addDays(start,days);
+}
+
+function modalSetup(){
+  var s=D.setup;
+  var h='<div class="mbg" onclick="if(event.target===this)patch({showSetup:false})"><div class="modal">';
+  h+='<div class="modal-handle"></div>';
+  h+='<div style="font-size:16px;font-weight:700;color:var(--text);margin-bottom:18px">⚙️ Grow Setup</div>';
+  h+='<div style="display:flex;flex-direction:column;gap:12px">';
+  h+='<div><div class="lbl">Light Model</div><input id="s-lm" class="inp" placeholder="e.g. Mars Hydro FC1500" value="'+esc(s.lightModel)+'"/></div>';
+  h+='<div><div class="lbl">Light Watts (approx)</div><input id="s-lw" type="number" class="inp" placeholder="150" value="'+s.lightWatts+'"/></div>';
+  h+='<div><div class="lbl">Light Schedule</div><select id="s-ls" class="inp"><option value="18/6" '+(s.lightSchedule==="18/6"?"selected":"")+'>18/6 (Recommended)</option><option value="20/4" '+(s.lightSchedule==="20/4"?"selected":"")+'>20/4</option><option value="24/0" '+(s.lightSchedule==="24/0"?"selected":"")+'>24/0 (Always on)</option></select></div>';
+  h+='<div><div class="lbl">Growing Medium</div><select id="s-med" class="inp"><option value="soil" '+(s.medium==="soil"?"selected":"")+'>Soil</option><option value="coco" '+(s.medium==="coco"?"selected":"")+'>Coco Coir</option><option value="hydro" '+(s.medium==="hydro"?"selected":"")+'>Hydro</option></select></div>';
+  h+='<div><div class="lbl">Pot Size (litres)</div><input id="s-pot" type="number" class="inp" placeholder="11" value="'+s.potSize+'"/></div>';
+  h+='<div><div class="lbl">Tent Size</div><input id="s-tent" class="inp" placeholder="70x70" value="'+esc(s.tentSize)+'"/></div>';
+  h+='<div style="display:flex;align-items:center;gap:10px;background:var(--bg3);border:1.5px solid var(--border2);border-radius:12px;padding:12px">';
+  h+='<input type="checkbox" id="s-ph" '+(s.phing?"checked":"")+' style="width:18px;height:18px;accent-color:var(--green);cursor:pointer"/>';
+  h+='<label for="s-ph" style="font-size:13px;color:var(--text);cursor:pointer">I use a pH meter</label></div>';
+  h+='<button onclick="saveSetup()" class="btn btn-green" style="width:100%">Save Setup</button>';
+  h+='</div></div></div>';
+  return h;
+}
+
+function modalLog(){
+  var p=D.plants.find(function(x){return x.id===S.activePlantId;});
+  if(!p)return "";
+  var days=daysSince(p.startDate);
+  var stage=getStageFor(p,days,Number(p.totalDays)||77);
+  var h='<div class="mbg" onclick="if(event.target===this)patch({showLog:false})"><div class="modal">';
+  h+='<div class="modal-handle"></div>';
+  h+='<div style="font-size:16px;font-weight:700;color:var(--text);margin-bottom:4px">📋 Log Week</div>';
+  h+='<div style="font-size:12px;color:var(--text3);margin-bottom:18px">'+esc(p.name)+' — Day '+days+' — '+stage.name+'</div>';
+  h+='<div style="display:flex;flex-direction:column;gap:12px">';
+  h+='<div><div class="lbl">Date</div><input id="lg-date" type="date" class="inp" value="'+S.newLog.date+'"/></div>';
+  h+='<div><div class="lbl">Height (cm)</div><input id="lg-height" type="number" class="inp" placeholder="e.g. 25" value="'+S.newLog.height+'"/></div>';
+  h+='<div style="display:flex;gap:10px">';
+  h+='<label style="flex:1;background:var(--bg3);border:1.5px solid var(--border2);border-radius:12px;padding:11px;display:flex;align-items:center;gap:8px;cursor:pointer"><input type="checkbox" id="lg-watered" style="width:16px;height:16px;accent-color:var(--blue)"/> <span style="font-size:13px;color:var(--text)">💧 Watered</span></label>';
+  h+='<label style="flex:1;background:var(--bg3);border:1.5px solid var(--border2);border-radius:12px;padding:11px;display:flex;align-items:center;gap:8px;cursor:pointer"><input type="checkbox" id="lg-fed" style="width:16px;height:16px;accent-color:var(--green)"/> <span style="font-size:13px;color:var(--text)">🧪 Fed</span></label>';
+  h+='</div>';
+  h+='<div><div class="lbl">Notes / Observations</div><textarea id="lg-notes" class="inp" rows="3" placeholder="How does she look? Any issues? Changes made?" style="resize:none"></textarea></div>';
+  h+='<button onclick="submitLog()" class="btn btn-green" style="width:100%">Save Log Entry</button>';
+  h+='</div></div></div>';
+  return h;
+}
+
+function modalFeed(){
+  var p=D.plants.find(function(x){return x.id===S.activePlantId;});
+  if(!p)return "";
+  var days=daysSince(p.startDate);
+  var tc=getFeedPlanFor(p,days);
+  var learned=getLearnedFeed(p,days);
+  var f=S.newFeed;
+  var h='<div class="mbg" onclick="if(event.target===this)patch({showFeed:false})"><div class="modal">';
+  h+='<div class="modal-handle"></div>';
+  h+='<div style="font-size:16px;font-weight:700;color:var(--text);margin-bottom:4px">🧪 Feed '+esc(p.name)+'</div>';
+  h+='<div style="font-size:12px;color:var(--text3);margin-bottom:14px">'+plantTypeLabel(p.plantType)+' · Day '+days+' — Week '+tc.week+' ('+esc(tc.note)+')</div>';
+  h+='<div style="background:var(--bg3);border-radius:10px;padding:10px;margin-bottom:10px;font-size:12px;color:var(--text2)">Suggested mix: Starter '+tc.starter+' · Grow '+tc.grow+' · Bloom '+tc.bloom+' · PK '+tc.pk+' · Booster '+tc.booster+' ml/L</div>';
+  if(learned){
+    h+='<div style="background:#a78bfa15;border:1px solid #a78bfa30;border-radius:10px;padding:10px;margin-bottom:14px;font-size:12px;color:var(--text2)">🧠 Your history'+(learned.matchedStage?" (this stage)":" (overall)")+': '+learned.nutrients.map(function(n){return esc(n.name)+" "+n.avgMlPerL+"ml/L";}).join(" · ")+'</div>';
+  }
+  h+='<div style="display:flex;flex-direction:column;gap:12px">';
+  h+='<div><div class="lbl">Date</div><input id="fd-date" type="date" class="inp" value="'+f.date+'"/></div>';
+  h+='<div class="lbl">Nutrients Used</div>';
+  f.nutrients.forEach(function(n,i){
+    h+='<div style="display:flex;gap:8px;align-items:flex-end" data-feedrow="'+i+'">';
+    h+='<div style="flex:2"><input data-fd-name="'+i+'" class="inp" placeholder="e.g. Terra Canna Bloom" value="'+esc(n.name)+'"/></div>';
+    h+='<div style="flex:1"><input data-fd-ml="'+i+'" type="number" step="0.1" class="inp" placeholder="ml/L" value="'+esc(n.mlPerL)+'"/></div>';
+    h+=(f.nutrients.length>1?'<button onclick="removeFeedRow('+i+')" style="background:none;border:none;color:var(--text3);font-size:18px;padding:0 4px;cursor:pointer">×</button>':'<div style="width:26px"></div>');
+    h+='</div>';
+  });
+  h+='<button onclick="addFeedRow()" style="background:none;border:1px dashed var(--border2);border-radius:8px;padding:8px;font-size:12px;color:var(--text3);cursor:pointer">+ Add another nutrient</button>';
+  h+='<div><div class="lbl">Water Given (L)</div><input id="fd-water" type="number" step="0.1" class="inp" placeholder="e.g. 1.5" value="'+esc(f.waterAmount)+'"/></div>';
+  h+='<div><div class="lbl">Notes (optional)</div><textarea id="fd-notes" class="inp" rows="2" placeholder="pH, runoff, deficiency signs..." style="resize:none">'+esc(f.notes)+'</textarea></div>';
+  h+='<button onclick="submitFeed()" class="btn btn-green" style="width:100%">Save Feed Entry</button>';
+  h+='<button onclick="patch({showFeed:false})" class="btn btn-outline" style="width:100%">Cancel</button>';
+  h+='</div></div></div>';
+  return h;
+}
+
+function modalQuickNote(){
+  var p=D.plants.find(function(x){return x.id===S.activePlantId;});
+  if(!p)return "";
+  var n=S.newQuickNote;
+  var h='<div class="mbg" onclick="if(event.target===this)patch({showQuickNote:false})"><div class="modal">';
+  h+='<div class="modal-handle"></div>';
+  h+='<div style="font-size:16px;font-weight:700;color:var(--text);margin-bottom:14px">✂️ Trim / Action — '+esc(p.name)+'</div>';
+  h+='<div style="display:flex;flex-direction:column;gap:12px">';
+  h+='<div><div class="lbl">Date</div><input id="qn-date" type="date" class="inp" value="'+n.date+'"/></div>';
+  h+='<div><div class="lbl">What did you do?</div><textarea id="qn-notes" class="inp" rows="3" placeholder="e.g. Stripped undergrowth below net, tucked 2 shoots..." style="resize:none">'+esc(n.notes)+'</textarea></div>';
+  h+='<button onclick="submitQuickNote()" class="btn btn-green" style="width:100%">Save Entry</button>';
+  h+='<button onclick="patch({showQuickNote:false})" class="btn btn-outline" style="width:100%">Cancel</button>';
+  h+='</div></div></div>';
+  return h;
+}
+
+function modalTentConfig(){
+  var s=D.setup;
+  var h='<div class="mbg" onclick="if(event.target===this)patch({showTentConfig:false})"><div class="modal">';
+  h+='<div class="modal-handle"></div>';
+  h+='<div style="font-size:16px;font-weight:700;color:var(--text);margin-bottom:4px">⚙️ Tent Configuration</div>';
+  h+='<div style="font-size:12px;color:var(--text3);margin-bottom:16px">Set this up to match your own tent. Changes apply to the Map tab.</div>';
+  h+='<div style="display:flex;flex-direction:column;gap:12px">';
+  h+='<div><div class="lbl">Tent Footprint (e.g. 70x70, 80x80, 100x100)</div><input id="tc-size" class="inp" value="'+esc(s.tentSize)+'"/></div>';
+  h+='<div><div class="lbl">Light Model</div><input id="tc-light" class="inp" placeholder="e.g. Mars Hydro FC1500" value="'+esc(s.lightModel)+'"/></div>';
+  h+='<div><div class="lbl">Light Wattage (W)</div><input id="tc-watts" type="number" class="inp" value="'+esc(s.lightWatts)+'"/></div>';
+  h+='<div style="display:flex;gap:10px">';
+  h+='<div style="flex:1"><div class="lbl">Light Height (cm from floor)</div><input id="tc-lightheight" type="number" class="inp" value="'+esc(s.lightHeight)+'"/></div>';
+  h+='<div style="flex:1"><div class="lbl">Canopy Max (cm)</div><input id="tc-canopy" type="number" class="inp" value="'+esc(s.canopyMax)+'"/></div>';
+  h+='</div>';
+  h+='<div><div class="lbl">Trellis Net Height (cm from floor)</div><input id="tc-netheight" type="number" class="inp" value="'+esc(s.netHeight)+'"/></div>';
+  h+='<div><div class="lbl">Pot Size (Liters)</div><input id="tc-pot" type="number" class="inp" value="'+esc(s.potSize)+'"/></div>';
+  h+='<div><div class="lbl">Number of Plants / Layout</div><select id="tc-layout" class="inp">'
+    +'<option value="1z_single" '+(s.zoneLayout==="1z_single"?"selected":"")+'>1 plant — single zone</option>'
+    +'<option value="4z_grid" '+(s.zoneLayout==="4z_grid"?"selected":"")+'>4 plants — 2x2 grid</option>'
+    +'<option value="5z_ushape" '+(s.zoneLayout==="5z_ushape"?"selected":"")+'>5 plants — U-shape (3 back, 2 front)</option>'
+    +'<option value="7z_ushape" '+(s.zoneLayout==="7z_ushape"?"selected":"")+'>7 plants — U-shape (3 back, 2 mid, 2 front)</option>'
+    +'<option value="6z_grid" '+(s.zoneLayout==="6z_grid"?"selected":"")+'>6 plants — 3x2 grid</option>'
+    +'<option value="9z_grid" '+(s.zoneLayout==="9z_grid"?"selected":"")+'>9 plants — 3x3 grid</option>'
+    +'</select></div>';
+  h+='<button onclick="submitTentConfig()" class="btn btn-green" style="width:100%">Save Configuration</button>';
+  h+='<button onclick="patch({showTentConfig:false})" class="btn btn-outline" style="width:100%">Cancel</button>';
+  h+='</div></div></div>';
+  return h;
+}
+
 function modalAdvisor(){
-  var h='<div class="mbg" onclick="if(event.target===this)patch({showAdvisor:false})">';
-  h+='<div class="modal" style="max-height:92vh;display:flex;flex-direction:column">';
-  h+='<div class="modal-drag"></div>';
-  h+='<div class="mh"><h3>🧠 AI Advisor</h3><button onclick="patch({showAdvisor:false})">✕ Close</button></div>';
-  h+='<div id="adv-msgs" style="flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:8px;min-height:80px;max-height:45vh;margin-bottom:12px">';
-  if(S.advisorMsgs.length===0&&!S.advisorLoading){
-    h+='<div style="text-align:center;padding:12px 0">';
-    h+='<div style="font-size:36px;margin-bottom:8px">🧠</div>';
-    h+='<div style="font-size:13px;font-weight:600;margin-bottom:5px">Your Money Advisor</div>';
-    h+='<div style="font-size:12px;color:var(--text3);margin-bottom:14px">Ask me anything about your finances.</div>';
-    var suggestions=["Give me your top 3 tips","Which debt should I focus on?","How am I doing this month?","What should I do with my free money?"];
-    suggestions.forEach(function(s){
-      h+='<button onclick="sendAdvisor(\''+cl(s)+'\')" style="width:100%;background:var(--bg3);border:1.5px solid var(--border2);border-radius:10px;padding:9px 13px;text-align:left;cursor:pointer;font-size:12px;color:var(--text2);margin-bottom:5px;font-family:var(--font)">'+esc(s)+'</button>';
-    });
-    h+='</div>';
-  }
-  S.advisorMsgs.forEach(function(m){
-    var isU=m.role==="user";
-    h+='<div style="display:flex;'+(isU?"justify-content:flex-end":"justify-content:flex-start")+'">';
-    h+='<div style="max-width:88%;background:'+(isU?"linear-gradient(135deg,var(--violet),var(--violet2))":"var(--bg3)")+';border:1.5px solid '+(isU?"transparent":"var(--border2)")+';border-radius:'+(isU?"14px 14px 4px 14px":"14px 14px 14px 4px")+';padding:10px 13px;font-size:12px;line-height:1.6;white-space:pre-wrap;word-break:break-word">'+esc(m.content)+'</div>';
-    h+='</div>';
-  });
-  if(S.advisorLoading){
-    h+='<div style="display:flex;justify-content:flex-start"><div style="background:var(--bg3);border:1.5px solid var(--border2);border-radius:14px 14px 14px 4px;padding:10px 14px;font-size:13px;color:var(--violet2)">Thinking...</div></div>';
-  }
-  h+='</div>';
-  h+='<div class="row" style="gap:7px">';
-  h+='<textarea id="adv-inp" placeholder="Ask about your finances..." rows="2" style="flex:1;background:var(--bg3);border:1.5px solid var(--border2);border-radius:13px;padding:10px 13px;color:var(--text);font-size:13px;outline:none;resize:none;line-height:1.5;font-family:var(--font)">'+esc(S.advisorInput||"")+'</textarea>';
-  h+='<button onclick="var v=document.getElementById(\'adv-inp\').value.trim();if(v)sendAdvisor(v)" style="background:linear-gradient(135deg,var(--violet),var(--violet2));color:#fff;border:none;border-radius:13px;padding:12px 15px;cursor:pointer;font-size:16px;flex-shrink:0;align-self:flex-end">➤</button>';
-  h+='</div>';
-  if(S.advisorMsgs.length>0){
-    h+='<button onclick="S.advisorMsgs=[];S.advisorInput=\'\';render()" style="margin-top:8px;width:100%;background:none;border:1.5px solid var(--border2);border-radius:10px;padding:8px;color:var(--text3);cursor:pointer;font-size:11px">Clear conversation</button>';
+  var h='<div class="mbg" onclick="if(event.target===this)patch({showAdvisor:false})"><div class="modal">';
+  h+='<div class="modal-handle"></div>';
+  h+='<div style="font-size:16px;font-weight:700;color:var(--text);margin-bottom:4px">🧠 AI Grow Advisor</div>';
+  if(!S.advisorLoading&&!S.advisorText){
+    h+='<div style="font-size:12px;color:var(--text3);margin-bottom:20px">Tell me about your plants and I will advise you</div>';
+    // Summary of plants
+    if(D.plants.length>0){
+      h+='<div style="background:#a78bfa10;border:1.5px solid #a78bfa25;border-radius:12px;padding:12px;margin-bottom:16px">';
+      D.plants.forEach(function(p){
+        var days=daysSince(p.startDate);
+        var stage=getStageFor(p,days,Number(p.totalDays)||77);
+        h+='<div style="font-size:12px;color:#a78bfa;margin-bottom:4px">'+stage.icon+' '+esc(p.name)+' — Day '+days+' — '+stage.name+'</div>';
+      });
+      h+='</div>';
+    }
+    h+='<button onclick="runAdvisor()" style="background:linear-gradient(135deg,#a78bfa,#7c6dfa);color:#fff;border:none;border-radius:14px;padding:14px;cursor:pointer;font-weight:600;font-size:14px;width:100%">Analyze My Grow 🌿</button>';
+  }else if(S.advisorLoading){
+    h+='<div style="text-align:center;padding:32px"><div style="font-size:32px;margin-bottom:12px">🌿</div>';
+    h+='<div style="font-size:13px;color:var(--green)">Analyzing your plants...</div></div>';
+  }else{
+    h+='<div style="background:#a78bfa08;border:1.5px solid #a78bfa20;border-radius:12px;padding:14px;margin-bottom:14px;font-size:13px;color:var(--text2);line-height:1.7;white-space:pre-wrap;max-height:300px;overflow-y:auto">'+esc(S.advisorText)+'</div>';
+    h+='<button onclick="S.advisorText=\'\';S.advisorLoading=false;render()" style="background:var(--bg3);border:1.5px solid var(--border2);border-radius:12px;padding:11px;cursor:pointer;color:var(--text2);font-size:13px;width:100%;margin-bottom:8px">Ask Again</button>';
+    h+='<button onclick="patch({showAdvisor:false})" class="btn btn-green" style="width:100%">Done</button>';
   }
   h+='</div></div>';
   return h;
 }
-function buildFinancialSummary(){
-  var totI=totalIncome(),totB=totBudget(),sp=spentBycat();
-  var totS=(D.categories||[]).reduce(function(a,c){return a+catSpent(c,sp);},0);
-  var lines=["Month: "+D.month,"Income: "+fmt(totI),"Budgeted: "+fmt(totB),"Spent: "+fmt(totS),"Free: "+fmt(totI-totB)];
-  lines.push("Debts ("+D.debts.length+"): "+D.debts.map(function(d){return d.name+" "+fmt(d.total-d.paid)+" remaining";}).join(", ")||"none");
-  lines.push("Goals ("+D.goals.length+"): "+D.goals.map(function(g){return g.name+" "+fmt(g.saved)+"/"+fmt(g.target);}).join(", ")||"none");
-  lines.push("Recurring bills: "+D.recurring.map(function(r){return r.name+" "+fmt(r.amount);}).join(", ")||"none");
-  return lines.join("\n");
-}
-async function sendAdvisor(msg){
-  if(!msg||!msg.trim())return;
-  var summary=buildFinancialSummary();
-  var sys="You are a friendly personal financial advisor for the Quarterly budgeting app. Give practical, specific advice using the user's actual numbers. Be concise and actionable.\n\nUSER DATA:\n"+summary;
-  S.advisorMsgs=S.advisorMsgs.concat([{role:"user",content:msg.trim()}]);
-  S.advisorLoading=true;S.advisorInput="";render();
-  try{
-    var apiMsgs=S.advisorMsgs.map(function(m){return{role:m.role,content:m.content};});
-    var resp=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:800,system:sys,messages:apiMsgs})});
-    var data=await resp.json();
-    var text=data.content&&data.content[0]?data.content[0].text:"Sorry, could not respond right now.";
-    S.advisorMsgs=S.advisorMsgs.concat([{role:"assistant",content:text}]);
-    S.advisorLoading=false;render();
-  }catch(e){
-    S.advisorMsgs=S.advisorMsgs.concat([{role:"assistant",content:"Connection error. Please try again."}]);
-    S.advisorLoading=false;render();
+
+// ── Events & Actions ─────────────────────────────────────
+function bindEv(){}
+
+function onStrainPick(){
+  var sel=(document.getElementById("ap-strain")||{}).value||"";
+  if(sel&&sel!=="Custom / Other"){
+    var d=strainDays(sel);
+    document.getElementById("ap-strain-name").value=sel;
+    document.getElementById("ap-days").value=d;
+    var start=(document.getElementById("ap-date")||{}).value||tod();
+    document.getElementById("ap-harvest").value=addDays(start,d);
   }
 }
+function onDateOrDaysChange(){
+  var start=(document.getElementById("ap-date")||{}).value||tod();
+  var days=Number((document.getElementById("ap-days")||{}).value)||77;
+  document.getElementById("ap-harvest").value=addDays(start,days);
+}
 
-// ── ACTIONS ───────────────────────────────────────────────
-function addTx(){var n=document.getElementById("tx-n"),a=document.getElementById("tx-a"),c=document.getElementById("tx-c"),d=document.getElementById("tx-d");if(!n||!a||!c)return;var name=n.value.trim(),amount=Number(a.value),cat=c.value,date=(d&&d.value)||tod();if(!name||!amount)return showToast("Enter name and amount","var(--red)");var mo=date.slice(0,7);D.transactions.push({id:uid(),name:name,amount:amount,category:cat,date:date,month:mo});saveD();patch({showTx:false,newTx:{name:"",amount:"",category:"",date:tod()}});showToast("Payment added!");}
-function delTx(id){D.transactions=D.transactions.filter(function(t){return t.id!==id;});saveD();render();}
-function addGoal(){var n=document.getElementById("go-n"),t=document.getElementById("go-t"),s=document.getElementById("go-s"),i=document.getElementById("go-i"),ov=document.getElementById("go-ov");if(!n)return;var name=n.value.trim();if(!name)return showToast("Enter goal name","var(--red)");D.goals.push({id:uid(),name:name,target:Number(t&&t.value)||0,saved:Number(s&&s.value)||0,icon:(i&&i.value)||"🎯",overflowTo:(ov&&ov.value)||""});saveD();patch({showGoal:false});showToast("Goal created!");}
-function saveGoal(id){var n=document.getElementById("eg-n"),t=document.getElementById("eg-t"),s=document.getElementById("eg-s"),ov=document.getElementById("eg-ov");if(!n)return;D.goals=D.goals.map(function(g){return g.id===id?Object.assign({},g,{name:n.value.trim(),target:Number(t&&t.value)||0,saved:Number(s&&s.value)||0,overflowTo:(ov&&ov.value)||g.overflowTo||""}):g;});saveD();patch({editGoal:null});}
-function delGoal(id){D.goals=D.goals.filter(function(g){return g.id!==id;});saveD();patch({editGoal:null});}
-function addToGoal(id,amount){amount=Number(amount)||0;if(!amount)return;D.goals=D.goals.map(function(g){if(g.id!==id)return g;var newSaved=g.saved+amount;var overflow=g.target>0&&newSaved>g.target?newSaved-g.target:0;if(overflow>0&&g.overflowTo){D.goals=D.goals.map(function(g2){if(g2.id!==g.overflowTo)return g2;showToast(fmt(overflow)+" overflow → "+g2.name+"!");return Object.assign({},g2,{saved:g2.saved+overflow});});return Object.assign({},g,{saved:g.target});}if(overflow>0)showToast(g.name+" is full!");return Object.assign({},g,{saved:newSaved});});saveD();render();}
-function addDebt(){var n=document.getElementById("dbt-n"),t=document.getElementById("dbt-t"),p=document.getElementById("dbt-p"),r=document.getElementById("dbt-r"),m=document.getElementById("dbt-m");if(!n)return;var name=n.value.trim();if(!name)return showToast("Enter debt name","var(--red)");D.debts.push({id:uid(),name:name,total:Number(t&&t.value)||0,paid:Number(p&&p.value)||0,rate:Number(r&&r.value)||0,monthly:Number(m&&m.value)||0});saveD();patch({showDebt:false});showToast("Debt added!");}
-function saveDebt(id){var n=document.getElementById("ed-n"),t=document.getElementById("ed-t"),p=document.getElementById("ed-p"),r=document.getElementById("ed-r"),m=document.getElementById("ed-m");if(!n)return;D.debts=D.debts.map(function(d){return d.id===id?Object.assign({},d,{name:n.value.trim(),total:Number(t&&t.value)||0,paid:Number(p&&p.value)||0,rate:Number(r&&r.value)||0,monthly:Number(m&&m.value)||0}):d;});saveD();patch({editDebt:null});}
-function delDebt(id){D.debts=D.debts.filter(function(d){return d.id!==id;});saveD();patch({editDebt:null});}
-function quickPay(id,amount){D.debts=D.debts.map(function(d){return d.id===id?Object.assign({},d,{paid:d.paid+Number(amount)}):d;});saveD();render();showToast("Payment recorded!");}
-function addRec(){var n=document.getElementById("rc-n"),a=document.getElementById("rc-a"),d=document.getElementById("rc-d"),c=document.getElementById("rc-c"),f=document.getElementById("rc-f");if(!n)return;var name=n.value.trim();if(!name)return showToast("Enter bill name","var(--red)");D.recurring.push({id:uid(),name:name,amount:Number(a&&a.value)||0,day:Number(d&&d.value)||1,category:(c&&c.value)||"other",freq:(f&&f.value)||"monthly"});saveD();patch({showRec:false});showToast("Bill added!");}
-function saveRec(id){var n=document.getElementById("er-n"),a=document.getElementById("er-a"),d=document.getElementById("er-d"),c=document.getElementById("er-c"),f=document.getElementById("er-f");if(!n)return;D.recurring=D.recurring.map(function(r){return r.id===id?Object.assign({},r,{name:n.value.trim(),amount:Number(a&&a.value)||0,day:Number(d&&d.value)||1,category:(c&&c.value)||r.category,freq:(f&&f.value)||r.freq}):r;});saveD();patch({editRec:null});}
-function delRec(id){D.recurring=D.recurring.filter(function(r){return r.id!==id;});saveD();patch({editRec:null});}
-function postRec(id,month){var r=D.recurring.filter(function(r){return r.id===id;})[0];if(!r)return;var mo=month||D.month;var already=D.transactions.some(function(t){return t.fromRec&&t.name===r.name&&t.month===mo;});if(already)return showToast(r.name+" already posted","var(--amber)");D.transactions.push({id:uid(),name:r.name,amount:r.amount,category:r.category,date:tod(),month:mo,fromRec:true});saveD();render();showToast(r.name+" posted!");}
-function skipRec(id,month){var r=D.recurring.filter(function(r){return r.id===id;})[0];if(!r)return;var mo=month||D.month;var already=D.transactions.some(function(t){return(t.fromRec||t.fromRecSkip)&&t.name===r.name&&t.month===mo;});if(already)return showToast(r.name+" already handled","var(--amber)");var rules=(D.rerouteRules||[]).filter(function(rule){return rule.fromId===r.category;});if(rules.length>0){rules.forEach(function(rule){if(rule.destType==="goal"){var gname="";D.goals=D.goals.map(function(g){if(g.id!==rule.destId)return g;gname=g.name;return Object.assign({},g,{saved:g.saved+r.amount});});showToast(fmt(r.amount)+" → 💰 "+gname+"!");}else{D.budgets[rule.destId]=(D.budgets[rule.destId]||0)+r.amount;showToast(fmt(r.amount)+" → budget!");}});}else{if(D.goals.length>0){var g=D.goals[0];D.goals=D.goals.map(function(g2){return g2.id===g.id?Object.assign({},g2,{saved:g2.saved+r.amount}):g2;});showToast(fmt(r.amount)+" → "+g.name+"!");}else{showToast(fmt(r.amount)+" saved — add a goal to track it!","var(--amber)");}}D.transactions.push({id:uid(),name:r.name,amount:r.amount,category:r.category,date:tod(),month:mo,fromRecSkip:true});saveD();render();}
-function addStream(){var n=document.getElementById("is-n"),a=document.getElementById("is-a"),d=document.getElementById("is-d"),f=document.getElementById("is-f");if(!n)return;var name=n.value.trim();if(!name)return showToast("Enter source name","var(--red)");D.incomeStreams.push({id:uid(),name:name,amount:Number(a&&a.value)||0,day:Number(d&&d.value)||1,freq:(f&&f.value)||"monthly"});saveD();patch({showAddStream:false});showToast("Income source added!");}
-function saveStream(id){var n=document.getElementById("es-n"),a=document.getElementById("es-a"),d=document.getElementById("es-d"),f=document.getElementById("es-f");if(!n)return;D.incomeStreams=D.incomeStreams.map(function(s){return s.id===id?Object.assign({},s,{name:n.value.trim(),amount:Number(a&&a.value)||0,day:Number(d&&d.value)||1,freq:(f&&f.value)||s.freq}):s;});saveD();patch({editStream:null});}
-function delStream(id){D.incomeStreams=D.incomeStreams.filter(function(s){return s.id!==id;});saveD();render();}
-function addOneTimeIncome(){var n=document.getElementById("oti-n"),a=document.getElementById("oti-a");if(!n||!a)return;var name=n.value.trim(),amount=Number(a.value);if(!name||!amount)return showToast("Enter description and amount","var(--red)");if(!D.oneTimeIncome)D.oneTimeIncome=[];D.oneTimeIncome.push({id:uid(),name:name,amount:amount,date:tod(),month:D.month});saveD();render();showToast("Income added!");}
-function delOneTimeIncome(id){D.oneTimeIncome=(D.oneTimeIncome||[]).filter(function(t){return t.id!==id;});saveD();render();}
-function saveBaseIncome(){var el=document.getElementById("base-inc");if(!el)return;D.income=Number(el.value)||0;saveD();render();showToast("Income saved!");}
-function addCat(){var n=document.getElementById("cat-n"),i=document.getElementById("cat-i"),c=document.getElementById("cat-c");if(!n)return;var name=n.value.trim();if(!name)return showToast("Enter category name","var(--red)");var id="cat_"+uid();D.categories.push({id:id,name:name,icon:(i&&i.value)||"📦",color:(c&&c.value)||"#94a3b8",subs:[]});D.budgets[id]=0;saveD();patch({editCat:null});showToast("Category added!");}
+function submitAddPlant(){
+  var name=(document.getElementById("ap-name")||{}).value||"";name=name.trim();
+  var plantType=(document.getElementById("ap-plantType")||{}).value||S.newPlant.plantType||"cannabis";
+  var strain=(document.getElementById("ap-strain-name")||{}).value||"";
+  var startDate=(document.getElementById("ap-date")||{}).value||tod();
+  var totalDays=(document.getElementById("ap-days")||{}).value||"77";
+  var harvestDate=(document.getElementById("ap-harvest")||{}).value||addDays(startDate,Number(totalDays));
+  var notes=(document.getElementById("ap-notes")||{}).value||"";
+  var position=(document.getElementById("ap-position")||{}).value||"";
+  var isPerpetual=(document.getElementById("ap-perpetual")&&document.getElementById("ap-perpetual").checked)||(D.setup.perpetualZones||[]).indexOf(position)>-1;
+  var isCutting=document.getElementById("ap-cutting")&&document.getElementById("ap-cutting").checked;
+  if(!name){showToast("Enter a plant name","#f87171");return;}
+  var p={id:uid(),name:name,strain:strain,plantType:plantType,startDate:startDate,totalDays:totalDays,harvestDate:harvestDate,notes:notes,position:position,isPerpetual:isPerpetual,isCutting:isCutting,harvested:false};
+  D.plants.push(p);
+  if(!D.logs[p.id])D.logs[p.id]=[];
+  saveD(D);patch({showAddPlant:false,newPlant:{name:"",strain:"",plantType:"cannabis",startDate:tod(),totalDays:"77",harvestDate:addDays(tod(),77),notes:"",position:"",isPerpetual:false,isCutting:false}});
+  showToast("🌱 "+name+" added! Happy growing!");
+}
 
-function doExport(){var blob=new Blob([JSON.stringify(D,null,2)],{type:"application/json"});var url=URL.createObjectURL(blob);var a=document.createElement("a");a.href=url;a.download="quarterly-backup-"+D.month+".json";document.body.appendChild(a);a.click();setTimeout(function(){document.body.removeChild(a);URL.revokeObjectURL(url);},100);showToast("Backup saved!");}
-function doImport(event){var file=event.target.files[0];if(!file)return;var reader=new FileReader();reader.onload=function(e){try{var imported=JSON.parse(e.target.result);if(!imported.categories&&!imported.transactions){showToast("Invalid backup","var(--red)");return;}imported=sanitize(imported);Object.assign(D,imported);saveD();render();showToast("Backup restored!");}catch(err){showToast("Could not read file","var(--red)");}};reader.readAsText(file);event.target.value="";}
-async function doImportPDF(event){var file=event.target.files[0];if(!file)return;showToast("Reading PDF...");var reader=new FileReader();reader.onload=async function(e){try{var base64=e.target.result.split(",")[1];showToast("AI scanning...");var body=JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:1000,messages:[{role:"user",content:[{type:"document",source:{type:"base64",media_type:"application/pdf",data:base64}},{type:"text",text:"Extract all debts from this document. Return ONLY valid JSON: {\"debts\":[{\"name\":\"creditor\",\"total\":0,\"paid\":0,\"rate\":0,\"monthly\":0}]}. If nothing found return {\"debts\":[]}."}]}]});var resp=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:body});var data=await resp.json();var text=(data.content&&data.content[0]&&data.content[0].text)||"{}";text=text.replace(/```json|```/g,"").trim();var result=JSON.parse(text);var added=0;(result.debts||[]).forEach(function(d){if(d.name&&d.total>0){var exists=D.debts.some(function(ex){return ex.name.toLowerCase()===d.name.toLowerCase();});if(!exists){D.debts.push({id:uid(),name:d.name,total:Number(d.total)||0,paid:0,rate:Number(d.rate)||0,monthly:Number(d.monthly)||0});added++;}}});if(added>0){saveD();render();showToast(added+" debt(s) imported!");patch({tab:"money",seg:"progress"});}else showToast("No new debts found","var(--amber)");}catch(err){showToast("Could not read PDF","var(--red)");}};reader.readAsDataURL(file);event.target.value="";}
+function saveSetup(){
+  D.setup.lightModel=(document.getElementById("s-lm")||{}).value||D.setup.lightModel;
+  D.setup.lightWatts=(document.getElementById("s-lw")||{}).value||D.setup.lightWatts;
+  D.setup.lightSchedule=(document.getElementById("s-ls")||{}).value||D.setup.lightSchedule;
+  D.setup.medium=(document.getElementById("s-med")||{}).value||D.setup.medium;
+  D.setup.potSize=(document.getElementById("s-pot")||{}).value||D.setup.potSize;
+  D.setup.tentSize=(document.getElementById("s-tent")||{}).value||D.setup.tentSize;
+  D.setup.phing=document.getElementById("s-ph")&&document.getElementById("s-ph").checked;
+  saveD(D);patch({showSetup:false});showToast("Setup saved!");
+}
+
+function openLog(pid){patch({showLog:true,activePlantId:pid,newLog:{date:tod(),height:"",notes:"",watered:false,fed:false}});}
+
+function submitLog(){
+  var pid=S.activePlantId;if(!pid)return;
+  var date=(document.getElementById("lg-date")||{}).value||tod();
+  var height=(document.getElementById("lg-height")||{}).value||"";
+  var notes=(document.getElementById("lg-notes")||{}).value||"";
+  var watered=document.getElementById("lg-watered")&&document.getElementById("lg-watered").checked;
+  var fed=document.getElementById("lg-fed")&&document.getElementById("lg-fed").checked;
+  if(!D.logs[pid])D.logs[pid]=[];
+  D.logs[pid].push({id:uid(),date:date,height:height,notes:notes,watered:watered,fed:fed});
+  saveD(D);patch({showLog:false});showToast("Log entry saved!");
+}
+
+function markHarvested(pid){
+  var p=D.plants.find(function(x){return x.id===pid;});
+  if(!p)return;
+  p.harvested=true;p.harvestedOn=tod();
+  saveD(D);render();showToast("✂️ "+p.name+" marked harvested!");
+}
+
+function togglePerpetual(pid){
+  var p=D.plants.find(function(x){return x.id===pid;});if(!p)return;
+  p.isPerpetual=!p.isPerpetual;
+  if(p.isPerpetual&&p.position&&(D.setup.perpetualZones||[]).indexOf(p.position)===-1){
+    D.setup.perpetualZones=(D.setup.perpetualZones||[]).concat([p.position]);
+  }
+  saveD(D);render();showToast(p.isPerpetual?"♻️ "+p.name+" set as Perpetual":p.name+" set as Normal");
+}
+
+function markFruitingStarted(pid){
+  var p=D.plants.find(function(x){return x.id===pid;});if(!p)return;
+  p.fruitingStartDate=tod();
+  saveD(D);render();showToast("🍅 "+p.name+" is now producing!");
+}
+
+function togglePerpetualZone(key){
+  var zones=D.setup.perpetualZones||[];
+  var idx=zones.indexOf(key);
+  if(idx>-1){
+    zones.splice(idx,1);
+    var occ=D.plants.find(function(x){return !x.harvested&&x.position===key;});
+    if(occ)occ.isPerpetual=false;
+    showToast(zoneLabel(key)+" unlocked");
+  }else{
+    zones.push(key);
+    var occ2=D.plants.find(function(x){return !x.harvested&&x.position===key;});
+    if(occ2)occ2.isPerpetual=true;
+    showToast("🔒 "+zoneLabel(key)+" locked as Perpetual");
+  }
+  D.setup.perpetualZones=zones;
+  saveD(D);render();
+}
+
+function submitTentConfig(){
+  D.setup.tentSize=(document.getElementById("tc-size")||{}).value||D.setup.tentSize;
+  D.setup.lightModel=(document.getElementById("tc-light")||{}).value||D.setup.lightModel;
+  D.setup.lightWatts=(document.getElementById("tc-watts")||{}).value||D.setup.lightWatts;
+  D.setup.lightHeight=(document.getElementById("tc-lightheight")||{}).value||D.setup.lightHeight;
+  D.setup.canopyMax=(document.getElementById("tc-canopy")||{}).value||D.setup.canopyMax;
+  D.setup.netHeight=(document.getElementById("tc-netheight")||{}).value||D.setup.netHeight;
+  D.setup.potSize=(document.getElementById("tc-pot")||{}).value||D.setup.potSize;
+  D.setup.zoneLayout=(document.getElementById("tc-layout")||{}).value||D.setup.zoneLayout;
+  saveD(D);patch({showTentConfig:false});showToast("⚙️ Tent configuration saved!");
+}
+
+function openFeed(pid){
+  patch({showFeed:true,activePlantId:pid,newFeed:{date:tod(),nutrients:[{name:"",mlPerL:""}],waterAmount:"",notes:""}});
+}
+function readFeedRowsFromDOM(){
+  var rows=document.querySelectorAll('[data-feedrow]');
+  var out=[];
+  rows.forEach(function(row){
+    var i=row.getAttribute('data-feedrow');
+    var nameEl=document.querySelector('[data-fd-name="'+i+'"]');
+    var mlEl=document.querySelector('[data-fd-ml="'+i+'"]');
+    out.push({name:nameEl?nameEl.value:"",mlPerL:mlEl?mlEl.value:""});
+  });
+  return out.length?out:[{name:"",mlPerL:""}];
+}
+function addFeedRow(){
+  var rows=readFeedRowsFromDOM();
+  rows.push({name:"",mlPerL:""});
+  patch({newFeed:Object.assign({},S.newFeed,{nutrients:rows})});
+}
+function removeFeedRow(i){
+  var rows=readFeedRowsFromDOM();
+  rows.splice(i,1);
+  if(!rows.length)rows.push({name:"",mlPerL:""});
+  patch({newFeed:Object.assign({},S.newFeed,{nutrients:rows})});
+}
+function submitFeed(){
+  var pid=S.activePlantId;if(!pid)return;
+  var p=D.plants.find(function(x){return x.id===pid;});if(!p)return;
+  var date=(document.getElementById("fd-date")||{}).value||tod();
+  var nutrients=readFeedRowsFromDOM().filter(function(n){return n.name||n.mlPerL;});
+  var waterAmount=(document.getElementById("fd-water")||{}).value||"";
+  var notes=(document.getElementById("fd-notes")||{}).value||"";
+  var nutrientSummary=nutrients.map(function(n){return n.name+(n.mlPerL?" @"+n.mlPerL+"ml/L":"");}).join(", ");
+  if(!D.logs[pid])D.logs[pid]=[];
+  D.logs[pid].push({id:uid(),date:date,height:"",watered:true,fed:true,nutrients:nutrients,nutrient:nutrientSummary,waterAmount:waterAmount,notes:notes});
+  saveD(D);patch({showFeed:false});showToast("🧪 Feed logged for "+p.name);
+}
+
+function openQuickNote(pid){
+  patch({showQuickNote:true,activePlantId:pid,newQuickNote:{date:tod(),notes:""}});
+}
+function submitQuickNote(){
+  var pid=S.activePlantId;if(!pid)return;
+  var p=D.plants.find(function(x){return x.id===pid;});if(!p)return;
+  var date=(document.getElementById("qn-date")||{}).value||tod();
+  var notes=(document.getElementById("qn-notes")||{}).value||"";
+  if(!D.logs[pid])D.logs[pid]=[];
+  D.logs[pid].push({id:uid(),date:date,height:"",watered:false,fed:false,notes:notes||"Trim / maintenance"});
+  saveD(D);patch({showQuickNote:false});showToast("✂️ Logged for "+p.name);
+}
+
+function openEditPlant(pid){
+  var p=D.plants.find(function(x){return x.id===pid;});
+  if(!p)return;
+  patch({showEditPlant:true,editingPlantId:pid});
+}
+
+function submitEditPlant(){
+  var pid=S.editingPlantId;var p=D.plants.find(function(x){return x.id===pid;});if(!p)return;
+  p.name=(document.getElementById("ep-name")||{}).value||p.name;
+  p.strain=(document.getElementById("ep-strain")||{}).value||p.strain;
+  p.plantType=(document.getElementById("ep-plantType")||{}).value||p.plantType||"cannabis";
+  p.startDate=(document.getElementById("ep-date")||{}).value||p.startDate;
+  p.totalDays=(document.getElementById("ep-days")||{}).value||p.totalDays;
+  p.harvestDate=(document.getElementById("ep-harvest")||{}).value||p.harvestDate;
+  p.position=(document.getElementById("ep-position")||{}).value||"";
+  p.isPerpetual=(document.getElementById("ep-perpetual")&&document.getElementById("ep-perpetual").checked)||(D.setup.perpetualZones||[]).indexOf(p.position)>-1;
+  p.isCutting=document.getElementById("ep-cutting")&&document.getElementById("ep-cutting").checked;
+  saveD(D);patch({showEditPlant:false,editingPlantId:null});showToast("Plant updated!");
+}
+
+function deletePlant(pid){
+  D.plants=D.plants.filter(function(p){return p.id!==pid;});
+  delete D.logs[pid];
+  saveD(D);render();showToast("Plant removed","#f87171");
+}
+
+function savePerp(){
+  D.setup.numSlots=(document.getElementById("p-slots")||{}).value||"1";
+  D.setup.avgFlowerDays=(document.getElementById("p-days")||{}).value||"77";
+  saveD(D);render();showToast("Perpetual settings saved!");
+}
+
+function openAdvisor(){patch({showAdvisor:true,advisorLoading:false,advisorText:""});}
+
+async function runAdvisor(){
+  patch({advisorLoading:true,advisorText:""});
+  var nl="\n";
+  var summary="GROW SETUP:"+nl;
+  summary+="Light: "+D.setup.lightModel+" ("+D.setup.lightWatts+"W) | Schedule: "+D.setup.lightSchedule+nl;
+  summary+="Tent: "+D.setup.tentSize+" | Medium: "+D.setup.medium+" | Pot: "+D.setup.potSize+"L"+nl;
+  summary+="pH monitoring: "+(D.setup.phing?"Yes":"No")+nl+nl;
+  if(D.plants.length>0){
+    summary+="PLANTS:"+nl;
+    D.plants.forEach(function(p){
+      var days=daysSince(p.startDate);
+      var stage=getStageFor(p,days,Number(p.totalDays)||77);
+      var logs=D.logs[p.id]||[];
+      summary+=p.name+" ("+p.strain+") — Day "+days+" — "+stage.name+nl;
+      if(logs.length>0){
+        var last=logs[logs.length-1];
+        summary+="  Last log: height="+( last.height||"not recorded")+"cm, watered="+last.watered+", notes="+( last.notes||"none")+nl;
+      }
+    });
+  }
+  var prompt="You are an expert autoflower cannabis grower and nutrient advisor. The user is a beginner with a "+D.setup.tentSize+"cm tent and "+D.setup.lightModel+". Analyze their grow data and give specific beginner-friendly advice. Be encouraging, practical, and specific. Cover: current plant health based on stage, what to do this week, any concerns, and one tip they might not know. Keep it conversational and clear. Data:"+nl+nl+summary;
+  try{
+    var resp=await fetch("https://api.anthropic.com/v1/messages",{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:800,messages:[{role:"user",content:prompt}]})
+    });
+    var data=await resp.json();
+    var text=data.content&&data.content[0]?data.content[0].text:"Could not get advice right now.";
+    patch({advisorLoading:false,advisorText:text});
+  }catch(e){
+    patch({advisorLoading:false,advisorText:"Could not connect. Check your internet and try again."});
+  }
+}
 
 render();
 </script>
