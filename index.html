@@ -249,6 +249,7 @@ function getPerpetual(plants,setup){
 
   var openSlots=slots.filter(function(s){return s===null;}).length;
   var occupied=slots.map(function(p,idx){
+    if(!p)return{idx:idx,empty:true,plant:null,harvestDate:null,remaining:0};
     var totalDays=plantTotalDays(p);
     var harvestDate=p.harvestDate||addDays(p.startDate,totalDays);
     var days=daysSince(p.startDate);
@@ -279,7 +280,7 @@ var D=loadD()||{
     lightSchedule:"18/6",medium:"soil",potSize:"11",phing:false,
     avgFlowerDays:"77",harvestGap:"35",numSlots:"1",
     lightHeight:"135",netHeight:"55",canopyMax:"90",
-    zoneLayout:"5z_ushape"
+    zoneLayout:"5z_ushape",perpetualZones:[]
   },
   logs:{},
   showAdvisor:false,advisorLoading:false,advisorText:""
@@ -290,6 +291,7 @@ if(!D.setup.netHeight)D.setup.netHeight="55";
 if(!D.setup.canopyMax)D.setup.canopyMax="90";
 if(!D.setup.zoneLayout)D.setup.zoneLayout="5z_ushape";
 if(!D.setup.numZones)D.setup.numZones=String(TENT_ZONES_PRESETS["5z_ushape"].length);
+if(!D.setup.perpetualZones)D.setup.perpetualZones=[];
 
 var S={
   tab:"plants",
@@ -302,7 +304,7 @@ var S={
   editingPlantId:null,
   newPlant:{name:"",strain:"",startDate:tod(),totalDays:"77",harvestDate:addDays(tod(),77),notes:"",position:"",isPerpetual:false},
   newLog:{date:tod(),height:"",notes:"",watered:false,fed:false},
-  newFeed:{date:tod(),nutrient:"",mlPerL:"",waterAmount:"",notes:""},
+  newFeed:{date:tod(),nutrients:[{name:"",mlPerL:""}],waterAmount:"",notes:""},
   newQuickNote:{date:tod(),notes:""},
   showFeed:false,showQuickNote:false,showTentConfig:false,
   advisorLoading:false,advisorText:"",showAdvisor:false,
@@ -450,10 +452,11 @@ function tabMap(){
     if(!key)return '<div></div>';
     var p=D.plants.find(function(x){return !x.harvested&&x.position===key;});
     var active=S.selectedZone===key;
-    var label=zoneLabel(key);
+    var locked=(D.setup.perpetualZones||[]).indexOf(key)>-1;
+    var label=zoneLabel(key)+(locked?' 🔒':"");
     var border=active?"var(--green)":"var(--border)";
     var bg=active?"#4ade8015":"var(--bg2)";
-    var name=p?(esc(p.name)+(p.isPerpetual?' ♻️':"")):"— empty —";
+    var name=p?(esc(p.name)+(p.isPerpetual?' ♻️':"")):(locked?"— perpetual, empty —":"— empty —");
     var sub=p?esc(p.strain||""):"Tap to assign";
     var feedTag="";
     if(p){
@@ -488,7 +491,7 @@ function tabMap(){
   h+='<div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;font-family:\'DM Mono\',monospace;margin-bottom:8px">'+zoneLabel(S.selectedZone)+'</div>';
   if(!sel){
     h+='<div style="font-size:13px;color:var(--text3)">No plant assigned to this position.</div>';
-    h+='<button onclick="patch({showAddPlant:true,newPlant:Object.assign({},S.newPlant,{position:\''+S.selectedZone+'\'})})" class="btn btn-green" style="width:100%;margin-top:12px">+ Add Plant Here</button>';
+    h+='<button onclick="patch({showAddPlant:true,newPlant:Object.assign({},S.newPlant,{position:\''+S.selectedZone+'\',isPerpetual:'+((D.setup.perpetualZones||[]).indexOf(S.selectedZone)>-1)+'})})" class="btn btn-green" style="width:100%;margin-top:12px">+ Add Plant Here</button>';
   }else{
     var days=daysSince(sel.startDate);
     var totalDays=plantTotalDays(sel);
@@ -842,11 +845,16 @@ function modalFeed(){
   h+='<div style="background:var(--bg3);border-radius:10px;padding:10px;margin-bottom:14px;font-size:12px;color:var(--text2)">Suggested mix: Starter '+tc.starter+' · Grow '+tc.grow+' · Bloom '+tc.bloom+' · PK '+tc.pk+' · Booster '+tc.booster+' ml/L</div>';
   h+='<div style="display:flex;flex-direction:column;gap:12px">';
   h+='<div><div class="lbl">Date</div><input id="fd-date" type="date" class="inp" value="'+f.date+'"/></div>';
-  h+='<div><div class="lbl">Nutrient(s) Used</div><input id="fd-nutrient" class="inp" placeholder="e.g. Terra Canna Bloom + PK" value="'+esc(f.nutrient)+'"/></div>';
-  h+='<div style="display:flex;gap:10px">';
-  h+='<div style="flex:1"><div class="lbl">Dose (ml/L)</div><input id="fd-ml" type="number" step="0.1" class="inp" placeholder="e.g. 2" value="'+esc(f.mlPerL)+'"/></div>';
-  h+='<div style="flex:1"><div class="lbl">Water Given (L)</div><input id="fd-water" type="number" step="0.1" class="inp" placeholder="e.g. 1.5" value="'+esc(f.waterAmount)+'"/></div>';
-  h+='</div>';
+  h+='<div class="lbl">Nutrients Used</div>';
+  f.nutrients.forEach(function(n,i){
+    h+='<div style="display:flex;gap:8px;align-items:flex-end" data-feedrow="'+i+'">';
+    h+='<div style="flex:2"><input data-fd-name="'+i+'" class="inp" placeholder="e.g. Terra Canna Bloom" value="'+esc(n.name)+'"/></div>';
+    h+='<div style="flex:1"><input data-fd-ml="'+i+'" type="number" step="0.1" class="inp" placeholder="ml/L" value="'+esc(n.mlPerL)+'"/></div>';
+    h+=(f.nutrients.length>1?'<button onclick="removeFeedRow('+i+')" style="background:none;border:none;color:var(--text3);font-size:18px;padding:0 4px;cursor:pointer">×</button>':'<div style="width:26px"></div>');
+    h+='</div>';
+  });
+  h+='<button onclick="addFeedRow()" style="background:none;border:1px dashed var(--border2);border-radius:8px;padding:8px;font-size:12px;color:var(--text3);cursor:pointer">+ Add another nutrient</button>';
+  h+='<div><div class="lbl">Water Given (L)</div><input id="fd-water" type="number" step="0.1" class="inp" placeholder="e.g. 1.5" value="'+esc(f.waterAmount)+'"/></div>';
   h+='<div><div class="lbl">Notes (optional)</div><textarea id="fd-notes" class="inp" rows="2" placeholder="pH, runoff, deficiency signs..." style="resize:none">'+esc(f.notes)+'</textarea></div>';
   h+='<button onclick="submitFeed()" class="btn btn-green" style="width:100%">Save Feed Entry</button>';
   h+='<button onclick="patch({showFeed:false})" class="btn btn-outline" style="width:100%">Cancel</button>';
@@ -894,6 +902,13 @@ function modalTentConfig(){
     +'<option value="6z_grid" '+(s.zoneLayout==="6z_grid"?"selected":"")+'>6 plants — 3x2 grid</option>'
     +'<option value="9z_grid" '+(s.zoneLayout==="9z_grid"?"selected":"")+'>9 plants — 3x3 grid</option>'
     +'</select></div>';
+  h+='<div><div class="lbl">Perpetual Pots (locked-in — always rotate new plants here)</div>';
+  h+='<div style="display:flex;flex-direction:column;gap:6px;background:var(--bg3);border-radius:10px;padding:10px">';
+  getTentZones().forEach(function(z){
+    var checked=(s.perpetualZones||[]).indexOf(z.key)>-1;
+    h+='<label style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text2)"><input type="checkbox" data-tc-pzone="'+z.key+'" '+(checked?"checked":"")+'/> '+z.label+'</label>';
+  });
+  h+='</div></div>';
   h+='<button onclick="submitTentConfig()" class="btn btn-green" style="width:100%">Save Configuration</button>';
   h+='<button onclick="patch({showTentConfig:false})" class="btn btn-outline" style="width:100%">Cancel</button>';
   h+='</div></div></div>';
@@ -956,7 +971,7 @@ function submitAddPlant(){
   var harvestDate=(document.getElementById("ap-harvest")||{}).value||addDays(startDate,Number(totalDays));
   var notes=(document.getElementById("ap-notes")||{}).value||"";
   var position=(document.getElementById("ap-position")||{}).value||"";
-  var isPerpetual=document.getElementById("ap-perpetual")&&document.getElementById("ap-perpetual").checked;
+  var isPerpetual=(document.getElementById("ap-perpetual")&&document.getElementById("ap-perpetual").checked)||(D.setup.perpetualZones||[]).indexOf(position)>-1;
   if(!name){showToast("Enter a plant name","#f87171");return;}
   var p={id:uid(),name:name,strain:strain,startDate:startDate,totalDays:totalDays,harvestDate:harvestDate,notes:notes,position:position,isPerpetual:isPerpetual,harvested:false};
   D.plants.push(p);
@@ -1012,22 +1027,52 @@ function submitTentConfig(){
   D.setup.netHeight=(document.getElementById("tc-netheight")||{}).value||D.setup.netHeight;
   D.setup.potSize=(document.getElementById("tc-pot")||{}).value||D.setup.potSize;
   D.setup.zoneLayout=(document.getElementById("tc-layout")||{}).value||D.setup.zoneLayout;
+  var pZones=[];
+  document.querySelectorAll('[data-tc-pzone]').forEach(function(el){if(el.checked)pZones.push(el.getAttribute('data-tc-pzone'));});
+  D.setup.perpetualZones=pZones;
+  // sync isPerpetual on any plant currently sitting in a locked zone
+  D.plants.forEach(function(p){
+    if(p.position&&pZones.indexOf(p.position)>-1)p.isPerpetual=true;
+    else if(p.position&&pZones.indexOf(p.position)===-1&&p.isPerpetual)p.isPerpetual=false;
+  });
   saveD(D);patch({showTentConfig:false});showToast("⚙️ Tent configuration saved!");
 }
 
 function openFeed(pid){
-  patch({showFeed:true,activePlantId:pid,newFeed:{date:tod(),nutrient:"",mlPerL:"",waterAmount:"",notes:""}});
+  patch({showFeed:true,activePlantId:pid,newFeed:{date:tod(),nutrients:[{name:"",mlPerL:""}],waterAmount:"",notes:""}});
+}
+function readFeedRowsFromDOM(){
+  var rows=document.querySelectorAll('[data-feedrow]');
+  var out=[];
+  rows.forEach(function(row){
+    var i=row.getAttribute('data-feedrow');
+    var nameEl=document.querySelector('[data-fd-name="'+i+'"]');
+    var mlEl=document.querySelector('[data-fd-ml="'+i+'"]');
+    out.push({name:nameEl?nameEl.value:"",mlPerL:mlEl?mlEl.value:""});
+  });
+  return out.length?out:[{name:"",mlPerL:""}];
+}
+function addFeedRow(){
+  var rows=readFeedRowsFromDOM();
+  rows.push({name:"",mlPerL:""});
+  patch({newFeed:Object.assign({},S.newFeed,{nutrients:rows})});
+}
+function removeFeedRow(i){
+  var rows=readFeedRowsFromDOM();
+  rows.splice(i,1);
+  if(!rows.length)rows.push({name:"",mlPerL:""});
+  patch({newFeed:Object.assign({},S.newFeed,{nutrients:rows})});
 }
 function submitFeed(){
   var pid=S.activePlantId;if(!pid)return;
   var p=D.plants.find(function(x){return x.id===pid;});if(!p)return;
   var date=(document.getElementById("fd-date")||{}).value||tod();
-  var nutrient=(document.getElementById("fd-nutrient")||{}).value||"";
-  var mlPerL=(document.getElementById("fd-ml")||{}).value||"";
+  var nutrients=readFeedRowsFromDOM().filter(function(n){return n.name||n.mlPerL;});
   var waterAmount=(document.getElementById("fd-water")||{}).value||"";
   var notes=(document.getElementById("fd-notes")||{}).value||"";
+  var nutrientSummary=nutrients.map(function(n){return n.name+(n.mlPerL?" @"+n.mlPerL+"ml/L":"");}).join(", ");
   if(!D.logs[pid])D.logs[pid]=[];
-  D.logs[pid].push({id:uid(),date:date,height:"",watered:true,fed:true,nutrient:nutrient,mlPerL:mlPerL,waterAmount:waterAmount,notes:notes});
+  D.logs[pid].push({id:uid(),date:date,height:"",watered:true,fed:true,nutrients:nutrients,nutrient:nutrientSummary,waterAmount:waterAmount,notes:notes});
   saveD(D);patch({showFeed:false});showToast("🧪 Feed logged for "+p.name);
 }
 
@@ -1058,7 +1103,7 @@ function submitEditPlant(){
   p.totalDays=(document.getElementById("ep-days")||{}).value||p.totalDays;
   p.harvestDate=(document.getElementById("ep-harvest")||{}).value||p.harvestDate;
   p.position=(document.getElementById("ep-position")||{}).value||"";
-  p.isPerpetual=document.getElementById("ep-perpetual")&&document.getElementById("ep-perpetual").checked;
+  p.isPerpetual=(document.getElementById("ep-perpetual")&&document.getElementById("ep-perpetual").checked)||(D.setup.perpetualZones||[]).indexOf(p.position)>-1;
   saveD(D);patch({showEditPlant:false,editingPlantId:null});showToast("Plant updated!");
 }
 
